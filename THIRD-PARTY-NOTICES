@@ -1,0 +1,231 @@
+Checkmate for Auth0 Third Party Licenses and Notices
+
+This document contains third party open source licenses and notices for the Checkmate for Auth0 product. Certain licenses and notices may appear in other parts of the
+product in accordance with the applicable license requirements.
+
+The Checkmate for Auth0 product that this document references does not necessarily use all the
+open source software packages referred to below and may also only use portions
+of a given package.
+
+Third Party Notices
+-------------------------------------------------------------------------------
+
+acorn (8.14.0)
+License: MIT
+Copyright (c) 2012-2022 by various contributors (see AUTHORS)
+Repository: https://github.com/acornjs/acorn
+
+axios (1.7.8)
+License: MIT
+Copyright (c) 2014-present Matt Zabriskie & Collaborators
+Repository: https://github.com/axios/axios
+
+chalk (4.1.2)
+License: MIT
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
+Repository: https://github.com/chalk/chalk
+
+cli-table3 (0.6.5)
+License: MIT
+Copyright (c) 2014 James Talmage <james@talmage.io>
+Repository: https://github.com/cli-table/cli-table3
+
+estree-walker (2.0.2)
+License: MIT
+Copyright (c) 2015-20 [these people](https://github.com/Rich-Harris/estree-walker/graphs/contributors)
+Repository: https://github.com/Rich-Harris/estree-walker
+
+figlet (1.8.0)
+License: MIT
+Copyright (C) 2014-present Patrick Gillespie and other contributors
+Repository: https://github.com/patorjk/figlet.js
+
+glob (11.0.1)
+License: ISC
+Copyright (c) 2009-2023 Isaac Z. Schlueter and Contributors
+Repository: https://github.com/isaacs/node-glob
+
+handlebars (4.7.8)
+License: MIT
+Copyright (C) 2011-2019 by Yehuda Katz
+Repository: https://github.com/handlebars-lang/handlebars.js
+
+i18n (0.15.1)
+License: MIT
+Copyright (c) 2011-present Marcus Spiegel <marcus.spiegel@gmail.com>
+Repository: https://github.com/mashpie/i18n-node
+
+inquirer (12.3.3)
+License: MIT
+Copyright (c) 2025 Simon Boudrias
+Repository: https://github.com/SBoudrias/Inquirer.js
+
+js-yaml (4.1.0)
+License: MIT
+Copyright (C) 2011-2015 by Vitaly Puzrin
+Repository: https://github.com/nodeca/js-yaml
+
+jsonwebtoken (9.0.2)
+License: MIT
+Copyright (c) 2015 Auth0, Inc. <support@auth0.com> (http://auth0.com)
+Repository: https://github.com/auth0/node-jsonwebtoken
+
+lodash (4.17.21)
+License: MIT
+Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
+Repository: https://github.com/lodash/lodash
+
+moment (2.30.1)
+License: MIT
+Copyright (c) JS Foundation and other contributors
+Repository: https://github.com/moment/moment
+
+puppeteer (23.10.0)
+License: Apache-2.0
+Copyright 2017 Google Inc.
+Repository: https://github.com/puppeteer/puppeteer
+
+semver (7.7.1)
+License: ISC
+Copyright (c) Isaac Z. Schlueter and Contributors
+Repository: https://github.com/npm/node-semver
+
+winston (3.17.0)
+License: MIT
+Copyright (c) 2010 Charlie Robbins
+Repository: https://github.com/winstonjs/winston
+
+-------------------------------------------------------------------------------
+Development Dependencies
+-------------------------------------------------------------------------------
+
+@eslint/js (9.23.0)
+License: MIT
+Copyright OpenJS Foundation and other contributors, <www.openjsf.org>
+Repository: https://github.com/eslint/eslint
+
+chai (5.2.0)
+License: MIT
+Copyright (c) 2017 Chai.js Assertion Library
+Repository: https://github.com/chaijs/chai
+
+eslint (9.23.0)
+License: MIT
+Copyright OpenJS Foundation and other contributors, <www.openjsf.org>
+Repository: https://github.com/eslint/eslint
+
+eslint-plugin-mocha (10.5.0)
+License: MIT
+Copyright (c) 2014 Mathias Schreck <schreck.mathias@gmail.com>
+Repository: https://github.com/lo1tuma/eslint-plugin-mocha
+
+globals (16.0.0)
+License: MIT
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
+Repository: https://github.com/sindresorhus/globals
+
+mocha (11.1.0)
+License: MIT
+Copyright (c) 2011-2022 OpenJS Foundation and contributors, https://openjsf.org
+Repository: https://github.com/mochajs/mocha
+
+nock (14.0.1)
+License: MIT
+Copyright (c) 2011-2019 Pedro Teixeira and other contributors
+Repository: https://github.com/nock/nock
+
+nyc (17.1.0)
+License: ISC
+Copyright (c) 2015, Contributors
+Repository: https://github.com/istanbuljs/nyc
+
+proxyquire (2.1.3)
+License: MIT
+Copyright 2013 Thorsten Lorenz
+Repository: https://github.com/thlorenz/proxyquire
+
+sinon (19.0.2)
+License: BSD-3-Clause
+Copyright (c) 2010-2020, Christian Johansen
+Repository: https://github.com/sinonjs/sinon
+
+-------------------------------------------------------------------------------
+License Texts
+-------------------------------------------------------------------------------
+
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+ISC License
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+Apache License 2.0
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+BSD 3-Clause License
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+

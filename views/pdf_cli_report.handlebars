@@ -1,0 +1,571 @@
+<html lang="{{locale}}">
+
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkmate for Auth0 Configuration Report</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swaprel="
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style
+    >
+        @page: first {
+            size: A4;
+            margin: 0;
+        }
+
+        /* Full-page for the first page */
+        @page {
+            size: A4;
+            margin: 100px 20px;
+        }
+
+        /* Margins for the content pages */
+
+        body {
+            font-family: {
+                    {
+                    chooseFont locale
+                }
+            }
+
+            ;
+            background-color: #FFFFFF;
+            color: #191919;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        .first-page {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 200px;
+        }
+
+        .second-page {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        .container {
+            max-width: 768px;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: #1A31A9;
+            margin-top: 20px;
+            /* Okta Blue */
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 30px;
+            margin-bottom: 18px;
+        }
+
+        h3 {
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        h4 {
+            font-size: 20px;
+            margin-bottom: 14px;
+        }
+
+        h5 {
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        h6 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Unordered List */
+        ul {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        th {
+            background-color: #3F59E4;
+            /* Okta Blue */
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+
+        td {
+            border: 1px solid #000000;
+            background-color: #FFFFFF;
+        }
+
+        .status-red {
+            background-color: #ffcccc;
+            text-align: center;
+        }
+
+        .status-yellow {
+            background-color: #ffff99;
+            text-align: center;
+        }
+
+        .status-blue {
+            background-color: #cce5ff;
+            text-align: center;
+        }
+
+        .status-violet {
+            background-color: #330099;
+            text-align: center;
+            color: #FFFFFF
+        }
+
+        .status-green {
+            background-color: #d4edda;
+            text-align: center;
+            /* Light green for low severity */
+        }
+
+        /* CSS class for A4 dimensions */
+        .a4-portrait {
+            width: 640px;
+            /* 170mm in pixels */
+            height: 972px;
+            /* 257mm in pixels */
+
+            margin-top: 50px;
+        }
+
+        .a4-landscape {
+            transform: rotate(90deg);
+            margin-left: 50px;
+            width: 1122px;
+            height: 793px;
+            page-break-before: always;
+        }
+
+
+        canvas {
+            display: block;
+            /* Ensure the canvas behaves like a block element */
+            margin: 0 auto;
+            /* Center the canvas horizontally */
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
+        .error-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .error-list li {
+            margin-bottom: 10px;
+        }
+
+        /* Disable link by applying pointer-events: none */
+        .disabled-link {
+            pointer-events: none;
+            color: #6c757d;
+            /* Change color to show it's disabled (optional) */
+            text-decoration: none;
+            /* Remove underline (optional) */
+        }
+
+        /* Page break before summary section */
+        .summary-section {
+            page-break-before: always;
+        }
+    </style>
+  </head>
+
+  <body>
+    <div class="first-page" style="page-break-after: always;">
+      <div
+        style="width: 100%; height: 50vh; display: flex; flex-direction: column; justify-content: center; align-items: center;"
+      >
+        <img src="{{logoBase64}}" alt="Auth0" width="250" height="98""/>
+        <h1
+          style="font-size: 36px; margin-bottom: 20px;"
+        >{{data.report.report_title}}</h1>
+        <p style="font-size: 20px; margin-top: 50px;">Prepared For Tenant</p>
+        <p style="font-size: 16px;">{{data.auth0Domain}}</p>
+        <p style="font-size: 14px;">Date: {{data.today}}</p>
+        {{!-- <p style="font-size: 12px;">Version: {{data.version}}</p> --}}
+      </div>
+    </div>
+    {{#if preamble.legal}}
+      <div class="second-page" style="page-break-after: always;">
+        <h1>{{preamble.legal.heading}}</h1>
+        {{#each preamble.legal.items}}
+          <h2>{{heading}}</h2>
+          <p>{{text}}</p>
+        {{/each}}
+      </div>
+    {{/if}}
+    {{#if preamble.executive_summary}}
+      <h1>{{preamble.executive_summary.heading}}</h1>
+      {{#each preamble.executive_summary.items}}
+        <h2>{{heading}}</h2>
+        <p>{{text}}</p>
+      {{/each}}
+      <h2>{{preamble.goals.heading}}</h2>
+      <ul class="">
+        {{#each preamble.goals.items}}
+          <li class="">
+            {{{replace this "{placeholder}" ...data.auth0Domain}}}
+          </li>
+        {{/each}}
+      </ul>
+      <h4>{{preamble.scope.heading}}</h4>
+      <p>{{preamble.scope.text}}</p>
+      <ul class="">
+        {{#each data.report.list_of_validators}}
+          <li class=""> {{title}} </li>
+          {{#if items}}
+            <ul class="">
+              {{#each items}}
+                <li class=""> {{this}}</li>
+              {{/each}}
+            </ul>
+          {{/if}}
+        {{/each}}
+      </ul>
+    {{/if}}
+    <div class="a4-container summary-section" id="pdf-content">
+      <h2>{{preamble.summary.heading}}</h2>
+      <p>{{{data.report.validator_summary}}}</p>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Priority</th>
+            <th>Recommendation</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          {{#each data.report.summary}}
+            <tr>
+              <td>{{inc @index}}</td>
+              <td class="status-{{status}}">{{severity}}</td>
+              <td><a href="#{{name}}">{{title}}
+                  -
+                  {{replace severity_message "%s" detailsLength}}</a>
+              </td>
+              {{!-- <td>{{detailsLength}}</td> --}}
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <br />
+      {{#each data.report.summary}}
+        {{#if title}}
+          <div>
+            {{#if title}}
+              <div id="{{name}}">
+                <h5>{{title}}</h5>
+              </div>
+            {{/if}}
+            {{#if (and description docsPath)}}
+              <div>
+                {{#if description}} <p>{{description}}</p>{{/if}}
+                {{#if disclaimer}}
+                  <p><strong>Disclaimer:</strong> {{disclaimer}}</p>{{/if}}
+                <table>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Priority</th>
+                      <th>Recommendation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{{inc @index}}</td>
+                      <td class="status-{{status}}">{{severity}}</td>
+                      <td><a href="#{{name}}">{{title}}
+                          -
+                          {{replace
+                            severity_message
+                            "%s"
+                            detailsLength
+                          }}</a></td>
+                      {{!-- <td>{{detailsLength}}</td> --}}
+                    </tr>
+                  </tbody>
+                </table>
+                {{#if details}}
+                  <p><strong>Details:</strong></p>
+                  <ul>
+                    {{#each details}}
+                      <li>
+                        {{#if name}}Name:
+                          <strong>{{name}}</strong>
+                          <br />{{/if}}
+                        {{#if attr}}<strong>Attribute: {{attr}} </strong>{{/if}}
+                        {{#if message}}{{{message}}}{{/if}}
+                        {{#if vulnFindings}}
+                          <ul class="">
+                            {{#each vulnFindings}}
+                              <li><strong>{{description}}</strong></li>
+                              <ul>
+                                <li>{{advisory_summary}}</li>
+                                <li><a
+                                    href="{{advisory_url}}"
+                                    target="_blank"
+                                  >{{advisory_url}}</a></li>
+                              </ul>
+                            {{/each}}
+                          </ul>
+                        {{/if}}
+                        {{#if report}}
+                          <ul>
+                            {{#each report}}
+                              <li>{{message}}</li>
+                            {{/each}}
+                          </ul>
+                        {{/if}}
+                      </li>
+                    {{/each}}
+                  </ul>
+                {{/if}}
+                {{#if pre_requisites}}
+                    <p><strong>{{pre_requisites.title}}</strong></p>
+                    <p>{{pre_requisites.description}}</p>
+                    <ul class="">
+                        {{#each pre_requisites.items}}
+                            <li>{{this}}</li>
+                        {{/each}}
+                    </ul>
+                {{/if}}
+                {{#if advisory}}
+                  <div>
+                    {{#if advisory.issue}}
+                      <p><strong>Advisory: {{advisory.issue}}</strong></p>
+                    {{/if}}
+                    {{#if advisory.description.what_it_is}}
+                      <p><strong>What it is?</strong></p>
+                      <p>{{advisory.description.what_it_is}}</p>
+                    {{/if}}
+                    {{#if advisory.description.why_its_risky}}
+                      <p><strong>Why it's risky?</strong></p>
+                      <ul>
+                        {{#each advisory.description.why_its_risky}}
+                          <li>{{this}}</li>
+                        {{/each}}
+                      </ul>
+                    {{/if}}
+                    {{#if advisory.how_to_fix}}
+                      <p><strong>How to Fix?</strong></p>
+                      <ul>
+                        {{#each advisory.how_to_fix}}
+                          <li>{{this}}</li>
+                        {{/each}}
+                      </ul>
+                    {{/if}}
+                    {{#if advisory.top_risks}}
+                      <p><strong>Top Risks</strong></p>
+                      {{#each advisory.top_risks}}
+                        <div class="mt-3">
+                          <p><strong>{{name}}</strong></p>
+                          <p><strong>What it is:</strong> {{what_it_is}}</p>
+                          <p><strong>Why it's risky:</strong>
+                            {{why_its_risky}}</p>
+                          <p><strong>How to fix:</strong> {{how_to_fix}}</p>
+                        </div>
+                      {{/each}}
+                    {{/if}}
+                    {{#if advisory.best_practices}}
+                      <p><strong>Best Practices</strong></p>
+                      <ul>
+                        {{#each advisory.best_practices}}
+                          <li><strong>{{@key}}:</strong> {{this}}</li>
+                        {{/each}}
+                      </ul>
+                    {{/if}}
+                  </div>
+                {{/if}}
+                {{#if docsPath}}<p><strong>Resources:</strong>
+                    <ul>
+                      {{#each docsPath}}
+
+                        <li>
+                          <a target="_blank" href="{{this}}">{{this}}</a>
+
+                        </li>
+                      {{/each}}
+                    </ul>
+                  </p>{{/if}}
+              </div>
+            {{/if}}
+          </div>
+        {{/if}}
+      {{/each}}
+      {{#if data.securityCenter}}
+        <h2>Threat Behavior Charts</h2>
+
+        <h4>Threat Behavior</h4>
+        <canvas id="threatBehaviorLineChart" class="a4-portrait"></canvas>
+
+        <h4>Breached Password Detection</h4>
+        <canvas id="breachedCredentialsLineChart" class="a4-portrait"></canvas>
+
+        <h4>Signup Attempts</h4>
+        <canvas id="signupAttemptsLineChart" class="a4-portrait"></canvas>
+
+        <h4>Login Attempts</h4>
+        <canvas id="loginAttemptsLineChart" class="a4-portrait"></canvas>
+
+        <h4>Brute Force</h4>
+        <canvas id="bruteForceLineChart" class="a4-portrait"></canvas>
+
+        <h4>Suspicious IP Throttling</h4>
+        <canvas id="suspiciousIpLineChart" class="a4-portrait"></canvas>
+
+        <h4>Bot Detection</h4>
+        <canvas id="botDetectionLineChart" class="a4-portrait"></canvas>
+
+        <h4>MFA Challenge</h4>
+        <canvas id="mfaChallengeLineChart" class="a4-portrait"></canvas>
+
+        <h4>MFA Success Rate</h4>
+        <canvas id="mfaSuccessRateLineChart" class="a4-portrait"></canvas>
+
+        <script>
+          const data =
+          {{{escapeJSON data.securityCenter}}}; function
+          generateRGBAColorBasedOnIndex(index) { // Use index-based math to
+          create RGB values const r = (index * 50) % 256; // Red component const
+          g = (index * 100 + 50) % 256; // Green component with an offset const
+          b = (index * 150 + 100) % 256; // Blue component with an offset const
+          alpha = 0.8; // Set a fixed alpha value for transparency return
+          `rgba(${r}, ${g}, ${b}, ${alpha})`; // Return the RGBA color }
+          function generateChart(ctx, chartData, label, backgroundColor) { //
+          Extract labels (dates) and values const groupedData = {};
+          chartData.forEach(item => { const groupName =
+          data.eventGroupIdToDisplayName[item.group] || `Group ${item.group}`;
+          if (!groupedData[groupName]) { groupedData[groupName] = []; }
+          groupedData[groupName].push({ date: new Date(item.date), value:
+          item.value }); }); // Step 2: Prepare data for Chart.js const labels =
+          [...new Set(chartData.map(item => new
+          Date(item.date).toLocaleDateString('en-GB', { day: '2-digit', month:
+          '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })))];
+          const datasets = Object.keys(groupedData).map((groupName, index) => {
+          return { label: groupName, // Line name (group name) data:
+          groupedData[groupName].map(item => item.value), borderColor:
+          generateRGBAColorBasedOnIndex(index), backgroundColor:
+          generateRGBAColorBasedOnIndex(index), fill: false, // Line only, no
+          area fill tension: 0.4 // Smooth curves }; }); // Chart.js
+          configuration new Chart(ctx, { type: 'line', data: { labels: labels,
+          datasets: datasets }, options: { responsive: true, plugins: { title: {
+          display: true, text: `${label} Last 7 Days` } }, scales: { x: { title:
+          { display: true, text: 'Date (DD-MM-YYYY HH:MM)' }, grid: { display:
+          false // Hide vertical grid lines } }, y: { title: { display: false,
+          text: 'Values' }, beginAtZero: true, grid: { drawBorder: true, //
+          Keeps the outer border color: 'rgba(200, 200, 200, 0.3)' // Optional:
+          customize horizontal grid line color } } } } }); } // Generating all
+          charts breachedCredentialsLineChart
+          generateChart(document.getElementById('threatBehaviorLineChart').getContext('2d'),
+          data.threatBehaviorLineChart.data, 'Threat Behavior', 'rgba(255, 99,
+          132, 0.5)');
+          generateChart(document.getElementById('breachedCredentialsLineChart').getContext('2d'),
+          data.breachedCredentialsLineChart.data, 'Breached Password Detection',
+          'rgba(54, 162, 235, 0.5)');
+          generateChart(document.getElementById('signupAttemptsLineChart').getContext('2d'),
+          data.signupAttemptsLineChart.data, 'Signup Attempts', 'rgba(54, 162,
+          235, 0.5)');
+          generateChart(document.getElementById('loginAttemptsLineChart').getContext('2d'),
+          data.loginAttemptsLineChart.data, 'Login Attempts', 'rgba(75, 192,
+          192, 0.5)');
+          generateChart(document.getElementById('bruteForceLineChart').getContext('2d'),
+          data.bruteForceLineChart.data, 'Brute Force Attempts', 'rgba(255, 206,
+          86, 0.5)');
+          generateChart(document.getElementById('suspiciousIpLineChart').getContext('2d'),
+          data.suspiciousIpLineChart.data, 'Suspicious IP activities',
+          'rgba(255, 206, 86, 0.5)');
+          generateChart(document.getElementById('botDetectionLineChart').getContext('2d'),
+          data.botDetectionLineChart.data, 'Bots Detected', 'rgba(153, 102, 255,
+          0.5)');
+          generateChart(document.getElementById('mfaChallengeLineChart').getContext('2d'),
+          data.mfaChallengeLineChart.data, 'MFA Challenges', 'rgba(255, 159, 64,
+          0.5)');
+          generateChart(document.getElementById('mfaSuccessRateLineChart').getContext('2d'),
+          data.mfaSuccessRateLineChart.data, 'MFA Success Rate', 'rgba(255, 99,
+          132, 0.5)');
+        </script>
+      {{/if}}
+    </div>
+  </body>
+
+</html>

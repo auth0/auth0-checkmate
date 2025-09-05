@@ -1,0 +1,1417 @@
+{
+	"preamble": {
+		"legal": {
+			"heading": "Important Notice",
+			"items": [
+				{
+					"text": "This document contains sensitive and confidential data and must be maintained in accordance with your organization's storage and security protocols. The information contained herein is provided for the sole purpose of internal evaluation of your organization's current configuration of its Auth0 tenant(s) and must not be used for any other purpose. This evaluation represents a static, \"point in time\" analysis of the configuration posture of your Auth0 tenant, based on a blend of industry-recognized technical standards and Okta's view of security best practices.  In order to maintain a robust and up-to-date view of your security posture, this document should be regenerated and reviewed on a recurring basis."
+				}
+			]
+		},
+		"executive_summary": {
+			"heading": "Executive Summary",
+			"items": [
+				{
+					"heading": "Report Overview",
+					"text": "The following report contains programmatically generated recommendations for better leveraging available security features within the scanned Auth0 tenant."
+				}
+			]
+		},
+		"scope": {
+			"heading": "Scope",
+			"text": "The following configurations were reviewed within your Auth0 tenant:"
+		},
+		"goals": {
+			"heading": "Goals",
+			"items": [
+				"Understand the security posture of the <b>{placeholder}</b> Auth0 tenant.",
+				"Identify potential security issues within the configuration of the <b>{placeholder}</b> Auth0 tenant"
+			]
+		},
+		"summary": {
+			"heading": "Summary of findings"
+		}
+	},
+	"report_title": "Checkmate for Auth0 Configuration Report",
+	"list_of_validators": [
+		{
+			"title": "Custom Domains",
+			"required_scope": "read:custom_domains",
+			"items": []
+		},
+		{
+			"title": "Applications",
+			"required_scope": "read:clients",
+			"items": [
+				"Allowed Callback URL",
+				"Application Login URI",
+				"Allowed Logout URL",
+				"Allowed Web Origins",
+				"Grant Types",
+				"JWT Signing Algorithm",
+				"Cross Origin Authentication",
+				"Refresh Tokens"
+			]
+		},
+		{
+			"title": "Custom Error Page Template",
+			"required_scope": "read:tenant_settings",
+			"items": []
+		},
+		{
+			"title": "Databases",
+			"required_scope": "read:connections read:connections_options",
+			"items": [
+				"Password Policy",
+				"Password History",
+				"Password Complexity",
+				"Password With Personal Info",
+				"Authentication Methods",
+				"Email Attribute Verification Methods",
+				"External User Store",
+				"Action Scripts Hardcoded Artifacts",
+				"Promoted Domain Level Database Connection"
+			]
+		},
+		{
+			"title": "Multifactor",
+			"required_scope": "read:guardian_factors read:mfa_policies",
+			"items": [
+				"Enabled Factors",
+				"Multifactor Policy"
+			]
+		},
+		{
+			"title": "Email Provider",
+			"required_scope": "read:email_provider",
+			"items": []
+		},
+		{
+			"title": "Email Templates",
+			"required_scope": "read:email_templates",
+			"items": []
+		},
+		{
+			"title": "Log Streams",
+			"required_scope": "read:log_streams",
+			"items": []
+		},
+		{
+			"title": "Attack Protection",
+			"required_scope": "read:shields read:attack_protection",
+			"items": [
+				"Bot Detection",
+				"Brute Force Protection",
+				"Suspicious IP Throttling",
+				"Breached Password Detection"
+			]
+		},
+		{
+			"title": "Tenant Settings",
+			"required_scope": "read:tenant_settings",
+			"items": [
+				"Allowed Callback URL",
+				"Session Management",
+				"Default Login URL",
+				"Support Email",
+				"Support URL",
+				"Default Directory",
+				"Default Audience",
+				"Extensibility Run Time",
+				"Dynamic Client Registration"
+			]
+		},
+		{
+			"title": "Auth Pipeline (Legacy Tenants Only)",
+			"required_scope": "read:rules read:hooks",
+			"items": [
+				"Rules",
+				"Hooks"
+			]
+		},
+		{
+			"title": "Actions",
+			"required_scope": "read:actions",
+			"items": [
+				"NPM Dependencies",
+				"Actions Runtime",
+				"Hardcoded Artifacts"
+			]
+		},
+		{
+			"title": "Auth0 Domain Check",
+			"required_scope": "read:logs",
+			"items": []
+		},
+		{
+			"title": "Tenant Access Control List (Early Access Capability)",
+			"required_scope": "read:network_acls",
+			"items": []
+		},
+		{
+			"title": "Event Streams (Early Access Capability)",
+			"required_scope": "read:event_streamss",
+			"items": []
+		}
+	],
+	"validator_summary": "Checked <b>%s</b> validators against tenant <b>%s</b> in total.",
+	"checkCustomDomain": {
+		"title": "Custom Domains",
+		"category": "Custom Domains",
+		"advisory": {
+			"issue": "Security and User Experience Risks of Not Using Custom Domains",
+			"description": {
+				"what_it_is": "Custom domains allow you to use your own domain for Auth0 authentication pages instead of the default Auth0 domain. This provides both security and user experience benefits.",
+				"why_its_risky": [
+					"Users may be suspicious of authentication pages on unfamiliar domains, potentially leading to reduced trust and conversion rates.",
+					"Default Auth0 domains can be easily identified by attackers for targeted phishing campaigns mimicking your authentication flow.",
+					"Passkey authentication is tied to specific domains - without custom domains, passkeys enrolled on the Auth0 domain won't work seamlessly with your application.",
+					"Third-party cookies and tracking protection in modern browsers can interfere with authentication flows when using different domains.",
+					"Users may bookmark or share Auth0 default domain URLs, potentially exposing authentication endpoints."
+				]
+			},
+			"how_to_fix": [
+				"Configure a custom domain that users will recognize and trust (e.g., auth.yourcompany.com).",
+				"Ensure the custom domain uses HTTPS with a valid SSL certificate.",
+				"Update all applications to use the custom domain for authentication flows.",
+				"Test passkey functionality thoroughly after implementing custom domains.",
+				"Consider the custom domain part of your overall security and user experience strategy."
+			]
+		},
+		"no_custom_domains": "This tenant is not configured to use a custom domain. We recommend using custom domains with Universal Login for the most seamless and secure experience for end users. We also highly recommend using custom domains for passkey authentication, given they are tied to a specific domain during enrollment.",
+		"ready": "This tenant is configured to use a custom domain. %s",
+		"pending_verfification": "The tenant's custom domain configuration is incomplete, %s",
+		"severity": "High",
+		"status": "red",
+		"severity_message": "Configure a Custom Domain",
+		"description": "The custom domain in Auth0 is like a `mask` for your tenant domain URL. We encourage the use of a domain your users will easily recall.",
+		"docsPath": [
+			"https://auth0.com/docs/customize/custom-domains"
+		],
+		"not_configured": "Custom domain is not configured"
+	},
+	"checkPasswordPolicy": {
+		"title": "Databases - Password Policy",
+		"category": "Databases",
+		"advisory": {
+			"issue": "Weak Password Policy Configuration",
+			"description": {
+				"what_it_is": "Password policies define the minimum requirements for user passwords, including complexity, length, and character requirements. Weak password policies allow users to create easily guessable or compromised passwords.",
+				"why_its_risky": [
+					"Weak passwords are easily cracked through brute force attacks, dictionary attacks, or credential stuffing.",
+					"Users tend to choose simple, predictable passwords when not enforced by strong policies.",
+					"Compromised weak passwords from data breaches can be used to gain unauthorized access to accounts.",
+					"Inadequate password policies fail to protect against common attack patterns and social engineering attempts."
+				]
+			},
+			"how_to_fix": [
+				"Implement strong password policies with minimum length requirements.",
+				"Require a mix of character types (uppercase, lowercase, numbers, special characters).",
+				"Prevent the use of common passwords, dictionary words, and personal information.",
+				"Consider implementing passkeys as a more secure alternative to traditional passwords.",
+				"Regularly review and update password policies based on current security best practices."
+			]
+		},
+		"description": "Securely store and manage your customer's authorization credentials in an Auth0 Database or in your own store.",
+		"docsPath": [
+			"https://auth0.com/docs/authenticate/database-connections"
+		],
+		"severity": "High",
+		"status": "red",
+		"severity_message": "%s connections require an updated password policy",
+		"no_database_connections_found": "No Database connections are configured",
+		"password_policy": "The current password policy for %s is set to %s",
+		"missing_password_policy": "The connection %s is missing a password policy"
+	},
+	"checkPasswordHistory": {
+		"title": "Databases - Password History",
+		"category": "Databases",
+		"advisory": {
+			"issue": "Weak Password History Configuration",
+			"description": {
+				"what_it_is": "Password history prevents users from reusing their previous passwords when changing their password. This control forces users to create genuinely new passwords rather than cycling through a small set of familiar passwords.",
+				"why_its_risky": [
+					"Users tend to reuse the same few passwords, making accounts vulnerable if any of those passwords are compromised.",
+					"Attackers who obtain old passwords through breaches or social engineering can use them to regain access if users cycle back to previous passwords.",
+					"Without password history, users may simply toggle between two passwords when forced to change them, providing no real security improvement.",
+					"Compromised passwords remain effective attack vectors for longer periods if users can revert to them."
+				]
+			},
+			"how_to_fix": [
+				"Enable password history to prevent users from reusing up to 24 of their last passwords.",
+				"Configure an appropriate history length that balances security with user experience.",
+				"Combine with strong password policies to ensure new passwords meet complexity requirements.",
+				"Educate users on creating unique, strong passwords for each change."
+			]
+		},
+		"description": "Securely store and manage your customer's authorization credentials in an Auth0 Database or in your own store.",
+		"docsPath": [
+			"https://auth0.com/docs/authenticate/database-connections"
+		],
+		"severity": "Low",
+		"status": "green",
+		"severity_message": "%s connections require an updated password history configuration",
+		"no_database_connections_found": "No Database connections configured",
+		"password_history_disabled": "The connection %s is configured to allow users to choose previous passwords.",
+		"password_history_enabled": "The connection %s has password history enabled and configured to disallow the last %s user passwords."
+	},
+	"checkPasswordNoPersonalInfo": {
+		"title": "Databases - Personal Information in Passwords",
+		"category": "Databases",
+		"advisory": {},
+		"description": "Securely store and manage your customer's authorization credentials in an Auth0 Database or in your own store.",
+		"docsPath": [
+			"https://auth0.com/docs/authenticate/database-connections"
+		],
+		"severity": "Moderate",
+		"status": "yellow",
+		"severity_message": "%s connections allow users to include personal information in passwords",
+		"no_database_connections_found": "No Database connections configured",
+		"password_no_personal_info_enable": "The connection %s is configured to not allow a user to include personal information from a user profile (such as name, username, phone_number etc) in a password",
+		"password_no_personal_info_disabled": "The connection %s is configured to allow users to include personal information, such as the users' name, as part of their password. We recommend restricting the use of personal information as part of password to protect against brute force attacks."
+	},
+	"checkEnabledDatabaseCustomization": {
+		"title": "Databases - External User Stores Without Import",
+		"category": "Databases",
+		"advisory": {},
+		"description": "In Auth0, \"non-import mode\" for database connections refers to a scenario where Auth0 does not store or migrate user profiles into its own internal user store. Instead, Auth0 acts as a proxy or gateway to an external, \"legacy\" database where your user credentials and profiles are primarily managed.",
+		"docsPath": [
+			"https://auth0.com/docs/manage-users/user-migration/configure-automatic-migration-from-your-database"
+		],
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "%s connections using external user store.",
+		"no_database_connections_found": "No Database connections configured",
+		"external_user_store": "The connection is configured to use a external user store to manage passwords, login, signups."
+	},
+	"checkPromotedDBConnection": {
+		"title": "Databases - Promoted Database Connection Configuration",
+		"category": "Databases",
+		"advisory": {},
+		"description": "If your tenant has Dynamic Client Registration enabled, you can let third party applications use a connection by promoting it to a domain level connection. Domain level connections are enabled or disabled for all applications in a tenant.",
+		"docsPath": [
+			"https://auth0.com/docs/authenticate/identity-providers/promote-connections-to-domain-level"
+		],
+		"severity": "GenAI",
+		"status": "violet",
+		"severity_message": "Information for domain level connection promotion.",
+		"no_database_connections_found": "No Database connections configured",
+		"with_promoted_database_connections": "%s is promoted as the domain level connection"
+	},
+	"checkPasswordComplexity": {
+		"title": "Databases - Password Complexity",
+		"category": "Databases",
+		"advisory": {},
+		"description": "Securely store and manage your customer's authorization credentials in an Auth0 Database or in your own store.",
+		"docsPath": [
+			"https://auth0.com/docs/authenticate/database-connections"
+		],
+		"no_database_connections_found": "No Database connections configured",
+		"severity": "Moderate",
+		"status": "yellow",
+		"severity_message": "Recommend review of password complexity rules for %s connections",
+		"password_min_length_fail": "The minimum password length configured for %s is below 12 characters, the minimum length recommended by the US National Institute for Standards and Technology (NIST). The current minimum password length is set to %s",
+		"password_min_length_success": "The minimum password length for %s meets or exceeds the length recommended by the US National Institute for Standards and Technology (NIST). The current minimum password length is set to %s",
+		"password_complexity_not_configured": "Password complexity rules have not been configured for %s"
+	},
+	"checkAuthenticationMethods": {
+		"title": "Databases - Authentication Methods",
+		"category": "Databases",
+		"advisory": {},
+		"description": "Auth0 supports passkeys as an authentication method for database connections. We highly recommend enabling passkeys are a phishing-resistant alternative to traditional authentication factors (such as identifier/password) that offer an easier and more secure login experience to users.",
+		"docsPath": [
+			"https://auth0.com/docs/authenticate/database-connections",
+			"https://auth0.com/docs/authenticate/database-connections/passkeys"
+		],
+		"pre_requisites": {
+			"title": "Passkey Authentication Prerequisites",
+			"description": "Passkey authentication has a number of prerequisites that must be configured before they can work correctly in your end-user flows:",
+			"items": [
+				"Identifier First login flow must be enabled",
+				"Custom Login Page must be disabled",
+				"Disable Requires username or activate flexible identifiers",
+				"Use my own database must be disabled unless Import Users to Auth0 is enabled",
+				"New Universal Login Experience must be enabled"
+			]
+		},
+		"severity": "Moderate",
+		"status": "yellow",
+		"severity_message": "%s connections do not have passkeys enabled",
+		"no_database_connections_found": "No Database connections configured",
+		"only_password_method": "This connection is not configured to use passkeys as an authentication method.",
+		"passkey_enabled": "This connection is configured to allow users to signup and login through passkeys."
+	},
+	"checkEmailAttributeVerification": {
+		"title": "Databases - Email Attribute Verification Methods",
+		"category": "Databases",
+		"advisory": {},
+		"description": "Auth0 supports email verification via OTP before signup for database connections. We highly recommend enabling this method to avoid creating identities without verification.",
+		"docsPath": [
+			"https://auth0.com/docs/authenticate/database-connections/flexible-identifiers-and-attributes",
+			"https://auth0.com/docs/authenticate/database-connections/activate-and-configure-attributes-for-flexible-identifiers",
+			"https://auth0.com/docs/manage-users/user-accounts/verify-emails#one-time-passwords"
+		],
+		"pre_requisites": {
+			"title": "OTP verification Prerequisites",
+			"description": "OTP verification feature has a number of prerequisites that must be configured before they can work correctly in your end-user flows:",
+			"items": [
+				"Identifier First login flow must be enabled",
+				"Custom Login Page must be disabled",
+				"Disable Requires username or activate flexible identifiers",
+				"Use my own database must be disabled unless Import Users to Auth0 is enabled",
+				"New Universal Login Experience must be enabled"
+			]
+		},
+		"severity": "Moderate",
+		"status": "yellow",
+		"severity_message": "%s connections do not have OTP verification enabled",
+		"no_database_connections_found": "No Database connections configured",
+		"flexible_identifiers_disabled": "This connection is not configured to use flexible identifiers.",
+		"verification_by_link_method": "This connection is configured to verify users via email link."
+	},
+	"checkDASHardCodedValues": {
+		"title": "Databases - Action Scripts Hardcoded Artifacts",
+		"category": "Databases",
+		"advisory": {},
+		"description": "Review your Database Action Scripts for hardcoded secrets",
+		"disclaimer": "Please note that while every effort has been made to ensure the accuracy of this validation, not all results may be fully expected or accurate. There is a possibility of false positives, and the results should be interpreted with caution. It is recommended to perform additional checks or manual verification before making any decisions based on the validation outcomes.",
+		"docsPath": [
+			"https://auth0.com/docs/authenticate/database-connections/custom-db/custom-database-connections-scripts/environment#variables"
+		],
+		"severity": "Moderate",
+		"status": "yellow",
+		"severity_message": "Potential hardcoded credentials, may expose sensitive information.",
+		"hard_coded_value_detected": "Variable name <b>%s</b> at line <b>%d</b> and column <b>%d</b>.",
+		"action_script_title": "Identified potential hardcoded credentials in <b>\"%s\"</b> script at:"
+	},
+	"checkJWTSignAlg": {
+		"title": "Use RS256 or PS256 for the JSON Web Token (JWT) Signature Algorithm for all Applications",
+		"category": "Applications",
+		"description": "We recommend configuring the JSON Web Token (JWT) Signature Algorithm for all applications to use RS256 to secure private keys and allow for easier key rotation.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/applications/signing-algorithms"
+		],
+		"severity": "High",
+		"status": "red",
+		"advisory": {
+			"issue": "Weak Token Configuration",
+			"description": {
+				"what_it_is": "Tokens (ID tokens, access tokens, and refresh tokens) are critical for authentication and authorization and are sensitive to misconfiguration.",
+				"why_its_risky": [
+					"Short token lifetimes can cause frequent re-authentication, leading to poor user experience.",
+					"Long token lifetimes increase the risk of token theft and misuse.",
+					"Insecure signing algorithms (e.g., using HS256 instead of RS256) can make tokens easier to forge."
+				]
+			},
+			"how_to_fix": [
+				"Use RS256 (asymmetric signing) for ID tokens and access tokens.",
+				"Set appropriate token lifetimes based on your application's security requirements.",
+				"Enable refresh token rotation and expiration to reduce the risk of token reuse.",
+				"Regularly rotate signing keys in Auth0."
+			]
+		},
+		"missing_jwt_alg": "The application with client_id (%s) does not have a JWT Signature Algorithm, defaults to (%s)",
+		"not_using_asymmetric_alg": "The application with client_id (%s) is not configured to use (%s) JWT Signature Algorithm",
+		"using_asymmetric_alg": "The application with client_id (%s) is configured to use (%s) JWT Signature Algorithm",
+		"severity_message": "%s applications/clients require the correct JWT algorithm to be configured."
+	},
+	"checkGrantTypes": {
+		"title": "Application Grant Types",
+		"category": "Applications",
+		"description": "We recommend a periodic review of enabled Grant Types for applications protected by Auth0.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/applications/application-grant-types",
+			"https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics-13#section-3.1.2"
+		],
+		"severity": "High",
+		"status": "red",
+		"advisory": {
+			"issue": "Insecure Grant Types",
+			"description": {
+				"what_it_is": "Grant types define how an application obtains access tokens from the authorization server (Auth0 in this case). Using insecure or inappropriate grant types can expose your application to attacks such as token theft, unauthorized access and account compromise."
+			},
+			"what_are_grant_types": [
+				"Authorization Code (with PKCE for public clients)",
+				"Implicit (deprecated and insecure)",
+				"Password (Resource Owner Password Credentials)",
+				"Client Credentials",
+				"Refresh Token"
+			],
+			"top_risks": [
+				{
+					"name": "Enabling the Implicit Grant Type",
+					"what_it_is": "The Implicit grant type was designed for single-page applications (SPAs) and returns tokens directly in the URL fragment.",
+					"why_its_risky": "Tokens are exposed in the browser's URL, making them vulnerable to theft via browser history, logs, or phishing attacks. No refresh token is provided, requiring frequent re-authentication.",
+					"how_to_fix": "Use the Authorization Code with PKCE grant type for SPAs and mobile apps. PKCE (Proof Key for Code Exchange) adds an additional layer of security by preventing authorization code interception."
+				},
+				{
+					"name": "Enabling the Password Grant Type",
+					"what_it_is": "The Password grant type allows applications to collect user credentials (username and password) and exchange them for tokens.",
+					"why_its_risky": "Applications handle sensitive user credentials directly, increasing the risk of credential theft. This grant type bypasses the authorization server's login page, which may have additional security features (e.g., MFA, anomaly detection).",
+					"how_to_fix": "Avoid using the Password grant type unless absolutely necessary. Use the Authorization Code grant type, which redirects users to Auth0's secure login page."
+				},
+				{
+					"name": "Enabling the Client Credentials Grant Type for User Authentication",
+					"what_it_is": "The Client Credentials grant type is used for machine-to-machine (M2M) communication, where the client application authenticates itself to access resources.",
+					"why_its_risky": "This grant type is not designed for user authentication. Enabling it for user authentication can lead to unauthorized access. It does not involve user consent or interaction, making it unsuitable for user-facing applications.",
+					"how_to_fix": "Use the Authorization Code grant type for user authentication. Reserve the Client Credentials grant type for server-to-server communication where no user context is required."
+				},
+				{
+					"name": "Not Enabling PKCE for Public Clients (SPA & Native)",
+					"what_it_is": "PKCE (Proof Key for Code Exchange) is an extension to the Authorization Code grant type designed to secure public clients (e.g., SPAs, mobile apps).",
+					"why_its_risky": "Without PKCE, public clients are vulnerable to authorization code interception attacks. Attackers can steal authorization codes and exchange them for tokens.",
+					"how_to_fix": "Always use PKCE for public clients."
+				}
+			],
+			"best_practices": {
+				"use_authorization_code_grant_type": "This is the most secure and widely recommended grant type for web and mobile applications. Combine it with PKCE for public clients.",
+				"avoid_deprecated_grant_types": "Avoid using the Implicit grant type, as it is deprecated and insecure. Minimize the use of the Password grant type.",
+				"enforce_secure_client_settings": "Disable unused grant types in your Auth0 application settings. Restrict grant types based on the application type (e.g., use Client Credentials only for M2M apps).",
+				"use_refresh_tokens_wisely": "Issue refresh tokens only when necessary. Set appropriate expiration times for refresh tokens and implement token rotation.",
+				"monitor_and_log_token_usage": "Use Auth0's logging and monitoring features to detect suspicious token requests or usage patterns.",
+				"regularly_review_grant_type_configurations": "Periodically audit your Auth0 applications to ensure they are using the appropriate grant types."
+			},
+			"example_secure_grant_type_configuration": {
+				"for_spas": {
+					"grant_type": "Authorization Code with PKCE",
+					"redirect_uris": "https://yourapp.com/callback",
+					"allowed_logout_urls": "https://yourapp.com"
+				},
+				"for_web_apps": {
+					"grant_type": "Authorization Code",
+					"redirect_uris": "https://yourapp.com/callback"
+				},
+				"for_machine_to_machine_apps": {
+					"grant_type": "Client Credentials",
+					"redirect_uris": "None"
+				}
+			}
+		},
+		"severity_message": "%s applications / clients require a review of enabled grant types",
+		"unexpected_grant_type_for_app_type": "Unexpected grant type \"%s\" enabled for application \"%s\"  with app_type: %s",
+		"missing_grant_type_for_app_type": "Grant type \"%s\" is missing for application \"%s\"   with app_type: %s",
+		"missing_app_type": "Grant type \"%s\"  enabled for application \"%s\"   with missing app_type: %s",
+		"grant_types_passed": "Grant Types configured %s, for application \"%s\" with  with app_type: %s",
+		"unknown_app_type": "Application is missing app_type"
+	},
+	"checkAllowedCallbacks": {
+		"title": "Application Allowed Callbacks",
+		"category": "Applications",
+		"description": "Ensure that all Allowed Callback URLs use secure connections (https://) and do not include local or non-production addresses such as http:// or localhost.",
+		"docsPath": [
+			"https://auth0.com/docs/authenticate/login/redirect-users-after-login"
+		],
+		"severity": "High",
+		"status": "red",
+		"advisory": {
+			"issue": "Insecure Redirect URIs",
+			"description": {
+				"what_it_is": "Redirect URIs are used to specify where Auth0 can direct users after authentication. If these URIs are not appropriately restricted, attackers can exploit them to redirect users to malicious sites.",
+				"why_its_risky": [
+					"An insecure redirect URI can lead to open redirect vulnerabilities, allowing attackers opportunities to steal authorization codes or tokens."
+				]
+			},
+			"how_to_fix": [
+				"Always use HTTPS for redirect URIs.",
+				"Explicitly list all allowed redirect URIs in the Auth0 dashboard.",
+				"Avoid using wildcards or overly permissive URIs (e.g., https://example.com/*).",
+				"Regularly review and update the list of allowed URIs."
+			]
+		},
+		"severity_message": "%s applications / clients require a review of allowed callbacks",
+		"missing_callbacks": "No callback URL %s configured.",
+		"secure_callbacks": "The following callback URL \"%s\" observed in application %s .",
+		"insecure_callbacks": "Insecure callback URL \"%s\"."
+	},
+	"checkWebOrigins": {
+		"title": "Application Web Origins",
+		"category": "Applications",
+		"description": "CORS configuration should not include origins with localhost or insecure http; use a secure, fully qualified domain (https://example.com) instead.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/applications/application-settings",
+			"https://auth0.com/docs/authenticate/login/cross-origin-authentication"
+		],
+		"severity": "High",
+		"status": "red",
+		"advisory": {
+			"issue": "Insecure CORS Web Origins Configuration",
+			"description": {
+				"what_it_is": "Web Origins control which domains can make cross-origin requests to your Auth0 application. Misconfigured origins can expose your application to cross-origin attacks and unauthorized access.",
+				"why_its_risky": [
+					"Insecure HTTP origins can allow attackers to intercept authentication tokens and sensitive data in transit.",
+					"Overly permissive CORS policies (like allowing localhost in production) can enable attackers to make unauthorized requests from malicious domains.",
+					"Development origins left in production configurations can expose internal application URLs and testing endpoints.",
+					"Wildcard origins or improperly validated domains can allow any website to make requests on behalf of users, leading to CSRF attacks."
+				]
+			},
+			"how_to_fix": [
+				"Use only HTTPS origins in production to ensure encrypted communication.",
+				"Remove development origins (localhost, HTTP) from production configurations.",
+				"Implement strict origin validation - only allow specific, trusted domains.",
+				"Regularly audit and update the list of allowed web origins.",
+				"Avoid using wildcard origins unless absolutely necessary and properly secured."
+			]
+		},
+		"severity_message": "%s applications / clients require a review of web origins",
+		"missing_web_origins_urls": "No callback URL %s configured for application %s .",
+		"secure_web_origins": "The following web origin URL \"%s\" was observed in application %s .",
+		"insecure_web_origins_urls": "Insecure web origin (CORS) URL \"%s\"."
+	},
+	"checkAllowedLogoutUrl": {
+		"title": "Application Allowed Logout URLs",
+		"category": "Applications",
+		"description": "Ensure that all Allowed Logout URLs are secure; do not use http://, localhost, or any other non-production URLs.",
+		"docsPath": [
+			"https://auth0.com/docs/authenticate/login/logout/redirect-users-after-logout"
+		],
+		"severity": "Low",
+		"status": "green",
+		"advisory": {
+			"issue": "Insecure Logout Redirect URLs",
+			"description": {
+				"what_it_is": "Logout URLs specify where users are redirected after logging out of your application. If these URLs are not properly secured or validated, they can be exploited by attackers.",
+				"why_its_risky": [
+					"Attackers can exploit open redirect vulnerabilities to send users to malicious sites after logout, potentially for phishing attacks.",
+					"Insecure HTTP URLs can expose logout tokens or session information during transit.",
+					"Development URLs (localhost) left in production can expose internal application structure or create confusion for users.",
+					"Malicious redirects after logout can trick users into believing they're still on your legitimate site when they're actually on an attacker-controlled domain."
+				]
+			},
+			"how_to_fix": [
+				"Always use HTTPS URLs for logout redirects to ensure encrypted communication.",
+				"Remove development URLs (localhost, HTTP) from production configurations.",
+				"Implement strict validation of logout redirect URLs to prevent open redirect vulnerabilities.",
+				"Regularly audit and update the list of allowed logout URLs."
+			]
+		},
+		"severity_message": "%s applications / clients require a review of allowed logout URLs",
+		"missing_allowed_logout_urls": "No allowed logout URLs are configured for application.",
+		"secure_allowed_logout_urls": "The following allowed logout URLs were observed \"%s\".",
+		"insecure_allowed_logout_urls": "Insecure allowed logout URLs \"%s\"."
+	},
+	"checkRefreshToken": {
+		"title": "Refresh Tokens",
+		"category": "Applications",
+		"description": "Refresh tokens are used to request a new access token and/or ID token for a user without requiring them to re-authenticate.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/applications/application-settings",
+			"https://auth0.com/docs/secure/tokens/refresh-tokens",
+			"https://auth0.com/docs/secure/tokens/refresh-tokens/refresh-token-rotation"
+		],
+		"severity": "Moderate",
+		"status": "yellow",
+		"advisory": {
+			"issue": "Rotating Refresh Tokens in Auth0",
+			"description": {
+				"what_it_is": "Each time the client uses a refresh token to get a new access token, Auth0 issues a new refresh token.If an old refresh token is reused, Auth0 detects the reuse and revokes the entire session — which protects against token theft and replay attacks.",
+				"why_its_risky": [
+					"Token Replay Attacks - If a non-rotating refresh token is stolen (e.g. via XSS, storage leak, or network sniffing), it can be used indefinitely by an attacker to generate new access tokens.",
+					"No Revocation Mechanism - Since the token doesn’t change, the system can’t tell if the same token is being used by multiple sources (e.g. attacker and legitimate user).",
+					"Long Lifetime - If the token has a long expiration time (e.g. weeks or months), the attacker has a long window of opportunity to exploit it.",
+					"Limited Visibility - You lose the ability to track or detect anomalies (e.g. unusual usage locations or frequencies) tied to the reuse of a refresh token."
+				]
+			},
+			"how_to_fix": [
+				"Rotating refresh tokens can be enabled via the Application settings in the Auth0 dashboard:",
+				"You can also configure this behavior using the Auth0 Management API."
+			]
+		},
+		"severity_message": "%s applications / clients require a review of refresh token configuration",
+		"use_rotating_refresh_token": "Application %s has %s refresh token type configured."
+	},
+	"checkApplicationLoginUri": {
+		"title": "Application Login URI",
+		"category": "Applications",
+		"description": "Application Login URI should be configured when using the Universal Login experience and should not include insecure URLs eg: http://, localhost etc",
+		"docsPath": [
+			"https://auth0.com/docs/authenticate/login/auth0-universal-login/configure-default-login-routes"
+		],
+		"severity": "Info",
+		"status": "blue",
+		"advisory": {
+			"issue": "Insecure Application Login URI Configuration",
+			"description": {
+				"what_it_is": "The Application Login URI specifies where Auth0 should redirect users to initiate the login flow. Insecure URIs can compromise the authentication process and expose users to security risks.",
+				"why_its_risky": [
+					"HTTP URLs can expose authentication parameters and tokens in transit, making them vulnerable to interception.",
+					"Development URLs (localhost) in production can confuse users and may expose internal application structure.",
+					"Insecure login URIs can be exploited for phishing attacks where users are redirected to malicious login pages.",
+					"Unencrypted communication during the authentication initiation process can lead to session hijacking."
+				]
+			},
+			"how_to_fix": [
+				"Always use HTTPS URLs for Application Login URIs to ensure encrypted communication.",
+				"Remove development URLs (localhost, HTTP) from production configurations.",
+				"Verify that login URIs point to legitimate, controlled domains.",
+				"Regularly audit and validate all configured login URIs."
+			]
+		},
+		"severity_message": "%s applications / clients require a review of Application Login URI settings",
+		"missing_initiate_login_uri": "No Application Login Uri is configured for application.",
+		"secure_initiate_login_uri": "The following Application Login Uri \"%s\" was observed in application %s .",
+		"insecure_initiate_login_uri": "Insecure Application Login Uri \"%s\" was observed in application %s ."
+	},
+	"checkCrossOriginAuthentication": {
+		"title": "Cross Origin Authentication",
+		"category": "Applications",
+		"description": "We recommend a periodic review of enabling cross origin authentication for applications protected by Auth0.",
+		"docsPath": [
+			"https://auth0.com/docs/authenticate/login/cross-origin-authentication"
+		],
+		"severity": "High",
+		"status": "red",
+		"advisory": {
+			"issue": "Cross Origin Authentication Security Risks",
+			"description": {
+				"what_it_is": "Cross Origin Authentication allows authentication requests to be made from different domains than your application's domain. While sometimes necessary for certain architectures, it introduces security risks that need careful consideration.",
+				"why_its_risky": [
+					"Collecting user credentials in an application served from one origin and then sending them to another origin can present certain security vulnerabilities, including the possibility of a phishing attack.",
+					"Increases the attack surface by allowing authentication flows from multiple origins, making it harder to control and monitor access.",
+					"Complicates security monitoring and incident response by creating multiple potential attack vectors."
+				]
+			},
+			"how_to_fix": [
+				"Disable cross-origin authentication unless specifically required for your application architecture.",
+				"Consider alternative architectures that don't require cross-origin authentication."
+			]
+		},
+		"severity_message": "%s applications / clients require a review of cross origin authentication setting",
+		"cross_origin_authentication_enabled": "cross_origin_authentication enabled for application \"%s\" with app_type: %s",
+		"cross_origin_authentication_disabled": "cross_origin_authentication disabled for application \"%s\" with app_type: %s"
+	},
+	"checkBruteForce": {
+		"enabled": "Brute Force Protection is enabled.",
+		"disabled": "Brute Force Protection is not enabled. This is a key control against common credential-based attacks.",
+		"shieldsConfigured": "All required shields are configured: ",
+		"shieldsMissing": "Some shields are disabled : %s — review recommended.",
+		"allowlistEmpty": "No allowlist is configured, which is safe by default.",
+		"allowlistPresent": "Allowlist contains IPs: %s",
+		"enableAccountLockout": "Enable Account Lockout to trigger blocks irrespective of IP address to avoid attackers rotating IP addresses and attempting to perform password spray attacks.",
+		"title": "Brute Force Protection",
+		"category": "Attack Protection",
+		"description": "Brute-force protection safeguards against a single IP address attacking a single user account. When a given IP address tries and fails multiple times to log in as the same user, brute-force protection results in future requests from the IP to temporarily be blocked:",
+		"docsPath": [
+			"https://auth0.com/docs/secure/attack-protection/brute-force-protection",
+			"https://auth0.com/docs/secure/attack-protection/playbooks/brute-force-protection-playbook"
+		],
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Review Brute Force Settings",
+		"advisory": {
+			"issue": "Importance of Implementing Brute Force Protection",
+			"description": {
+				"what_it_is": "Brute force attacks are a common method used by malicious actors to gain unauthorized access to user accounts by systematically trying numerous username and password combinations. Without proper protection, such attacks can compromise sensitive data, damage user trust, and lead to regulatory or financial consequences.",
+				"why_its_risky": [
+					"Attackers may successfully guess credentials and gain control of user accounts.",
+					"Once inside, attackers can steal personal data, leading to large-scale data breaches.",
+					"Publicly known security incidents harm brand reputation and user confidence.",
+					"Recovery from a successful brute force attack may require significant time and resources.",
+					"Failing to prevent unauthorized access can result in fines and sanctions under data protection laws."
+				]
+			},
+			"how_to_fix": [
+				"Auth0 provides built-in features to detect and block brute force attempts, such as rate-limiting login requests and blocking suspicious IPs. Enabling this protection helps prevent attackers from exploiting weak or reused passwords.",
+				"Users expect their data to be secure. Repeated unauthorized login attempts can lead to account lockouts or unauthorized access, both of which negatively impact user trust and experience.",
+				"Many regulatory standards (e.g., GDPR, HIPAA, PCI-DSS) require strong authentication controls. Failing to implement brute force protection may put your organization at risk of non-compliance and potential legal action.",
+				"Bots and automated scripts can target Auth0 login endpoints. Brute force protection adds a critical layer of defense against these high-frequency attacks."
+			]
+		}
+	},
+	"checkSuspiciousIPThrottling": {
+		"enabled": "Suspicious IP Throttling is enabled.",
+		"disabled": "Suspicious IP Throttling is not enabled. This is a key control against common credential-based attacks.",
+		"shieldsConfigured": "All required shields are configured: ",
+		"shieldsMissing": "Some shields are disabled : %s — review recommended.",
+		"allowlistEmpty": "No allowlist is configured, which is safe by default.",
+		"allowlistPresent": "Allowlist contains IPs: %s",
+		"stageMaxAttempts": "Stage '%s': max_attempts is set to ",
+		"stageMaxAttemptsInvalid": "Stage '%s': max_attempts must be greater than 0.",
+		"stageRate": "Stage '%s': rate is set to %s seconds (%s minutes).",
+		"stageRateInvalid": "Stage '%s': rate must be greater than 0.",
+		"title": "Suspicious IP Throttling",
+		"category": "Attack Protection",
+		"description": "Suspicious IP Throttling blocks traffic from any IP address that rapidly attempts too many logins or signups. This helps protect your applications from high-velocity attacks that target multiple accounts. Suspicious IP throttling is enabled by default when you create your Auth0 tenant. When Auth0 detects a high number of signup attempts or failed login attempts from an IP address, it responds to subsequent attempts with the HTTP 429 Too Many Requests status code until that IP address is no longer throttled.",
+		"docsPath": [
+			"https://auth0.com/docs/secure/attack-protection/suspicious-ip-throttling"
+		],
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Review Suspicious IP Throttling Settings",
+		"advisory": {
+			"issue": "Security Advisory: Why You Should Implement Suspicious IP Throttling in Auth0",
+			"description": {
+				"what_it_is": "Suspicious IP throttling is a security control that limits authentication attempts from IP addresses exhibiting malicious or abnormal behavior. By enabling this feature in Auth0, you can significantly reduce the risk of credential stuffing, account takeover attacks, and abuse from automated scripts or bots.",
+				"why_its_risky": [
+					"Without throttling, attackers can freely target your Auth0 tenant using malicious IPs without restriction.",
+					"Bots from known suspicious IPs can carry out automated login attempts at scale, potentially breaching user accounts.",
+					"Excessive login attempts can degrade authentication service performance or even cause denial-of-service issues for legitimate users.",
+					"Failing to throttle suspicious IPs may delay the detection of an attack in progress.",
+					"Lack of basic security controls like throttling may lead to non-compliance with industry security standards and regulations."
+				]
+			},
+			"how_to_fix": [
+				"Attackers often use lists of stolen credentials and attempt to log in to accounts using bots and compromised IPs. Suspicious IP throttling slows or blocks these attempts, helping to protect user accounts from takeover.",
+				"Throttling helps identify patterns of abuse early, enabling your security team to respond proactively to emerging threats.",
+				"Blocking excessive requests from suspicious IPs prevents unnecessary load on your servers and authentication systems, maintaining performance for legitimate users.",
+				"Many security frameworks and compliance standards encourage proactive defense measures against abuse, including rate-limiting and IP reputation checks."
+			]
+		}
+	},
+	"checkBreachedPassword": {
+		"validating_config": "Validating configuration...",
+		"config_valid": "Configuration is valid.",
+		"validation_failed": "Validation failed with the following errors:",
+		"error_occurred": "An error occurred: ",
+		"enabled": "Breached Password Detection is `enabled`",
+		"disabled": "Breached Password Detection is `disabled`",
+		"enabled_must_be_boolean": "The 'enabled' field must be a boolean.",
+		"shields_must_be_array": "The 'shields' field must be an array.",
+		"shields_invalid_values": "The 'shields' array contains invalid values.",
+		"shields_values": "The following shields are configured %s",
+		"stage_login_shields_block_not_configured": "Enable the Block compromised user accounts to block users from using compromised credentials during login.",
+		"admin_frequency_must_be_array": "The 'admin_notification_frequency' field must be an array.",
+		"admin_frequency_invalid_values": "The 'admin_notification_frequency' array contains invalid values.",
+		"admin_frequency_values": "The 'admin_notification_frequency' array contains %s values.",
+		"method_invalid_value": "The 'method' field must be either 'standard' or 'enhanced'.",
+		"method_value": "The tenant is configured to use %s, Breached Password Detection",
+		"stage_pre_user_missing": "The 'stage.pre-user-registration' field must be defined and valid.",
+		"stage_pre_user_shields_invalid": "The 'stage.pre-user-registration.shields' field contains invalid values.",
+		"stage_pre_user_shields": "The tenant is configured to %s on new account creation",
+		"stage_pre_user_shields_not_configured": "The tenant does not have sign up shields configured",
+		"stage_pre_user_shields_block_not_configured": "Enable the Block compromised credentials for new accounts to block users from using compromised credentials during signup.",
+		"stage_pre_change_password_missing": "The 'stage.pre-change-password' field must be defined and valid.",
+		"stage_pre_change_password_shields_invalid": "The 'stage.pre-change-password.shields' field contains invalid values.",
+		"stage_pre_change_password_shields": "The tenant is configured to %s on change password.",
+		"stage_pre_change_password_shields_not_configured": "Enable the Block compromised credentials use for password reset to block users from using compromised credentials upon password reset.",
+		"stage_pre_change_password_shields_block_not_configured": "Enable the Block compromised credentials use for password reset to block users from using compromised credentials upon password reset.",
+		"monitoring_mode": "The tenant has Breached Password Detection enabled, which is currently running in monitoring mode",
+		"title": "Breached Password Detection",
+		"category": "Attack Protection",
+		"description": "Breached password detection protects your applications from threat actors signing up or logging in with stolen credentials. Auth0 can both notify users and block at-risk accounts.",
+		"docsPath": [
+			"https://auth0.com/docs/secure/attack-protection/breached-password-detection",
+			"https://auth0.com/docs/secure/attack-protection/playbooks/breached-password-playbook"
+		],
+		"severity": "Moderate",
+		"status": "yellow",
+		"severity_message": "Review Breached Password Detection Settings",
+		"advisory": {
+			"issue": "Why You Should Implement Breached Password Detection in Auth0",
+			"description": {
+				"what_it_is": "Breached password detection is a security mechanism that alerts or blocks users from using credentials that have appeared in known data breaches. With billions of passwords exposed through various breaches, attackers frequently leverage these leaked credentials in automated attacks. Auth0’s breached password detection helps defend against this by checking if a user’s password has been compromised and taking appropriate action.",
+				"why_its_risky": [
+					"Users may unknowingly reuse compromised credentials, leaving their accounts vulnerable to attacks.",
+					"Without detection, attackers can repeatedly succeed in accessing accounts using known breach data.",
+					"Users expect organizations to protect their data. Failing to warn them about exposed credentials can erode confidence.",
+					"Organizations miss a valuable signal indicating targeted accounts or users at risk.",
+					"Failing to mitigate known credential threats may result in non-compliance with modern security standards or audits."
+				]
+			},
+			"how_to_fix": [
+				"Attackers often use breached username-password pairs in bulk to gain unauthorized access. Breached password detection helps prevent successful logins, signups, password resets using these compromised credentials.",
+				"Notifying users when their password has been found in a breach enables them to take immediate action, reducing the risk of future compromise.",
+				"Blocking or resetting passwords that are known to be compromised forces users to choose stronger, more secure alternatives—improving overall security hygiene.",
+				"Alerting users about risks to their account increases trust and demonstrates a proactive security posture.",
+				"Many data protection frameworks (e.g. NIST, GDPR) recommend or require measures to detect and respond to the use of compromised credentials."
+			]
+		}
+	},
+	"checkEmailProvider": {
+		"title": "Email Providers",
+		"category": "Email Providers",
+		"advisory": {
+			"issue": "Security and Deliverability Risks of Default Email Configuration",
+			"description": {
+				"what_it_is": "Email providers handle the delivery of authentication-related emails such as password resets, email verification, and security notifications. Using default configurations can create security and reliability issues.",
+				"why_its_risky": [
+					"Default email configurations may have limited deliverability, causing critical security emails to end up in spam folders or not be delivered at all.",
+					"Users may not receive password reset emails, potentially locking them out of their accounts and creating support burdens.",
+					"Generic email templates and sender addresses can appear suspicious to users and email filters, reducing trust.",
+					"Without proper email authentication (SPF, DKIM, DMARC), emails are more likely to be flagged as phishing attempts.",
+					"Lack of branded email communications can be exploited by attackers who create convincing phishing emails that users can't distinguish from legitimate ones."
+				]
+			},
+			"how_to_fix": [
+				"Configure a custom email provider with proper authentication.",
+				"Set up SPF, DKIM, and DMARC records for your email domain to improve deliverability and prevent spoofing.",
+				"Use branded email templates that users will recognize as legitimate.",
+				"Test email deliverability regularly to ensure critical communications reach users.",
+				"Monitor email bounce rates and spam complaints to maintain good sender reputation."
+			]
+		},
+		"description": "In order for end users to receive branded email and domains, it is recommended to configure a email provider.",
+		"docsPath": [
+			"https://auth0.com/docs/customize/email/smtp-email-providers#configure-a-custom-smtp-server"
+		],
+		"severity": "Moderate",
+		"status": "yellow",
+		"severity_message": "Review Email Provider Settings",
+		"email_provider_not_configured": "The tenant does not have an email provider configured",
+		"email_provider_enabled": "The tenant is configured to use %s as an email provider",
+		"email_provider_disabled": "The tenant is configured to use %s as an email provider. This email provider is disabled. "
+	},
+	"checkLogStream": {
+		"log_stream_not_configured": "Log Streaming is not correctly configured in the tenant",
+		"log_stream_active": "The tenant has configured %s of type %s and is in %s state",
+		"log_stream_inactive": "The tenant has configured %s of type %s and is in %s state",
+		"severity": "Moderate",
+		"status": "yellow",
+		"severity_message": "Enable Log Streaming",
+		"title": "Log Streams",
+		"category": "Log Streams",
+		"advisory": {
+			"issue": "Security Monitoring and Compliance Risks Without Log Streaming",
+			"description": {
+				"what_it_is": "Log streaming enables real-time export of Auth0 tenant logs to external monitoring and analysis systems. Without proper log streaming, organizations lose critical visibility into authentication events and potential security incidents.",
+				"why_its_risky": [
+					"The tenant's log retention time may be insufficient for security monitoring and compliance needs.",
+					"Security incidents may go undetected without proper log monitoring and alerting capabilities.",
+					"Forensic investigation becomes difficult or impossible without historical log data stored in external systems.",
+					"Compliance requirements often mandate log retention and monitoring that can't be met with Auth0's default log retention.",
+					"Anomalous authentication patterns, brute force attacks, and account takeover attempts may not be identified in time.",
+					"Integration with Security Information and Event Management (SIEM) systems is not possible without log streaming.",
+					"Audit trails required for compliance and security investigations may be incomplete or unavailable."
+				]
+			},
+			"how_to_fix": [
+				"Configure log streaming to send Auth0 logs to your SIEM or log analysis platform.",
+				"Set up monitoring and alerting for suspicious authentication patterns and security events.",
+				"Test log streaming configuration regularly to ensure continuous data flow."
+			]
+		},
+		"description": "Auth0's log streaming service allows you to export tenant log events to a log event analysis service URL.",
+		"docsPath": [
+			"https://auth0.com/docs/customize/log-streams"
+		]
+	},
+	"checkEmailTemplates": {
+		"email_templates_not_configured": "Email Templates are not configured",
+		"email_template_not_configured": "%s template is not configured",
+		"email_template_enabled": "%s template is enabled",
+		"email_template_not_enabled": "%s template is disabled",
+		"severity": "Info",
+		"status": "blue",
+		"advisory": {
+			"issue": "Security and Trust Risks of Default Email Templates",
+			"description": {
+				"what_it_is": "Custom email templates allow you to brand authentication-related emails with your organization's identity. Using default templates can create security and trust issues with your users.",
+				"why_its_risky": [
+					"Generic email templates don't build user trust and may be marked as spam or phishing attempts.",
+					"Users may not recognize legitimate authentication emails from your service, leading them to ignore important security communications.",
+					"Attackers can more easily create convincing phishing emails that mimic generic templates since users aren't familiar with your branded communications.",
+					"Default templates don't include your organization's security guidance or contact information for users who suspect fraud.",
+					"Lack of consistent branding across email communications can confuse users about which emails are legitimate."
+				]
+			},
+			"how_to_fix": [
+				"Configure custom email templates that match your brand identity and tone.",
+				"Include clear security guidance and your organization's contact information in templates.",
+				"Use consistent branding elements (logos, colors, language) that users will recognize.",
+				"Test email templates across different email clients to ensure proper rendering.",
+				"Include clear instructions for users on how to verify the authenticity of emails from your service."
+			]
+		},
+		"severity_message": "Configure custom Email Templates",
+		"title": "Email Templates",
+		"category": "Email Templates",
+		"description": "You must configure your own email provider using a third-party service (such as Amazon SES, Mandrill, SendGrid, SparkPost, Mailgun, or a custom SMTP provider) to be able to customize your emails. ",
+		"docsPath": [
+			"https://auth0.com/docs/customize/email/email-templates"
+		]
+	},
+	"checkErrorPageTemplate": {
+		"liquidjs_no_templates_to_analyze": "No templates found to analyze for XSS vulnerabilities",
+		"liquidjs_no_liquid_templates": "No LiquidJS templates found to analyze",
+		"liquidjs_unescaped_output": "Unescaped variable output detected: %s",
+		"liquidjs_raw_filter_usage": "Raw/unescaped filter usage detected in LiquidJS template",
+		"liquidjs_user_variable_unescaped": "User-controlled variable without proper escaping",
+		"liquidjs_template_secure": "LiquidJS template appears secure",
+		"liquidjs_analysis_summary": "LiquidJS XSS analysis completed: %s",
+		"severity": "High",
+		"status": "red",
+		"advisory": {
+			"recommendation": "Always escape user input in LiquidJS templates using filters like | escape, | h, or | html_escape",
+			"details": "Cross-Site Scripting (XSS) vulnerabilities in error page templates can be exploited when user-controlled data is inserted without proper escaping"
+		},
+		"severity_message": "Prevent XSS vulnerabilities in LiquidJS error page templates",
+		"title": "LiquidJS XSS Prevention",
+		"category": "Liquid Templates",
+		"description": "Analyzes LiquidJS error page templates for potential Cross-Site Scripting (XSS) vulnerabilities. Checks for unescaped variables, dangerous filter usage, and variables in dangerous contexts like script tags or event handlers.",
+		"docsPath": [
+			"https://auth0.com/docs/customize/login-pages/custom-error-pages",
+			"https://shopify.github.io/liquid/filters/escape/",
+			"https://owasp.org/www-community/attacks/xss/"
+		]
+	},
+	"checkDefaultAudience": {
+		"title": "Default Audience",
+		"category": "Tenant Settings",
+		"advisory": {
+			"issue": "Security and Architectural Implications of Default Audience Configuration",
+			"description": {
+				"what_it_is": "The Default Audience setting automatically adds a specified API identifier to all access tokens issued by your tenant. This setting affects token scoping and can have significant security and architectural implications.",
+				"why_its_risky": [
+					"Overly broad audience scoping may grant access tokens more permissions than intended for specific applications.",
+					"Applications may receive tokens with audiences they don't expect, potentially causing security vulnerabilities if not properly validated.",
+					"Changes to default audience can break existing applications that rely on specific token audience values.",
+					"May inadvertently expose APIs to applications that shouldn't have access to them.",
+					"Complicates token validation logic when applications need to handle multiple potential audiences.",
+					"Can create confusion in multi-tenant or multi-environment scenarios where different audience values are expected."
+				]
+			},
+			"how_to_fix": [
+				"Carefully evaluate whether a default audience is necessary for your architecture.",
+				"If configured, ensure all applications properly validate token audiences.",
+				"Document the default audience setting and its implications for development teams.",
+				"Consider using application-specific audience configuration instead of tenant-wide defaults.",
+				"Test thoroughly when making changes to default audience settings.",
+				"Monitor applications for proper token handling and audience validation."
+			]
+		},
+		"description": "API identifier to use for Authorization Flows. If you enter a value, all access tokens issued by Auth0 will specify this API identifier as an audience. Setting the Default Audience is equivalent to appending this audience to every authorization request made to your tenant for every application. This will cause new behavior that might result in breaking changes for some of your applications. ",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/tenant-settings"
+		],
+		"default_audience": "%s is configured as the default audience in the tenant",
+		"no_default_audience": "There is no default audience configured in the tenant",
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Review Tenant Settings > Default Audience"
+	},
+	"checkDefaultDirectory": {
+		"title": "Default Directory",
+		"category": "Tenant Settings",
+		"advisory": {
+			"issue": "Security Considerations for Default Directory Configuration",
+			"description": {
+				"what_it_is": "The Default Directory setting specifies which connection should be used for Resource Owner Password Flow and as a fallback for Universal Login. This setting can affect security and user experience if not properly configured.",
+				"why_its_risky": [
+					"Users may be authenticated against an unintended connection if the default directory is misconfigured.",
+					"Resource Owner Password Flow bypasses many security features of Universal Login, potentially exposing credentials.",
+					"Default directory misconfigurations can lead to users being unable to access their accounts or being authenticated with wrong permissions.",
+					"May inadvertently expose weaker authentication methods if the default directory has less strict security policies.",
+					"Can create confusion in environments with multiple user stores or connection types.",
+					"Compliance issues may arise if users are authenticated against non-compliant or less secure connections by default."
+				]
+			},
+			"how_to_fix": [
+				"Carefully select the most appropriate and secure connection as your default directory.",
+				"Avoid using Resource Owner Password Flow unless absolutely necessary for legacy application support.",
+				"Ensure the default directory connection has strong security policies and authentication methods.",
+				"Regularly review and validate that the default directory configuration aligns with your security requirements.",
+				"Consider using Universal Login exclusively and avoiding default directory dependencies.",
+				"Document the default directory setting and its security implications for your development team."
+			]
+		},
+		"description": "The name of the default connection to be used for both the Resource Owner Password Flow and Universal Login Experience",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/tenant-settings"
+		],
+		"default_directory": "%s is configured as the Default Directory in the tenant",
+		"no_default_directory": "There is no Default Directory configured in the tenant",
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Review Tenant Settings > Default Directory"
+	},
+	"checkEnabledDynamicClientRegistration": {
+		"title": "Dynamic Client Registration",
+		"category": "Tenant Settings",
+		"advisory": {
+			"issue": "Security Considerations for Dynamic Client Registration",
+			"description": {
+				"what_it_is": "Dynamic Client Registration allows third-party applications to automatically register with your Auth0 tenant without manual configuration. While this provides flexibility, it also introduces security considerations that need careful management.",
+				"why_its_risky": [
+					"Malicious applications could potentially register themselves and attempt to access user data inappropriately.",
+					"Without proper vetting, registered applications may not follow security best practices.",
+					"Increased attack surface as more applications have access to your authentication system.",
+					"Difficult to maintain oversight and governance over all registered applications.",
+					"Potential for abuse if registration endpoints are not properly secured or monitored."
+				]
+			},
+			"how_to_fix": [
+				"Carefully evaluate whether Dynamic Client Registration is necessary for your use case.",
+				"Monitor and audit all dynamically registered applications regularly.",
+				"Implement rate limiting and abuse detection for registration endpoints.",
+				"Establish clear policies and agreements for third-party applications accessing your system."
+			]
+		},
+		"description": "You can dynamically register third-party applications for your tenant. This feature is based on the OpenID Connect Dynamic Client Registration specification.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/applications/confidential-and-public-applications/first-party-and-third-party-applications",
+			"https://auth0.com/docs/get-started/applications/dynamic-client-registration",
+			"https://datatracker.ietf.org/doc/html/rfc7591"
+		],
+		"enabled_dynamic_client_registration": "Dynamic Client Registration is enabled",
+		"enable_dynamic_client_registration": "Dynamic Client Registration is not enabled",
+		"severity": "GenAI",
+		"status": "violet",
+		"severity_message": "Review Tenant Settings > Advanced > OIDC Dynamic Application Registration"
+	},
+	"checkSessionLifetime": {
+		"title": "Session Management",
+		"category": "Tenant Settings",
+		"advisory": {
+			"issue": "Security Risks of Improper Session Lifetime Configuration",
+			"description": {
+				"what_it_is": "Session lifetime settings control how long users remain authenticated before being required to log in again. Improper configuration can create security vulnerabilities or poor user experience.",
+				"why_its_risky": [
+					"Overly long session lifetimes increase the window of opportunity for session hijacking attacks.",
+					"Unattended devices with long-lived sessions can be accessed by unauthorized users.",
+					"Compromised session tokens remain valid for extended periods, giving attackers prolonged access.",
+					"Compliance requirements often mandate session timeouts for sensitive applications and data access.",
+					"Sessions that don't expire appropriately can persist across shared or public devices, exposing user accounts.",
+					"Lack of idle session timeouts means inactive sessions remain vulnerable indefinitely."
+				]
+			},
+			"how_to_fix": [
+				"Configure appropriate session lifetimes based on your application's security requirements and user needs.",
+				"Implement idle session timeouts to automatically log out inactive users.",
+				"Use shorter session lifetimes for high-privilege users or sensitive applications.",
+				"Configure session cookie settings securely (HttpOnly, Secure, SameSite).",
+				"Consider implementing step-up authentication for sensitive operations even within active sessions.",
+				"Regularly review session management policies and adjust based on security incidents or requirement changes."
+			]
+		},
+		"description": "You have the ability to control how long end-user sessions remain active before requiring reauthentication. This includes setting the duration of both browser-based sessions and refresh token lifetimes, allowing you to tailor the balance between user convenience and security requirements. By configuring session lifetime policies, you can determine when users are prompted to log in again whether after a fixed time period, inactivity, or changes in risk context. These settings can be adjusted at the tenant level, depending on your use case.",
+		"docsPath": [
+			"https://auth0.com/docs/manage-users/sessions/configure-session-lifetime-settings",
+			"https://auth0.com/docs/manage-users/sessions/non-persistent-sessions"
+		],
+		"idle_session_lifetime": "Idle Session Lifetime: %s",
+		"session_lifetime": "Session Lifetime: %s",
+		"session_cookie_mode": "Session Cookie Mode: %s",
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Review Tenant Settings > Advanced > Session Expiration"
+	},
+	"checkSupportEmail": {
+		"title": "Support Email",
+		"category": "Tenant Settings",
+		"advisory": {
+			"issue": "Security Communication Risks Without Configured Support Contact",
+			"description": {
+				"what_it_is": "A configured support email provides users with a trusted way to report security concerns, suspicious activities, or get help with authentication issues. Without this, users may struggle to get legitimate help or report security incidents.",
+				"why_its_risky": [
+					"Users experiencing authentication issues may seek help through insecure channels or fall victim to phishing support scams.",
+					"Security incidents or suspicious activities may go unreported if users don't know how to contact legitimate support.",
+					"Lack of clear support contact information can lead users to trust illegitimate support offers from attackers.",
+					"Authentication problems may remain unresolved, potentially leading users to use insecure workarounds.",
+					"Compliance requirements may mandate clear communication channels for users to report security concerns."
+				]
+			},
+			"how_to_fix": [
+				"Configure a monitored support email address that users can trust.",
+				"Ensure the support email is prominently displayed in authentication flows and error messages.",
+				"Train support staff to handle security-related inquiries appropriately.",
+				"Create clear guidelines for users on when and how to contact support for security issues."
+			]
+		},
+		"description": "Email address used to contact your support team.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/tenant-settings"
+		],
+		"support_email": "%s is configured as the support email address.",
+		"no_support_email": "There is no support email configured for the tenant.",
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Review Tenant Settings > Support Email"
+	},
+	"checkSupportUrl": {
+		"title": "Support URL",
+		"category": "Tenant Settings",
+		"advisory": {
+			"issue": "User Support and Security Risks Without Configured Support Resources",
+			"description": {
+				"what_it_is": "A support URL provides users with access to help documentation, security resources, and guidance when they encounter authentication issues. Without proper support resources, users may make poor security decisions.",
+				"why_its_risky": [
+					"Users experiencing problems may search for unauthorized support resources that could be malicious.",
+					"Lack of official support documentation may lead users to follow insecure advice from untrusted sources.",
+					"Authentication issues may remain unresolved, causing users to disable security features or use workarounds.",
+					"Users may fall victim to fake support sites created by attackers to steal credentials or personal information.",
+					"Security education opportunities are missed when users don't have access to official security guidance."
+				]
+			},
+			"how_to_fix": [
+				"Configure a support URL that points to comprehensive, trusted documentation.",
+				"Include security best practices and guidance in your support resources.",
+				"Ensure support documentation is easily accessible and regularly updated.",
+				"Provide clear instructions for common authentication scenarios and troubleshooting.",
+				"Consider including security awareness training materials in your support resources."
+			]
+		},
+		"description": "Link to your company or organization support page.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/tenant-settings"
+		],
+		"support_url": "%s configured as the support URL for the tenant.",
+		"no_support_url": "No support URL is configured in the tenant.",
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Review Tenant Settings > Support URL"
+	},
+	"checkTenantLoginUrl": {
+		"title": "Tenant Login URI",
+		"category": "Tenant Settings",
+		"advisory": {},
+		"description": "URI that points to a route in your application that starts the OIDC login flow by redirecting to the /authorize endpoint; it should take the form of https://mytenant.org/login. This will only be used in scenarios where Auth0 needs your tenant to start the OIDC login flow. ",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/tenant-settings"
+		],
+		"default_redirection_uri": "The tenant has the following URLs configured as the Default Login URI %s",
+		"no_default_redirection_uri": "There is no Tenant Login URI configured in the tenant",
+		"invalid_default_redirection_uri": "The tenant is using insecure redirection callback containing (http, localhost) %s",
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Review Tenant Settings"
+	},
+	"checkTenantLogoutUrl": {
+		"title": "Tenant Allowed Logout URLs",
+		"category": "Tenant Settings",
+		"advisory": {},
+		"description": "URLs that Auth0 can redirect to after logout when no client_id is specified on the Logout endpoint invocation. Useful as a global list when Single Sign-on (SSO) is enabled.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/tenant-settings"
+		],
+		"missing_allowed_logout_urls": "Configure Allowed Logout URLs for the tenant",
+		"invalid_allowed_logout_urls": "Incorrect tenant level logout URL. Reconfigure %s",
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Review Tenant Settings > Advanced"
+	},
+	"checkSandboxVersion": {
+		"title": "Extensibility Run Time",
+		"category": "Tenant Settings",
+		"advisory": {
+			"issue": "Security Risks of Outdated Node.js Runtime Versions",
+			"description": {
+				"what_it_is": "Auth0 extensibility features (Rules, Hooks, Custom Database scripts) run on Node.js runtime environments. Using outdated versions exposes your tenant to known security vulnerabilities and limits access to security improvements.",
+				"why_its_risky": [
+					"Outdated Node.js versions contain known security vulnerabilities that could be exploited by malicious code.",
+					"Legacy runtime versions no longer receive security patches or updates, leaving vulnerabilities unaddressed.",
+					"Older versions may not support modern security features and cryptographic standards.",
+					"Third-party packages and dependencies may not be available or secure on legacy runtime versions.",
+					"Compliance requirements may mandate using supported and patched software versions.",
+					"Performance and stability issues in older runtime versions can affect authentication reliability."
+				]
+			},
+			"how_to_fix": [
+				"Update to the latest supported Node.js runtime version in your Auth0 tenant settings.",
+				"Test all custom database scripts, rules, and hooks thoroughly after runtime updates.",
+				"Review and update any custom code or dependencies that may be incompatible with newer runtime versions.",
+				"Establish a regular schedule for reviewing and updating runtime versions.",
+				"Monitor Auth0 announcements for runtime version updates and migration timelines.",
+				"Consider migrating from legacy extensibility features (Rules/Hooks) to Actions for better security and performance."
+			]
+		},
+		"description": "We recommend updating this tenant to a recommended version of Node.js to take advantage of security patches and new features.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/tenant-settings#extensibility"
+		],
+		"sandbox_version": "We recommend updating to the recommended version of Node.js. The current sandbox version is \"%d\". The version of Node currently in use for Custom Database script if any, will no longer receive security updates or support new packages.",
+		"severity": "High",
+		"status": "red",
+		"severity_message": "This tenant is configured to use an older version of Node.js."
+	},
+	"checkGuardianFactors": {
+		"title": "Multifactors",
+		"category": "Multifactors",
+		"advisory": {
+			"issue": "Account Security Risks Without Multi-Factor Authentication",
+			"description": {
+				"what_it_is": "Multi-factor authentication (MFA) requires users to provide additional verification beyond just a username and password. Without MFA, accounts rely solely on password security, which is increasingly insufficient against modern attacks.",
+				"why_its_risky": [
+					"Password-only authentication is vulnerable to credential stuffing attacks using breached password databases.",
+					"Phishing attacks can easily capture usernames and passwords, but are much less effective against MFA.",
+					"Account takeover attacks are significantly easier when only requiring password authentication.",
+					"Compliance requirements (SOX, HIPAA, PCI-DSS) often mandate MFA for accessing sensitive systems and data.",
+					"Remote work environments increase the risk of compromised credentials being used from untrusted networks.",
+					"Social engineering attacks become more effective when they only need to obtain a single authentication factor."
+				]
+			},
+			"how_to_fix": [
+				"Enable MFA for all users, prioritizing high-privilege accounts first.",
+				"Consider adaptive MFA that automatically triggers based on risk assessment, minimizing user friction.",
+				"Implement multiple MFA options (authenticator apps, SMS, hardware tokens) to accommodate different user needs.",
+				"Educate users on the importance of MFA and provide clear setup instructions."
+			]
+		},
+		"description": "Multi-factor authentication (MFA) is a user verification method that requires more than one type of user validation. It prevents attackers with access to a username and password from accessing an account.",
+		"docsPath": [
+			"https://auth0.com/docs/secure/multi-factor-authentication"
+		],
+		"mfa_factors_not_enabled": "Multifactor Authentication is not enabled for the tenant",
+		"mfa_factors_enabled": "The following authenticators are enabled for tenant, %s",
+		"severity": "Moderate",
+		"status": "yellow",
+		"severity_message": "Enable Multifactor Authentication for tenant"
+	},
+	"checkGuardianPolicy": {
+		"title": "Multifactor Policy",
+		"category": "Multifactor Policy",
+		"advisory": {},
+		"description": "Multi-factor determines when the user is challenged for MFA.",
+		"docsPath": [
+			"https://auth0.com/docs/secure/multi-factor-authentication/customize-mfa"
+		],
+		"mfa_policy_set_to_never": "The Multifactor Authentication policy is set to 'never'. Check whether MFA is being applied as a post-login action.",
+		"mfa_policy_set": "The  current Multifactor Authentication Policy is %s",
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Review Multifactor Authentication Policy configuration."
+	},
+	"checkBotDetectionSetting": {
+		"policy_enabled": "Bot Detection enabled for password flows.",
+		"policy_disabled": "Bot Detection is not enabled for password flows.This is a key control against common credential-based attacks.",
+		"passwordless_policy_enabled": "Bot Detection is enabled for passwordless flows.",
+		"passwordless_policy_disabled": "Bot Detection is not enabled for passwordless flows. This is a key control against common credential-based attacks.",
+		"password_reset_policy_enabled": "Bot Detection is enabled for password reset flows.",
+		"password_reset_policy_disabled": "Bot Detection is not enabled for password reset flows. This is a key control against common credential-based attacks.",
+		"allowlistEmpty": "No allowlist is configured, which provides a default level of security.",
+		"allowlistPresent": "The allowlist for bot detection contains the following IPs or users: %s",
+		"title": "Bot Detection",
+		"category": "Attack Protection",
+		"description": "Bot Detection mitigates scripted attacks by detecting when a request is likely coming from a bot. These types of attacks are sometimes called credential stuffing attacks or list validation attacks. Bot Detection provides support against certain attacks and adds very little friction to legitimate users.",
+		"docsPath": [
+			"https://auth0.com/docs/secure/attack-protection/bot-detection",
+			"https://auth0.com/docs/secure/attack-protection/playbooks/bot-detection-playbook"
+		],
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Review Bot Detection Settings",
+		"advisory": {
+			"issue": "Security Advisory: Why You Should Implement Bot Detection in Auth0",
+			"description": {
+				"what_it_is": "Bots are automated scripts designed to interact with web applications in ways that simulate human behavior, but with malicious intent. These bots can perform credential stuffing, brute-force attacks, scraping, spamming, and other forms of abuse. Implementing Bot Detection in Auth0 provides a powerful defense against these threats, helping to maintain the integrity, security, and performance of your system.",
+				"why_its_risky": [
+					"Bots can successfully execute credential stuffing attacks, using stolen username-password pairs to gain unauthorized access to accounts.",
+					"Bots can scrape personal, financial, or proprietary data at scale, leading to potential data breaches.",
+					"Without bot detection, your system could be overwhelmed by automated requests, leading to slow performance or even outages.",
+					"Bot-driven attacks can lead to issues such as spam, fake account creation, or fraud, which may damage your company’s reputation and erode user trust.",
+					"Failing to prevent bot-based attacks could lead to violations of regulatory requirements for data protection, resulting in fines or penalties."
+				]
+			},
+			"how_to_fix": [
+				"Bots are commonly used to automate the process of guessing passwords or using stolen credential lists to gain unauthorized access. Bot detection helps identify and block these attacks before they can succeed.",
+				"Bots can scrape sensitive data, such as personal information or financial details. By detecting and blocking bot traffic, you prevent the exposure of critical user data.",
+				"Automated bot traffic can overload your application by making repeated requests at high frequencies. Bot detection helps ensure that your application remains responsive for legitimate users.",
+				"Bot-driven actions like account takeover or spam campaigns can damage your brand reputation. Bot detection helps prevent these activities, which can hurt user trust and your organization’s image.",
+				"Bot attacks often lead to account lockouts or delays in user authentication, resulting in poor user experiences. Bot detection ensures smooth access for legitimate users while filtering out malicious traffic.",
+				"Many regulatory frameworks (e.g., GDPR, PCI-DSS) require you to take measures to protect your systems from automated threats. Implementing bot detection aligns with these standards and minimizes the risk of non-compliance."
+			]
+		}
+	},
+	"checkRules": {
+		"no_enabled_rules": "No legacy rules are enabled in the tenant.",
+		"enabled_rules": "Rule with ID: %s is enabled in the tenant",
+		"title": "Rules",
+		"category": "Rules(Legacy)",
+		"advisory": {},
+		"description": "Rules are being deprecated and must be migrated to Actions",
+		"docsPath": [
+			"https://auth0.com/docs/customize/actions/migrate/migrate-from-rules-to-actions"
+		],
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Migrate %s rule(s) to Actions"
+	},
+	"checkHooks": {
+		"no_enabled_hooks": "No legacy hooks are enabled in the tenant.",
+		"enabled_hooks": "Hook of type: %s is enabled",
+		"title": "Hooks",
+		"category": "Hooks(Legacy)",
+		"advisory": {},
+		"description": "Hooks are being deprecated and must be migrated to Actions",
+		"docsPath": [
+			"https://auth0.com/docs/customize/actions/migrate/migrate-from-hooks-to-actions"
+		],
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Migrate %s hook(s) to Actions"
+	},
+	"checkDependencies": {
+		"title": "Action Dependency Vulnerabilities",
+		"category": "Actions",
+		"advisory": {},
+		"description": "Check the NPM dependencies of the Actions enabled in your tenant",
+		"docsPath": [
+			"https://auth0.com/docs/customize/actions/manage-dependencies"
+		],
+		"severity": "High",
+		"status": "red",
+		"severity_message": "%s dependency(ies) used by Actions are exposed to critical or high severity vulnerabilities.",
+		"dependency_with_vuln": "The following npm module %s is exposed to high or critical severity vulnerabilities."
+	},
+	"checkActionsRuntime": {
+		"title": "Action Runtime",
+		"category": "Actions",
+		"advisory": {},
+		"description": "Check the Node.js runtime for actions extensibility in the tenant",
+		"docsPath": [
+			"https://auth0.com/docs/troubleshoot/product-lifecycle/past-migrations/migrate-nodejs-16-to-nodejs-18"
+		],
+		"severity": "High",
+		"status": "red",
+		"old_node_version": "This action is currently using version %s of actions runtime, which is not recommended",
+		"severity_message": "%s action(s) is using an older version of Node.js runtime. Make sure all your actions run in the same runtime to avoid uninteded behaviours."
+	},
+	"checkActionsHardCodedValues": {
+		"title": "Action Hardcoded Artifacts",
+		"category": "Actions",
+		"advisory": {},
+		"description": "Review your Actions for hard coded secrets",
+		"disclaimer": "Please note that while every effort has been made to ensure the accuracy of this validation, not all results may be fully expected or accurate. There is a possibility of false positives, and the results should be interpreted with caution. It is recommended to perform additional checks or manual verification before making any decisions based on the validation outcomes.",
+		"docsPath": [
+			"https://auth0.com/docs/customize/actions/action-coding-guidelines#security-basics"
+		],
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Potential hardcoded credentials, may expose sensitive information.",
+		"hard_coded_value_detected": "Variable name <b>%s</b> at line <b>%d</b> and column <b>%d</b>.",
+		"action_script_title": "Identified potential hardcoded credentials in <b>\"%s\"</b> script at:"
+	},
+	"checkCanonicalDomain": {
+		"title": "Auth0 Domain Check",
+		"category": "Canonical Domain",
+		"advisory": {},
+		"description": "The tenant is using the Auth0 Canonical Domain, when a custom domain is configured.",
+		"docsPath": [
+			"https://auth0.com/docs/customize/custom-domains"
+		],
+		"severity": "Moderate",
+		"status": "yellow",
+		"canonical_domain_no_logs": "The log search either timed out or returned no results. To search in your own logging platform and set up alerts or detections, you can use the following query: \n<b>%s</b>",
+		"canonical_domain_used": "One or more clients are using the Auth0 Canonical Domain for interactive user authentication, sample query and log_id \n <b>%s</b>",
+		"severity_message": "Auth0 Canonical Domain is being used for end user interactive authentication or/and signup."
+	},
+	"checkNetworkACL": {
+		"title": "Tenant Access Control List (Early Access Capability)",
+		"category": "Attack Protection",
+		"advisory": {},
+		"description": "Tenant Access Control List (ACL) allows you to manage traffic to your Auth0 services with configurable rules. It helps you protect your tenant and conserve your rate limits against potential threats, such as denial-of-service (DoS) attacks, and ensures that only legitimate users access your applications.",
+		"docsPath": [
+			"https://auth0.com/docs/secure/tenant-access-control-list"
+		],
+		"severity": "Moderate",
+		"status": "yellow",
+		"no_network_acl": "The tenant does not have Tenant Access Control List configured.",
+		"network_acl_inactive": "This ACL %s is currently inactive. Please review the ACL rules periodically.",
+		"severity_message": "Enhance your security posture by configuring Tenant ACL.",
+		"disclaimer": "Tenant Access Control List (ACL) is an Early Access Service and currently available only to customers on an Enterprise plan with the Attack Protection add-on"
+	},
+	"checkEventStreams": {
+		"event_stream_not_configured": "Event Streaming is not configured for the tenant",
+		"event_stream_disabled": "The tenant has configured %s of type %s and is in %s state",
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Enable Event Streaming",
+		"title": "Event Streams (Early Access Capability)",
+		"category": "Event Streams",
+		"advisory": {},
+		"description": "Events Streams offer Auth0 customers an API-based method of synchronizing, correlating, or orchestrating changes that occur within Auth0 or 3rd-party identity providers (IdPs) to external apps or 3rd-party services.",
+		"docsPath": [
+			"https://auth0.com/docs/customize/events",
+			"https://auth0.com/docs/customize/events/events-best-practices",
+			"https://auth0.com/docs/customize/events/event-testing-observability-and-failure-recovery"
+		]
+	}
+}
