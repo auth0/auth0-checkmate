@@ -157,7 +157,7 @@ To use Auth0 Checkmate, you need a **dedicated Auth0 Application** to authorize 
    read:event_streams
    ```
 
-5. Click **“Authorize”** to complete setup.
+5. Click **“Authorize”** to complete the setup.
 
 ---
 
