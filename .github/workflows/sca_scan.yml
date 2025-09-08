@@ -1,7 +1,7 @@
 name: SCA
 on:
   push:
-    branches: ["master", "main"]
+    branches: ["master", "main", "add-SCA-scan"]
 jobs:
   snyk-cli:
     uses: auth0/devsecops-tooling/.github/workflows/sca-scan.yml@main
