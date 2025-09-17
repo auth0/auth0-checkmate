@@ -45,8 +45,3 @@ jobs:
 
       - name: Run tests
         run: npm test
-
-          echo "About to run: npm publish --provenance --tag ${{ steps.npm-tag.outputs.tag }}"
-          npm publish --provenance --tag ${{ steps.npm-tag.outputs.tag }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
