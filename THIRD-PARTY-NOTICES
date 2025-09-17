@@ -60,11 +60,6 @@ License: MIT
 Copyright (c) 2025 Simon Boudrias
 Repository: https://github.com/SBoudrias/Inquirer.js
 
-js-yaml (4.1.0)
-License: MIT
-Copyright (C) 2011-2015 by Vitaly Puzrin
-Repository: https://github.com/nodeca/js-yaml
-
 jsonwebtoken (9.0.2)
 License: MIT
 Copyright (c) 2015 Auth0, Inc. <support@auth0.com> (http://auth0.com)
