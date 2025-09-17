@@ -47,7 +47,7 @@ describe("helpers.js", function() {
         }
       ];
 
-      semver.satisfies = function(version, range) {
+      semver.satisfies = function() {
         return false; // Not vulnerable
       };
 
@@ -242,11 +242,11 @@ describe("helpers.js", function() {
         }
       ];
 
-      axios.get = async function(url, options) {
+      axios.get = async function() {
         return { data: mockAdvisoryData };
       };
 
-      semver.satisfies = function(version, range) {
+      semver.satisfies = function() {
         return false; // Not vulnerable
       };
 
@@ -264,7 +264,7 @@ describe("helpers.js", function() {
         }
       };
 
-      axios.get = async function(url, options) {
+      axios.get = async function() {
         const error = new Error("GitHub API rate limit exceeded");
         error.response = { status: 403 };
         throw error;
@@ -286,7 +286,7 @@ describe("helpers.js", function() {
         }
       };
 
-      axios.get = async function(url, options) {
+      axios.get = async function() {
         const error = new Error("timeout of 5000ms exceeded");
         error.code = "ECONNABORTED";
         throw error;
@@ -302,7 +302,7 @@ describe("helpers.js", function() {
     it("should construct correct API URL with package name and version", async function() {
       let capturedUrl = null;
       
-      axios.get = async function(url, options) {
+      axios.get = async function(url) {
         capturedUrl = url;
         return { data: [] };
       };
@@ -347,7 +347,7 @@ describe("helpers.js", function() {
         }
       ];
 
-      axios.get = async function(url, options) {
+      axios.get = async function() {
         return { data: [] }; // No vulnerabilities
       };
 
@@ -370,7 +370,7 @@ describe("helpers.js", function() {
       ];
 
       let callCount = 0;
-      axios.get = async function(url, options) {
+      axios.get = async function(url) {
         callCount++;
         if (url.includes("vulnerable-package")) {
           return {
@@ -428,7 +428,7 @@ describe("helpers.js", function() {
         }
       ];
 
-      axios.get = async function(url, options) {
+      axios.get = async function(url) {
         if (url.includes("vuln-pkg-1")) {
           return {
             data: [
@@ -513,7 +513,7 @@ describe("helpers.js", function() {
         }
       };
 
-      axios.get = async function(url, options) {
+      axios.get = async function() {
         throw new Error("API request failed");
       };
 
@@ -538,7 +538,7 @@ describe("helpers.js", function() {
         }
       ];
 
-      axios.get = async function(url, options) {
+      axios.get = async function(url) {
         if (url.includes("vulnerable-package")) {
           return {
             data: [
@@ -584,7 +584,7 @@ describe("helpers.js", function() {
         }
       ];
 
-      axios.get = async function(url, options) {
+      axios.get = async function() {
         return {
           data: [
             {
@@ -682,7 +682,7 @@ describe("helpers.js", function() {
       let threwError = false;
       try {
         await checkVulnerableVersion(currentVersion, advisoryData);
-      } catch (error) {
+      } catch {
         threwError = true;
       }
 

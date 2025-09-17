@@ -2,9 +2,9 @@ const { expect } = require("chai");
 const checkSessionLifetime = require("../../analyzer/lib/tenant_settings/checkSessionLifetime");
 const CONSTANTS = require("../../analyzer/lib/constants");
 
-describe("checkSessionLifetime", () => {
+describe("checkSessionLifetime", function() {
 
-  it("should report all fields with proper values", () => {
+  it("should report all fields with proper values", function() {
     const options = {
       tenant: {
         idle_session_lifetime: 72,
@@ -36,7 +36,7 @@ describe("checkSessionLifetime", () => {
     });
   });
 
-  it("should return fail if tenant is missing", () => {
+  it("should return fail if tenant is missing", function() {
     checkSessionLifetime({}, (report) => {
       expect(report).to.deep.equal([
         {
@@ -47,7 +47,7 @@ describe("checkSessionLifetime", () => {
     });
   });
 
-  it("should report default values if idle_session_lifetime and session_lifetime are missing", () => {
+  it("should report default values if idle_session_lifetime and session_lifetime are missing", function() {
     const options = {
       tenant: {
         session_cookie: {
@@ -77,7 +77,7 @@ describe("checkSessionLifetime", () => {
     });
   });
 
-  it("should report default session_cookie_mode if session_cookie is missing", () => {
+  it("should report default session_cookie_mode if session_cookie is missing", function() {
     const options = {
       tenant: {
         idle_session_lifetime: 24,

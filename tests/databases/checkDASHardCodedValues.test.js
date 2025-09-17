@@ -4,9 +4,9 @@ const expect = chai.expect;
 const checkDASHardCodedValues = require("../../analyzer/lib/databases/checkDASHardCodedValues");
 const CONSTANTS = require("../../analyzer/lib/constants");
 
-describe("checkDASHardCodedValues", () => {
+describe("checkDASHardCodedValues", function() {
 
-    it("should detect hardcoded values in login script", async () => {
+    it("should detect hardcoded values in login script", async function() {
         const mockData = {
             databases: [
                 {
@@ -47,7 +47,7 @@ describe("checkDASHardCodedValues", () => {
         expect(findings).to.include.members(["host", "user", "password", "database", "query"]);
     });
 
-    it("should return no findings if customization is disabled", async () => {
+    it("should return no findings if customization is disabled", async function() {
         const mockData = {
             databases: [
                 {
@@ -66,7 +66,7 @@ describe("checkDASHardCodedValues", () => {
         expect(result.details).to.be.an("array").that.is.empty;
     });
 
-    it("should return failure if no databases are present", async () => {
+    it("should return failure if no databases are present", async function() {
         const report = await checkDASHardCodedValues({ databases: [] });
         expect(report.details).to.be.an("array").that.has.lengthOf(1);
         expect(report.details[0]).to.deep.equal({

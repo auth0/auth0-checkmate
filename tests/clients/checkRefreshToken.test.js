@@ -4,9 +4,9 @@ const expect = chai.expect;
 const checkRefreshToken = require("../../analyzer/lib/clients/checkRefreshToken");
 const CONSTANTS = require("../../analyzer/lib/constants");
 
-describe("checkRefreshToken", () => {
+describe("checkRefreshToken", function() {
 
-    it("should report failure if refresh_token is used but rotation_type is not rotating", () => {
+    it("should report failure if refresh_token is used but rotation_type is not rotating", function() {
         const options = {
             clients: [{
                 name: "Default App",
@@ -33,7 +33,7 @@ describe("checkRefreshToken", () => {
         });
     });
 
-    it("should return an empty report if refresh_token uses rotating", () => {
+    it("should return an empty report if refresh_token uses rotating", function() {
         const options = {
             clients: [{
                 name: "Secure App",
@@ -54,7 +54,7 @@ describe("checkRefreshToken", () => {
         })
     });
 
-    it("should return empty result if no clients are provided", () => {
+    it("should return empty result if no clients are provided", function() {
         const options = {clients: []};
         checkRefreshToken(options, (result) => {
             expect(result).to.be.an("array").that.is.empty;

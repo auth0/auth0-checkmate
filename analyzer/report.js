@@ -25,7 +25,7 @@ const {
 const logger = require("./lib/logger");
 const { getSummaryReport } = require("./tools/summary");
 const { convertToTitleCase, tranformReport } = require("./tools/utils");
-const defaultJson = { name: 'checkThirdPartyApplications', details: [] }
+//const defaultJson = { name: 'checkThirdPartyApplications', details: [] }
 async function runProductionChecks(tenant, validators) {
   try {
     logger.log("info", "Checking your configuration...");
@@ -154,6 +154,7 @@ async function generateReport(locale, tenantConfig, config) {
       report.severity_message = i18n.__(`${report.name}.severity_message`);
       report.status = i18n.getCatalog("en")[`${report.name}`].status;
       report.advisory = i18n.__(`${report.name}.advisory`);
+      let transformedDetails = [];
       switch (report.name) {
         case "checkCustomDomain":
           report.details.forEach((cd) => {
@@ -313,9 +314,9 @@ async function generateReport(locale, tenantConfig, config) {
 
           grouped = _.groupBy(report.details, "name");
 
-          const transformedDetails = [];
+          //let transformedDetails = [];
 
-          _.forEach(grouped, (detailsArray, connectionName) => {
+          _.forEach(grouped, (detailsArray) => {
             detailsArray.forEach((detailItem) => {
               const reportItems = detailItem.report;
 

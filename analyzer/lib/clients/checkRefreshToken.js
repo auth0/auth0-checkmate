@@ -65,16 +65,16 @@ function validateRTGrantTypesForApp(app) {
     const enabledGrantTypes = app.grant_types || [];
     const appType = app.app_type || "unknown";
     const report = [];
-    let requiredGrantTypes = [];
+    //let requiredGrantTypes = [];
 
     // Define expected grant types based on appType (OAuth2.0 best practices)
     switch (appType) {
         case "regular_web":
         case "spa":
         case "native":
-            requiredGrantTypes = [
-                "refresh_token",
-            ];
+            //requiredGrantTypes = [
+            //    "refresh_token",
+            //];
             break;
         default:
             break;
