@@ -25,7 +25,6 @@ const {
 const logger = require("./lib/logger");
 const { getSummaryReport } = require("./tools/summary");
 const { convertToTitleCase, tranformReport } = require("./tools/utils");
-//const defaultJson = { name: 'checkThirdPartyApplications', details: [] }
 async function runProductionChecks(tenant, validators) {
   try {
     logger.log("info", "Checking your configuration...");
@@ -313,8 +312,6 @@ async function generateReport(locale, tenantConfig, config) {
           report.disclaimer = i18n.__(`${report.name}.disclaimer`);
 
           grouped = _.groupBy(report.details, "name");
-
-          //let transformedDetails = [];
 
           _.forEach(grouped, (detailsArray) => {
             detailsArray.forEach((detailItem) => {
