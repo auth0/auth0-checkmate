@@ -1,10 +1,14 @@
-name: Publish Test
+name: Build and Test
 
 on:
-  push:
-    branches: [ main ]
+  merge_group:
+  workflow_dispatch:
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
