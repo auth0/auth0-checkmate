@@ -3,7 +3,6 @@
 const fs = require("node:fs");
 const jwt = require('jsonwebtoken');
 const path = require("path");
-const yaml = require("js-yaml");
 const logger = require("../analyzer/lib/logger");
 const { generateReport } = require("../analyzer/report");
 const chalk = require("chalk");

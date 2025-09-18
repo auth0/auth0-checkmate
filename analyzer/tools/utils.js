@@ -21,13 +21,6 @@ function convertToTitleCase(str) {
         .replace(/^./, (match) => match.toUpperCase()); // Capitalize the first letter
 }
 
-function convertToTitleCase(str) {
-    // Insert space before each uppercase letter and capitalize the first letter
-    return str
-        .replace(/([a-z])([A-Z])/g, "$1 $2") // Add space between lowercase and uppercase letters
-        .replace(/^./, (match) => match.toUpperCase()); // Capitalize the first letter
-}
-
 function tranformReport(grouped) {
     const report = _.flatMap(grouped, (values, name) => {
         const firstPartyValues = [];

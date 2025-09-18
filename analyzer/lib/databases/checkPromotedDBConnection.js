@@ -67,7 +67,7 @@ function checkPromotedDBConnection(options) {
             });
             return callback(report);
         }
-        promoted_domain_connection = null;
+        let promoted_domain_connection = null;
         databases.forEach((connection) => {
             connection.is_domain_connection;
             if (connection.is_domain_connection === true) {

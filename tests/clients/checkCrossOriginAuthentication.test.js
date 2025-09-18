@@ -3,9 +3,9 @@ const expect = chai.expect;
 const checkCrossOriginAuthentication = require('../../analyzer/lib/clients/checkCrossOriginAuthentication');
 const CONSTANTS = require("../../analyzer/lib/constants");
 
-describe('checkCrossOriginAuthentication', () => {
+describe('checkCrossOriginAuthentication', function() {
 
-  it('should return an empty report when clients array is empty', () => {
+  it('should return an empty report when clients array is empty', function() {
     const options = {
       clients: []
     };
@@ -15,7 +15,7 @@ describe('checkCrossOriginAuthentication', () => {
     });
   });
 
-  it('should return a report when cross_origin_authentication is enabled', () => {
+  it('should return a report when cross_origin_authentication is enabled', function() {
     const options = {
       clients: [
         {
@@ -39,7 +39,7 @@ describe('checkCrossOriginAuthentication', () => {
     });
   });
 
-  it('should not return a report when cross_origin_authentication is disabled', () => {
+  it('should not return a report when cross_origin_authentication is disabled', function() {
     const options = {
       clients: [
         {
@@ -56,7 +56,7 @@ describe('checkCrossOriginAuthentication', () => {
     });
   });
 
-  it('should handle cases where client_id is missing', () => {
+  it('should handle cases where client_id is missing', function() {
     const options = {
       clients: [
         {
@@ -79,7 +79,7 @@ describe('checkCrossOriginAuthentication', () => {
     });
   });
 
-  it('should return an empty report if cross_origin_authentication is false and other properties exist', () => {
+  it('should return an empty report if cross_origin_authentication is false and other properties exist', function() {
     const options = {
       clients: [
         {

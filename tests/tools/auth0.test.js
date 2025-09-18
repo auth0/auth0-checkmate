@@ -81,7 +81,7 @@ describe("auth0.js", function() {
         }
       };
 
-      axios.post = async function(url, body, options) {
+      axios.post = async function(url, body) {
         expect(url).to.equal("https://test-domain/oauth/token");
         expect(body.grant_type).to.equal("client_credentials");
         expect(body.client_id).to.equal("test-client-id");
