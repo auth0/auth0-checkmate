@@ -1,0 +1,77 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0 on 2025-08-11
+        with:
+          fetch-depth: 0
+
+      - name: Verify tag is on main branch
+        shell: bash
+        run: |
+          git fetch origin main
+
+          # Check if the current commit (tag) is reachable from master
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "Error: Tag ${{ github.ref_name }} is not on the main branch"
+            echo "Tags can only be published from commits that exist on main"
+            exit 1
+          fi
+          echo "✅ Tag ${{ github.ref_name }} is on main branch"
+
+      - name: Validate tag format
+        shell: bash
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          echo "Publishing tag: $TAG"
+          if [[ ! $TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-beta(\.[0-9]+)?)?$ ]]; then
+            echo "Invalid tag format. Expected: v1.2.3 or v1.2.3-beta or v1.2.3-beta.1"
+            exit 1
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444  # v5.0.0 on 2025-09-02
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine npm tag
+        id: npm-tag
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          if [[ "$TAG" == *"-beta"* ]]; then
+            echo "tag=beta" >> $GITHUB_OUTPUT
+            echo "Publishing as beta release"
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+            echo "Publishing as latest release"
+          fi
+
+      - name: Publish release to NPM
+        shell: bash
+        run: |
+          echo "About to run: npm publish --provenance --tag ${{ steps.npm-tag.outputs.tag }}"
+          npm publish --provenance --tag ${{ steps.npm-tag.outputs.tag }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
