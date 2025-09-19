@@ -69,7 +69,7 @@ As an example, Checkmate activity might result in a log entry like the one shown
 Install Auth0 Checkmate globally to use it as a standalone CLI tool:
 
 ```bash
-npm install -g https://github.com/auth0/auth0-checkmate
+npm install -g @auth0/auth0-checkmate
 ```
 
 Then run it with:
