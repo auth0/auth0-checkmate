@@ -76,57 +76,45 @@ function detectHardcodedValues(code, scriptName) {
 
   let processedCode = String(code || '').replace(/(?!\w+#)\b#(\w+)/g, "_$1");
   
-  try {
-    const ast = acorn.parse(processedCode, {
-      ecmaVersion: "latest",
-      locations: true,
-    });
+  // The try...catch block was removed from here
+  const ast = acorn.parse(processedCode, {
+    ecmaVersion: "latest",
+    locations: true,
+  });
 
-    // Walk through the AST
-    walk(ast, {
-      enter(node) {
-        if (node.type === "VariableDeclaration") {
-          
-          node.declarations.forEach((declaration) => {
-            if (
-              declaration.init &&
-              declaration.init.type === "Literal" &&
-              typeof declaration.init.value === "string"
-            ) {
-              const value = declaration.init.value;
-              
-              hardcodedValues.push({
-                scriptName: scriptName,
-                variableName: declaration.id.name,
-                field: "hard_coded_value_detected",
-                status: CONSTANTS.FAIL,
-                type: typeof declaration.init.value,
-                // Use defensive location access
-                line: declaration.loc?.start?.line || 'N/A', 
-                column: declaration.loc?.start?.column || 'N/A',
-                // Fix: Add value property for the final filter
-                value: value, 
-              });
-            }
-          });
-        }
-      },
-    });
+  // Walk through the AST
+  walk(ast, {
+    enter(node) {
+      if (node.type === "VariableDeclaration") {
+        
+        node.declarations.forEach((declaration) => {
+          if (
+            declaration.init &&
+            declaration.init.type === "Literal" &&
+            typeof declaration.init.value === "string"
+          ) {
+            const value = declaration.init.value;
+            
+            hardcodedValues.push({
+              scriptName: scriptName,
+              variableName: declaration.id.name,
+              field: "hard_coded_value_detected",
+              status: CONSTANTS.FAIL,
+              type: typeof declaration.init.value,
+              line: declaration.loc?.start?.line || 'N/A', 
+              column: declaration.loc?.start?.column || 'N/A',
+              value: value, 
+            });
+          }
+        });
+      }
+    },
+  });
 
-    return hardcodedValues.filter(
-      (entry) =>
-        !isCommonException(entry.value) && !isConstantDeclaration(this.parent),
-    );
-
-  } catch (e) {
-    if (e instanceof SyntaxError) {
-      console.error(
-        `[PARSING ERROR] Syntax error in Action`
-      );
-      return [];
-    }
-    throw e;
-  }
+  return hardcodedValues.filter(
+    (entry) =>
+      !isCommonException(entry.value) && !isConstantDeclaration(this.parent),
+  );
 }
 
 // Helper functions
@@ -152,15 +140,23 @@ function checkActionsHardCodedValues(options) {
     if (_.isEmpty(actionsList)) {
       return callback(reports);
     }
-    actionsList.forEach((action) => {
+    for (const action of actionsList) { // Changed from forEach
       var actionName = action.name.concat(
         ` (${action.supported_triggers[0].id})`,
       );
-      var report = detectHardcodedValues(action.code, actionName);
-      if (report.length > 0) {
-        reports.push({ name: actionName, report: report });
+      try {
+        var report = detectHardcodedValues(action.code, actionName);
+        if (report.length > 0) {
+          reports.push({ name: actionName, report: report });
+        }
+      } catch (e) {
+        if (e instanceof SyntaxError) {
+          console.error(`[CHECK ERROR] Skipping malformed Actions: ${actionName}`);
+          continue; // Skip to the next action in the loop
+        }
+        throw e; // Re-throw any other error
       }
-    });
+    }
     return callback(reports);
   });
 }
