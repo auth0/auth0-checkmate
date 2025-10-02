@@ -76,7 +76,6 @@ function detectHardcodedValues(code, scriptName) {
 
   let processedCode = String(code || '').replace(/(?!\w+#)\b#(\w+)/g, "_$1");
   
-  // The try...catch block was removed from here
   const ast = acorn.parse(processedCode, {
     ecmaVersion: "latest",
     locations: true,
@@ -85,6 +84,7 @@ function detectHardcodedValues(code, scriptName) {
   // Walk through the AST
   walk(ast, {
     enter(node) {
+      // Check for variable assignments with hardcoded literals
       if (node.type === "VariableDeclaration") {
         
         node.declarations.forEach((declaration) => {
@@ -93,6 +93,7 @@ function detectHardcodedValues(code, scriptName) {
             declaration.init.type === "Literal" &&
             typeof declaration.init.value === "string"
           ) {
+            // Add the variable name and the type of the hardcoded literal
             const value = declaration.init.value;
             
             hardcodedValues.push({
@@ -140,7 +141,7 @@ function checkActionsHardCodedValues(options) {
     if (_.isEmpty(actionsList)) {
       return callback(reports);
     }
-    for (const action of actionsList) { // Changed from forEach
+    for (const action of actionsList) {
       var actionName = action.name.concat(
         ` (${action.supported_triggers[0].id})`,
       );
@@ -154,7 +155,7 @@ function checkActionsHardCodedValues(options) {
           console.error(`[CHECK ERROR] Skipping malformed Actions: ${actionName}`);
           continue; // Skip to the next action in the loop
         }
-        throw e; // Re-throw any other error
+        throw e; 
       }
     }
     return callback(reports);
