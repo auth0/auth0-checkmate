@@ -71,45 +71,62 @@ const acorn = require("acorn");
 const walk = require("estree-walker").walk;
 
 function detectHardcodedValues(code, scriptName) {
-  let processedCode = code.replace(/(?!\w+#)\b#(\w+)/g, "_$1");
-  const ast = acorn.parse(processedCode, {
-    ecmaVersion: "latest",
-    locations: true,
-  });
 
   const hardcodedValues = [];
 
-  // Walk through the AST
-  walk(ast, {
-    enter(node) {
-      // Check for variable assignments with hardcoded literals
-      if (node.type === "VariableDeclaration") {
-        node.declarations.forEach((declaration) => {
-          if (
-            declaration.init &&
-            declaration.init.type === "Literal" &&
-            typeof declaration.init.value === "string"
-          ) {
-            // Add the variable name and the type of the hardcoded literal
-            hardcodedValues.push({
-              scriptName: scriptName,
-              variableName: declaration.id.name,
-              field: "hard_coded_value_detected",
-              status: CONSTANTS.FAIL,
-              type: typeof declaration.init.value,
-              line: declaration.loc.start.line,
-              column: declaration.loc.start.column,
-            });
-          }
-        });
-      }
-    },
-  });
+  let processedCode = String(code || '').replace(/(?!\w+#)\b#(\w+)/g, "_$1");
+  
+  try {
+    const ast = acorn.parse(processedCode, {
+      ecmaVersion: "latest",
+      locations: true,
+    });
 
-  return hardcodedValues.filter(
-    (entry) =>
-      !isCommonException(entry.value) && !isConstantDeclaration(this.parent),
-  );
+    // Walk through the AST
+    walk(ast, {
+      enter(node) {
+        if (node.type === "VariableDeclaration") {
+          
+          node.declarations.forEach((declaration) => {
+            if (
+              declaration.init &&
+              declaration.init.type === "Literal" &&
+              typeof declaration.init.value === "string"
+            ) {
+              const value = declaration.init.value;
+              
+              hardcodedValues.push({
+                scriptName: scriptName,
+                variableName: declaration.id.name,
+                field: "hard_coded_value_detected",
+                status: CONSTANTS.FAIL,
+                type: typeof declaration.init.value,
+                // Use defensive location access
+                line: declaration.loc?.start?.line || 'N/A', 
+                column: declaration.loc?.start?.column || 'N/A',
+                // Fix: Add value property for the final filter
+                value: value, 
+              });
+            }
+          });
+        }
+      },
+    });
+
+    return hardcodedValues.filter(
+      (entry) =>
+        !isCommonException(entry.value) && !isConstantDeclaration(this.parent),
+    );
+
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      console.error(
+        `[PARSING ERROR] Syntax error in Action`
+      );
+      return [];
+    }
+    throw e;
+  }
 }
 
 // Helper functions
