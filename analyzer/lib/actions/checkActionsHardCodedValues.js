@@ -71,19 +71,22 @@ const acorn = require("acorn");
 const walk = require("estree-walker").walk;
 
 function detectHardcodedValues(code, scriptName) {
-  let processedCode = code.replace(/(?!\w+#)\b#(\w+)/g, "_$1");
+
+  const hardcodedValues = [];
+
+  let processedCode = String(code || '').replace(/(?!\w+#)\b#(\w+)/g, "_$1");
+  
   const ast = acorn.parse(processedCode, {
     ecmaVersion: "latest",
     locations: true,
   });
-
-  const hardcodedValues = [];
 
   // Walk through the AST
   walk(ast, {
     enter(node) {
       // Check for variable assignments with hardcoded literals
       if (node.type === "VariableDeclaration") {
+        
         node.declarations.forEach((declaration) => {
           if (
             declaration.init &&
@@ -91,14 +94,17 @@ function detectHardcodedValues(code, scriptName) {
             typeof declaration.init.value === "string"
           ) {
             // Add the variable name and the type of the hardcoded literal
+            const value = declaration.init.value;
+            
             hardcodedValues.push({
               scriptName: scriptName,
               variableName: declaration.id.name,
               field: "hard_coded_value_detected",
               status: CONSTANTS.FAIL,
               type: typeof declaration.init.value,
-              line: declaration.loc.start.line,
-              column: declaration.loc.start.column,
+              line: declaration.loc?.start?.line || 'N/A', 
+              column: declaration.loc?.start?.column || 'N/A',
+              value: value, 
             });
           }
         });
@@ -135,15 +141,23 @@ function checkActionsHardCodedValues(options) {
     if (_.isEmpty(actionsList)) {
       return callback(reports);
     }
-    actionsList.forEach((action) => {
+    for (const action of actionsList) {
       var actionName = action.name.concat(
         ` (${action.supported_triggers[0].id})`,
       );
-      var report = detectHardcodedValues(action.code, actionName);
-      if (report.length > 0) {
-        reports.push({ name: actionName, report: report });
+      try {
+        var report = detectHardcodedValues(action.code, actionName);
+        if (report.length > 0) {
+          reports.push({ name: actionName, report: report });
+        }
+      } catch (e) {
+        if (e instanceof SyntaxError) {
+          console.error(`[CHECK ERROR] Skipping malformed Actions: ${actionName}`);
+          continue; // Skip to the next action in the loop
+        }
+        throw e; 
       }
-    });
+    }
     return callback(reports);
   });
 }
