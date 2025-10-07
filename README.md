@@ -1,6 +1,6 @@
-# Auth0 Checkmate
+# CheckMate for Auth0
 
-**Auth0 Checkmate** is a command-line utility that performs configuration checks on your Auth0 tenant. It helps ensure your tenant is securely and correctly configured by validating key settings and generating a detailed report.
+**CheckMate for Auth0** is a command-line utility that performs configuration checks on your Auth0 tenant. It helps ensure your tenant is securely and correctly configured by validating key settings and generating a detailed report.
 
 ---
 
@@ -16,13 +16,13 @@
 
 This tool makes use of the **Auth0 Management API**, which **consumes your tenant’s [rate limits](https://auth0.com/docs/troubleshoot/customer-support/operational-policies/rate-limit-policy/rate-limit-configurations)**. Use it thoughtfully to avoid throttling.
 
-Checkmate for Auth0 is designed to provide visibility into its behavior through your Auth0 tenant's [log events](https://auth0.com/docs/deploy-monitor/logs). Tracking its use is important for monitoring and debugging purposes. You can track its use in several ways, including:
+CheckMate for Auth0 is designed to provide visibility into its behavior through your Auth0 tenant's [log events](https://auth0.com/docs/deploy-monitor/logs). Tracking its use is important for monitoring and debugging purposes. You can track its use in several ways, including:
 
--  The `User-Agent` string in the HTTP request header, which will have a value in the form of `${packageName}/${packageVersion}` (e.g. `auth0-checkmate/1.2.14`). Keep in mind that if the `User-Agent` string is modified on the client side, then Checkmate for Auth0 usage cannot be tracked this way.
-- The `client_name` and `scopes` assigned to Checkmate when configuring initial access
+-  The `User-Agent` string in the HTTP request header, which will have a value in the form of `${packageName}/${packageVersion}` (e.g. `@auth0/auth0-checkmate/1.4.0`). Keep in mind that if the `User-Agent` string is modified on the client side, then CheckMate for Auth0 usage cannot be tracked this way.
+- The `client_name` and `scopes` assigned to CheckMate when configuring initial access
 - `seccft` events (Successful exchange of Access Token for a Client Credentials Grant) in Auth0 logs
 
-As an example, Checkmate activity might result in a log entry like the one shown below. Each field in the log entry provides valuable information for troubleshooting or auditing, such as the `client_name` identifying the application, the `scope` showing granted permissions, and the `user_agent` indicating the tool version used.
+As an example, CheckMate activity might result in a log entry like the one shown below. Each field in the log entry provides valuable information for troubleshooting or auditing, such as the `client_name` identifying the application, the `scope` showing granted permissions, and the `user_agent` indicating the tool version used.
 
 ```json
 {
@@ -66,7 +66,7 @@ As an example, Checkmate activity might result in a log entry like the one shown
 
 ### Option 1 – Global Installation
 
-Install Auth0 Checkmate globally to use it as a standalone CLI tool:
+Install CheckMate for Auth0 globally to use it as a standalone CLI tool:
 
 ```bash
 npm install -g @auth0/auth0-checkmate
@@ -112,7 +112,7 @@ Follow the interactive prompts to get started.
 
 ## 🔐 Auth0 Setup Instructions
 
-To use Auth0 Checkmate, you need a **dedicated Auth0 Application** to authorize calls to the Management API.
+To use CheckMate for Auth0, you need a **dedicated Auth0 Application** to authorize calls to the Management API.
 
 ### Create a Machine-to-Machine Application
 
@@ -122,7 +122,7 @@ To use Auth0 Checkmate, you need a **dedicated Auth0 Application** to authorize 
 2. Click **“Create Application”**
 
 3. In the setup form:
-   - **Name:** `Auth0 Checkmate` (or similar)
+   - **Name:** `Auth0 CheckMate` (or similar)
    - **Application Type:** `Machine to Machine Applications`
    - Click **“Create”**
 
@@ -163,4 +163,4 @@ To use Auth0 Checkmate, you need a **dedicated Auth0 Application** to authorize 
 
 ## ✅ You're All Set
 
-With your Auth0 application configured and the CLI installed, you’re ready to run **Auth0 Checkmate** and ensure your tenant setup is secure and complete.
+With your Auth0 application configured and the CLI installed, you’re ready to run **CheckMate for Auth0** and ensure your tenant setup is secure and complete.
