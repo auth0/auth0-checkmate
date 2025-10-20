@@ -124,25 +124,10 @@ License: MIT
 Copyright (c) 2011-2022 OpenJS Foundation and contributors, https://openjsf.org
 Repository: https://github.com/mochajs/mocha
 
-nock (14.0.1)
-License: MIT
-Copyright (c) 2011-2019 Pedro Teixeira and other contributors
-Repository: https://github.com/nock/nock
-
 nyc (17.1.0)
 License: ISC
 Copyright (c) 2015, Contributors
 Repository: https://github.com/istanbuljs/nyc
-
-proxyquire (2.1.3)
-License: MIT
-Copyright 2013 Thorsten Lorenz
-Repository: https://github.com/thlorenz/proxyquire
-
-sinon (19.0.2)
-License: BSD-3-Clause
-Copyright (c) 2010-2020, Christian Johansen
-Repository: https://github.com/sinonjs/sinon
 
 -------------------------------------------------------------------------------
 License Texts
