@@ -12,7 +12,6 @@ const puppeteer = require("puppeteer");
 const { getToday, getFormattedDateTime } = require("../analyzer/tools/utils");
 const Handlebars = require("handlebars");
 const i18n = require("i18n");
-const os = require("os");
 const Table = require("cli-table3");
 const {
   getAccessToken,
