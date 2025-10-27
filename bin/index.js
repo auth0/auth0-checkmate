@@ -13,7 +13,6 @@ const { getToday, getFormattedDateTime } = require("../analyzer/tools/utils");
 const Handlebars = require("handlebars");
 const i18n = require("i18n");
 const os = require("os");
-const userHomeDir = os.homedir();
 const Table = require("cli-table3");
 const {
   getAccessToken,
