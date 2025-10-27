@@ -32,7 +32,7 @@
 			"heading": "Summary of findings"
 		}
 	},
-	"report_title": "Checkmate for Auth0 Configuration Report",
+	"report_title": "CheckMate for Auth0 Configuration Report",
 	"list_of_validators": [
 		{
 			"title": "Custom Domains",
