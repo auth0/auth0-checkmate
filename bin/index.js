@@ -12,8 +12,6 @@ const puppeteer = require("puppeteer");
 const { getToday, getFormattedDateTime } = require("../analyzer/tools/utils");
 const Handlebars = require("handlebars");
 const i18n = require("i18n");
-const os = require("os");
-const userHomeDir = os.homedir();
 const Table = require("cli-table3");
 const {
   getAccessToken,
@@ -63,10 +61,6 @@ const templateData = fs.readFileSync(
   path.join(__dirname, "../views/pdf_cli_report.handlebars"),
   "utf8",
 );
-const imagePath = path.join(__dirname, '../images/auth0.png');
-const imageBuffer = fs.readFileSync(imagePath);
-const base64Image = imageBuffer.toString('base64');
-const imageSrc = `data:image/png;base64,${base64Image}`;
 
 /**
  * 
@@ -193,7 +187,6 @@ async function generatePdf(filePath, data) {
     const htmlContent = template({
       locale: data.locale,
       data,
-      logoBase64: imageSrc,
       preamble: data.report.preamble,
     });
     const page = await browser.newPage();
@@ -363,7 +356,7 @@ async function main() {
     name: "filePath",
     message:
       "Enter the full path where you want to save the file (e.g., /path/to/file.pdf):",
-    default: userHomeDir,
+    default: "./reports",
     validate: (input) => {
       if (input.trim() === "") {
         return "Please enter a valid file path.";
@@ -378,7 +371,7 @@ async function main() {
     auth0ClientId: answers.auth0ClientId || null,
     auth0ClientSecret: answers.auth0ClientSecret || null,
     auth0MgmtToken: answers.auth0MgmtToken || null,
-    filePath: path.join(userHomeDir, answers.filePath),
+    filePath: path.isAbsolute(answers.filePath) ? answers.filePath : path.resolve(answers.filePath),
     selectedValidators: selectedValidators ? selectedValidators.split(',') : []
   };
 
