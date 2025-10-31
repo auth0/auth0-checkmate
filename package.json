@@ -1,6 +1,6 @@
 {
   "name": "@auth0/auth0-checkmate",
-  "version": "1.5.2",
+  "version": "1.5.1",
   "description": "A command line tool for checking configuration of your Auth0 tenant",
   "main": "analyzer/report.js",
   "scripts": {
