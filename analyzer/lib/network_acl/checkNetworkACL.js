@@ -47,9 +47,12 @@ function checkNetworkACL(options) {
         networkAcl.forEach((acl) => {
         if (!acl.active) {
           const description = acl.description || acl.name || acl.acl_id;
+          const name = description === acl.acl_id
+            ? description
+            : `${description}(${acl.acl_id})`;
           report.push({
             field: "network_acl_inactive",
-            name: `${description}(${acl.acl_id})`,
+            name: name,
             status: CONSTANTS.FAIL,
           });
         }

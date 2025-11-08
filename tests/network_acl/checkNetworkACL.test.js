@@ -58,6 +58,23 @@ describe("checkNetworkACL", function () {
     expect(result.details[0].name).to.match(/acl_456/);
   });
 
+
+  it("should handle true ACL with null description", async function () {
+    const input = {
+      networkAcl: [
+        {
+          acl_id: "acl_888",
+          active: true,
+          description: null,
+        },
+      ],
+    };
+
+    const result = await checkNetworkACL(input);
+    expect(result.details).to.be.an("array");
+    expect(result.details).to.have.lengthOf(0);
+  });
+
   // Edge case - insufficient scope
   it("should return empty array when insufficient_scope error", async function () {
     const input = {
