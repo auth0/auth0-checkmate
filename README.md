@@ -159,7 +159,7 @@ To use CheckMate for Auth0, you need a **dedicated Auth0 Application** to author
 
 5. Click **“Authorize”** to complete setup.
 
-6. Optional: the following environment variables can be used to provide configurations
+6. Optional: the following environment variables can be used to provide a CI friendly configuration
    ```text
     AUTH0CHECKMATE_DISABLE_PDF_REPORTING=true|false
     AUTH0CHECKMATE_DOMAIN=your_domain
