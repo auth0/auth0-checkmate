@@ -155,6 +155,8 @@ To use CheckMate for Auth0, you need a **dedicated Auth0 Application** to author
    read:logs
    read:network_acls
    read:event_streams
+   read:hooks
+   read:rules
    ```
 
 5. Click **“Authorize”** to complete setup.
