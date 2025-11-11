@@ -144,7 +144,7 @@
 			"items": []
 		},
 		{
-			"title": "Tenant Access Control List (Early Access Capability)",
+			"title": "Tenant Access Control List",
 			"required_scope": "read:network_acls",
 			"items": []
 		},
@@ -1384,7 +1384,7 @@
 		"severity_message": "Auth0 Canonical Domain is being used for end user interactive authentication or/and signup."
 	},
 	"checkNetworkACL": {
-		"title": "Tenant Access Control List (Early Access Capability)",
+		"title": "Tenant Access Control List",
 		"category": "Attack Protection",
 		"advisory": {},
 		"description": "Tenant Access Control List (ACL) allows you to manage traffic to your Auth0 services with configurable rules. It helps you protect your tenant and conserve your rate limits against potential threats, such as denial-of-service (DoS) attacks, and ensures that only legitimate users access your applications.",
@@ -1396,7 +1396,7 @@
 		"no_network_acl": "The tenant does not have Tenant Access Control List configured.",
 		"network_acl_inactive": "This ACL %s is currently inactive. Please review the ACL rules periodically.",
 		"severity_message": "Enhance your security posture by configuring Tenant ACL.",
-		"disclaimer": "Tenant Access Control List (ACL) is an Early Access Service and currently available only to customers on an Enterprise plan with the Attack Protection add-on"
+		"disclaimer": "Tenant Access Control List (ACL) is available only to customers on an Enterprise plan."
 	},
 	"checkEventStreams": {
 		"event_stream_not_configured": "Event Streaming is not configured for the tenant",

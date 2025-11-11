@@ -53,16 +53,17 @@ function checkEventStreams(options) {
       });
     } else {
         eventStreams.forEach((stream) => {
-        if (stream.status !== "enabled") {
-          report.push({
-            field: "event_stream_disabled",
-            name: stream.name,
-            type: stream?.destination.type,
-            stream_status: stream.status,
-            status: CONSTANTS.FAIL,
-          });
-        }
-      });
+          stream = stream || {};
+          if (stream.status !== "enabled") {
+            report.push({
+              field: "event_stream_disabled",
+              name: stream.name || "unknown",
+              type: stream.destination?.type || "unknown",
+              stream_status: stream.status || "unknown",
+              status: CONSTANTS.FAIL,
+            });
+          }
+        });
     }
     return callback(report);
   });
