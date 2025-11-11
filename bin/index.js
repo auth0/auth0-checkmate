@@ -131,7 +131,7 @@ async function processAuth0Config(locale, tenant, config) {
   const report = await generateReport(locale, tenant, config);
   const today = await getToday(locale);
   const { auth0Domain, filePath } = config;
-  const data = { report, auth0Domain, today, locale, version };
+  const data = { report, auth0Domain, today, locale, version, config };
   await printReportToCli(filePath, data);
 }
 
@@ -159,23 +159,44 @@ async function printReportToCli(filePath, data) {
 
     // Print the table
     console.log(table.toString());
-    await generatePdf(filePath, data);
+
+    await generateJson(filePath, data);
+
+    if (!data.config.disablePdfReporting) {
+          await generatePdf(filePath, data);
+        } else {
+          console.log(chalk.yellow("PDF report generation skipped (disabled by configuration)."));
+        }
   } else {
     console.log(chalk.red(`failed to generate report`));
   }
 }
 
-async function generatePdf(filePath, data) {
+
+async function generateJson(filePath, data) {
   try {
-    console.log(chalk.yellow(`\nGenerating a PDF report\n`));
-    const fileFullPath = `${filePath}/${data.auth0Domain}_${data.locale}_${getFormattedDateTime()}_report.pdf`;
     const fileFullPathJSON = `${filePath}/${data.auth0Domain}_${data.locale}_${getFormattedDateTime()}_report.json`;
+    
+    // Check/create directory
     if (!fs.existsSync(filePath)) {
-      console.log("The directory does not exist, creating it...");
+      console.log(chalk.yellow("The directory does not exist, creating it..."));
       await fs.mkdirSync(filePath, { recursive: true });
     }
+    
     // save JSON report
     fs.writeFileSync(fileFullPathJSON, JSON.stringify(data.report.summary, null, 2));
+    
+    console.log(
+      chalk.yellow(`\nJSON report has been saved at ${fileFullPathJSON}\n`),
+    );
+  } catch (e) {
+    logger.log("error", `Failed to generate JSON report: ${e}`);
+  }
+}
+
+async function generatePdf(filePath, data) {
+  try {
+    const fileFullPath = `${filePath}/${data.auth0Domain}_${data.locale}_${getFormattedDateTime()}_report.pdf`;
     const browser = await puppeteer.launch({
       headless: true, // Run in headless mode
       args: [
@@ -213,13 +234,10 @@ async function generatePdf(filePath, data) {
     });
     await browser.close();
     console.log(
-      chalk.yellow(`\nA full PDF report has been saved at ${fileFullPath}\n`),
-    );
-    console.log(
-      chalk.yellow(`\nJSON report has been saved at ${fileFullPathJSON}\n`),
+      chalk.yellow(`\nPDF report has been saved at ${fileFullPath}\n`),
     );
   } catch (e) {
-    logger.log("error", `Failed to generate pdf ${e}`);
+    logger.log("error", `Failed to generate PDF report: ${e}`);
   }
 }
 
@@ -257,7 +275,32 @@ async function main() {
   }
   const answers = {};
 
+  // Check for AUTH0CHECKMATE_DISABLE_PDF_REPORTING
+  const disablePdfReporting = process.env.AUTH0CHECKMATE_DISABLE_PDF_REPORTING && 
+                              process.env.AUTH0CHECKMATE_DISABLE_PDF_REPORTING.toLowerCase() === 'true';
+  answers.disablePdfReporting = disablePdfReporting;
+  if (disablePdfReporting) {
+    console.log(chalk.yellow("⚠️  PDF report generation is disabled via AUTH0CHECKMATE_DISABLE_PDF_REPORTING environment variable."));
+  }
+
+  // Check for Environment Variables
+  const envDomain = process.env.AUTH0CHECKMATE_DOMAIN;
+  const envClientId = process.env.AUTH0CHECKMATE_CLIENT_ID;
+  const envClientSecret = process.env.AUTH0CHECKMATE_CLIENT_SECRET;
+  const envAuthReady = envDomain && envClientId && envClientSecret;
+  const envFilePath = process.env.AUTH0CHECKMATE_FILE_PATH; 
+  const envShowValidators = process.env.AUTH0CHECKMATE_SHOW_VALIDATORS;
+  let defaultShowValidators = null;
+  
+  if (envShowValidators) {
+    defaultShowValidators = envShowValidators.toLowerCase() === 'true';
+    answers.showValidators = defaultShowValidators; 
+  } else {
+    answers.showValidators = false; 
+  }
+
   // Prompt 1: Show validators
+  if (defaultShowValidators === null) {
   const { showValidators } = await inquirer.prompt({
     type: "confirm",
     name: "showValidators",
@@ -265,74 +308,107 @@ async function main() {
     default: false,
   });
   answers.showValidators = showValidators;
-
-  if (showValidators) {
-    console.log("Currently supports for the following tenant configurations:");
-    printJsonAsBullets(i18n.__("list_of_validators"));
+  } else if (defaultShowValidators) {
+    console.log(chalk.green(`\n✅  Showing validators as configured by AUTH0CHECKMATE_SHOW_VALIDATORS.`));
+  } else {
+    console.log(chalk.yellow(`\n⚠️  Skipping validator list as configured by AUTH0CHECKMATE_SHOW_VALIDATORS.`));
   }
 
-  // Prompt 2: Auth method
-  const { authMethod } = await inquirer.prompt({
-    type: "list",
-    name: "authMethod",
-    message: "How would you like to provide credentials?",
-    choices: [
-      { name: "Auth0 Client ID & Secret", value: "clientSecret" },
-      { name: "Auth0 Management API Token", value: "auth0MgmtToken" },
-    ],
-  });
-  answers.authMethod = authMethod;
+// The subsequent check now safely relies on answers.showValidators, 
+// which is guaranteed to be a boolean (true, false, or the interactive result).
+if (answers.showValidators) { 
+  console.log("Currently supports for the following tenant configurations:");
+  printJsonAsBullets(i18n.__("list_of_validators"));
+}
 
-  // Prompt 3: Auth0 Domain
-  const { auth0Domain } = await inquirer.prompt({
-    type: "input",
-    name: "auth0Domain",
-    message: "Enter your Auth0 domain:",
-    validate: (input) => (input ? true : "Auth0 domain is required."),
-  });
-  answers.auth0Domain = auth0Domain;
+  // Auto-detect or prompt for authentication method
+  let authMethod;
+  if (envAuthReady) {
+    // Use Environment Variables by default (non-interactive)
+    authMethod = "envVars";
+    answers.auth0Domain = envDomain;
+    answers.auth0ClientId = envClientId;
+    answers.auth0ClientSecret = envClientSecret;
 
-  // Prompt 4: Auth0 Client ID (if needed)
-  if (authMethod === "clientSecret") {
-    const { auth0ClientId } = await inquirer.prompt({
-      type: "input",
-      name: "auth0ClientId",
-      message: "Enter your Auth0 Client ID:",
-      validate: (input) => (input ? true : "Auth0 Client ID is required."),
-    });
-    answers.auth0ClientId = auth0ClientId;
-  }
-
-  // Prompt 5: Auth0 Client Secret (if needed)
-  if (authMethod === "clientSecret") {
-    const { auth0ClientSecret } = await inquirer.prompt({
-      type: "password",
-      name: "auth0ClientSecret",
-      message: "Enter your Auth0 Client Secret:",
-      validate: (input) => (input ? true : "Auth0 Client Secret is required."),
-    });
-    answers.auth0ClientSecret = auth0ClientSecret;
+    console.log(chalk.green(`\n✅  Using credentials from environment variables (Domain: ${envDomain}) to authenticate.`));
+    
     try {
-      const accessToken = await getAccessToken(answers.auth0Domain, answers.auth0ClientId, answers.auth0ClientSecret);
+      // Get the token using the env vars
+      const accessToken = await getAccessToken(envDomain, envClientId, envClientSecret);
       checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
       answers.auth0MgmtToken = accessToken;
     } catch (e) {
       console.error(e.message);
       process.exit(0);
     }
-  }
-
-  // Prompt 6: Auth0 Management Token (if needed)
-  if (authMethod === "auth0MgmtToken") {
-    const { auth0MgmtToken } = await inquirer.prompt({
-      type: "input",
-      name: "auth0MgmtToken",
-      message: "Enter your Auth0 Management API Token:",
-      validate: (input) =>
-        input ? true : "Auth0 Management API token is required.",
+  } else {
+    // Prompt 2. Prompt for authentication method (interactive fallback)
+    const { selectedAuthMethod } = await inquirer.prompt({
+      type: "list",
+      name: "selectedAuthMethod",
+      message: "How would you like to provide credentials?",
+      choices: [
+        { name: "Auth0 Client ID & Secret", value: "clientSecret" },
+        { name: "Auth0 Management API Token", value: "auth0MgmtToken" },
+      ],
     });
-    checkScopes(auth0MgmtToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
-    answers.auth0MgmtToken = auth0MgmtToken;
+    authMethod = selectedAuthMethod;
+  }
+  answers.authMethod = authMethod; // Set the authMethod for the rest of the flow
+
+
+  if (authMethod !== "envVars") { 
+    // Prompt 3: Auth0 Domain
+    const { auth0Domain } = await inquirer.prompt({
+      type: "input",
+      name: "auth0Domain",
+      message: "Enter your Auth0 domain:",
+      validate: (input) => (input ? true : "Auth0 domain is required."),
+    });
+    answers.auth0Domain = auth0Domain;
+
+    // Prompt 4: Auth0 Client ID (if needed)
+    if (authMethod === "clientSecret") {
+      const { auth0ClientId } = await inquirer.prompt({
+        type: "input",
+        name: "auth0ClientId",
+        message: "Enter your Auth0 Client ID:",
+        validate: (input) => (input ? true : "Auth0 Client ID is required."),
+      });
+      answers.auth0ClientId = auth0ClientId;
+    }
+
+    // Prompt 5: Auth0 Client Secret (if needed)
+    if (authMethod === "clientSecret") {
+      const { auth0ClientSecret } = await inquirer.prompt({
+        type: "password",
+        name: "auth0ClientSecret",
+        message: "Enter your Auth0 Client Secret:",
+        validate: (input) => (input ? true : "Auth0 Client Secret is required."),
+      });
+      answers.auth0ClientSecret = auth0ClientSecret;
+      try {
+        const accessToken = await getAccessToken(answers.auth0Domain, answers.auth0ClientId, answers.auth0ClientSecret);
+        checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
+        answers.auth0MgmtToken = accessToken;
+      } catch (e) {
+        console.error(e.message);
+        process.exit(0);
+      }
+    }
+
+    // Prompt 6: Auth0 Management Token (if needed)
+    if (authMethod === "auth0MgmtToken") {
+      const { auth0MgmtToken } = await inquirer.prompt({
+        type: "input",
+        name: "auth0MgmtToken",
+        message: "Enter your Auth0 Management API Token:",
+        validate: (input) =>
+          input ? true : "Auth0 Management API token is required.",
+      });
+      checkScopes(auth0MgmtToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
+      answers.auth0MgmtToken = auth0MgmtToken;
+    }
   }
 
   // Prompt 7: Locale (if more than one)
@@ -351,20 +427,28 @@ async function main() {
   }
 
   // Prompt 8: File path
-  const { filePath } = await inquirer.prompt({
-    type: "input",
-    name: "filePath",
-    message:
-      "Enter the full path where you want to save the file (e.g., /path/to/file.pdf):",
-    default: "./reports",
-    validate: (input) => {
-      if (input.trim() === "") {
-        return "Please enter a valid file path.";
-      }
-      return true;
-    },
-  });
-  answers.filePath = filePath;
+  if (envFilePath) {
+    // A. Use environment variable directly (non-interactive)
+    answers.filePath = envFilePath;
+    console.log(chalk.green(`\n✅ Using output path from environment variable: ${envFilePath}`));
+  } else {
+    // B. Fall back to interactive prompt
+    const { filePath } = await inquirer.prompt({
+      type: "input",
+      name: "filePath",
+      message:
+        "Enter the full path where you want to save the file (e.g., /path/to/file.pdf):",
+      default: "./reports",
+      validate: (input) => {
+        if (input.trim() === "") {
+          return "Please enter a valid file path.";
+        }
+        return true;
+      },
+    });
+    answers.filePath = filePath;
+  }
+
   // Construct config
   const config = {
     auth0Domain: answers.auth0Domain,
@@ -372,7 +456,8 @@ async function main() {
     auth0ClientSecret: answers.auth0ClientSecret || null,
     auth0MgmtToken: answers.auth0MgmtToken || null,
     filePath: path.isAbsolute(answers.filePath) ? answers.filePath : path.resolve(answers.filePath),
-    selectedValidators: selectedValidators ? selectedValidators.split(',') : []
+    selectedValidators: selectedValidators ? selectedValidators.split(',') : [],
+    disablePdfReporting: answers.disablePdfReporting,
   };
 
   const tenant = {};
