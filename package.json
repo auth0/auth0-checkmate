@@ -25,11 +25,11 @@
     "glob": "^11.0.1",
     "handlebars": "^4.7.8",
     "i18n": "^0.15.2",
-    "inquirer": "^12.9.6",
+    "inquirer": "^12.10.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
-    "puppeteer": "^24.23.0",
+    "puppeteer": "^24.25.0",
     "semver": "^7.7.3",
     "winston": "^3.18.3"
   },
