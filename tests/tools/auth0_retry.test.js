@@ -52,7 +52,7 @@ describe("Auth0 API Retry Logic", function() {
 
     // Override setTimeout to speed up tests
     const originalSetTimeout = global.setTimeout;
-    global.setTimeout = (fn, delay) => fn();
+    global.setTimeout = (fn) => fn();
 
     try {
       const response = await axios.get("https://test.com/api");
@@ -85,7 +85,7 @@ describe("Auth0 API Retry Logic", function() {
 
     // Override setTimeout
     const originalSetTimeout = global.setTimeout;
-    global.setTimeout = (fn, delay) => fn();
+    global.setTimeout = (fn) => fn();
 
     try {
       await axios.get("https://test.com/api");
