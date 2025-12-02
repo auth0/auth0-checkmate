@@ -67,7 +67,7 @@ const acorn = require("acorn");
 const walk = require("estree-walker").walk;
 
 function detectHardcodedValues(code, scriptName) {
-  let processedCode = code.replace(/(?!\w+#)\b#(\w+)/g, "_$1");
+  let processedCode = String(code || '').replace(/(?!\w+#)\b#(\w+)/g, "_$1");
 
   let ast;
     try {
@@ -77,7 +77,7 @@ function detectHardcodedValues(code, scriptName) {
       });
     } catch (e) {
       if (e instanceof SyntaxError) {
-        console.error(`[ACORN PARSE ERROR] Skipping script "${scriptName}" due to malformed code: ${e.message}`);
+        console.error(`[ACORN PARSE ERROR] Skipping script "${scriptName}" due to malformed code`);
         // Return an empty array so the main loop can continue
         return []; 
       }
