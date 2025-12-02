@@ -158,11 +158,9 @@ function checkActionsHardCodedValues(options) {
       try {
         var report = detectHardcodedValues(action.code, actionName);
         if (report.length === 0) {
-          console.log("Stage1")
           continue; 
         }
         if (report.length > 0) {
-          console.log("Stage2")
           reports.push({ name: actionName, report: report });
         }
       } catch (e) {
@@ -173,7 +171,6 @@ function checkActionsHardCodedValues(options) {
         throw e; 
       }
     }
-    console.log("Stage3")
     return callback(reports);
   });
 }
