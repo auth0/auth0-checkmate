@@ -76,10 +76,20 @@ function detectHardcodedValues(code, scriptName) {
 
   let processedCode = String(code || '').replace(/(?!\w+#)\b#(\w+)/g, "_$1");
   
-  const ast = acorn.parse(processedCode, {
-    ecmaVersion: "latest",
-    locations: true,
-  });
+  let ast;
+    try {
+      ast = acorn.parse(processedCode, {
+        ecmaVersion: "latest",
+        locations: true,
+      });
+    } catch (e) {
+      if (e instanceof SyntaxError) {
+        console.error(`[ACORN PARSE ERROR] Skipping script "${scriptName}" due to malformed code: ${e.message}`);
+        // Return an empty array so the main loop can continue
+        return []; 
+      }
+      throw e; // Re-throw other unexpected errors
+    }
 
   // Walk through the AST
   walk(ast, {
@@ -147,7 +157,12 @@ function checkActionsHardCodedValues(options) {
       );
       try {
         var report = detectHardcodedValues(action.code, actionName);
+        if (report.length === 0) {
+          console.log("Stage1")
+          continue; 
+        }
         if (report.length > 0) {
+          console.log("Stage2")
           reports.push({ name: actionName, report: report });
         }
       } catch (e) {
@@ -158,6 +173,7 @@ function checkActionsHardCodedValues(options) {
         throw e; 
       }
     }
+    console.log("Stage3")
     return callback(reports);
   });
 }
