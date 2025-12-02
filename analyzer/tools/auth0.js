@@ -25,8 +25,6 @@ axios.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      config.__retryCount += 1;
-
       // Calculate delay
       let delayInMs = 1000;
       if (error.response.headers["retry-after"]) {
@@ -49,6 +47,7 @@ axios.interceptors.response.use(
         (Attempt ${config.__retryCount}/${MAX_RETRIES}) due to ${error.response.status} response`,
       );
 
+      config.__retryCount += 1;
       await new Promise((resolve) => setTimeout(resolve, delayInMs));
       return axios(config);
     }
