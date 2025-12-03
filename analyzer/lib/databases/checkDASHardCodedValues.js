@@ -67,59 +67,70 @@ const acorn = require("acorn");
 const walk = require("estree-walker").walk;
 
 function detectHardcodedValues(code, scriptName) {
-    let processedCode = code.replace(/(?!\w+#)\b#(\w+)/g, "_$1");
-    const ast = acorn.parse(processedCode, {
+  let processedCode = String(code || '').replace(/(?!\w+#)\b#(\w+)/g, "_$1");
+
+  let ast;
+    try {
+      ast = acorn.parse(processedCode, {
         ecmaVersion: "latest",
         locations: true,
-    });
+      });
+    } catch (e) {
+      if (e instanceof SyntaxError) {
+        console.error(`[ACORN PARSE ERROR] Skipping script "${scriptName}" due to malformed code`);
+        // Return an empty array so the main loop can continue
+        return []; 
+      }
+      throw e; // Re-throw other unexpected errors
+    }
 
-    const hardcodedValues = [];
+  const hardcodedValues = [];
 
-    walk(ast, {
-        enter(node) {
-            // Variable assignments
-            if (node.type === "VariableDeclaration") {
-                node.declarations.forEach((declaration) => {
-                    if (
-                        declaration.init &&
-                        declaration.init.type === "Literal" &&
-                        typeof declaration.init.value === "string" &&
-                        !isCommonException(declaration.init.value)
-                    ) {
-                        hardcodedValues.push({
-                            scriptName: scriptName,
-                            variableName: declaration.id.name,
-                            field: "hard_coded_value_detected",
-                            status: CONSTANTS.FAIL,
-                            type: typeof declaration.init.value,
-                            line: declaration.loc.start.line,
-                            column: declaration.loc.start.column,
-                        });
-                    }
-                });
-            }
+  walk(ast, {
+      enter(node) {
+          // Variable assignments
+          if (node.type === "VariableDeclaration") {
+              node.declarations.forEach((declaration) => {
+                  if (
+                      declaration.init &&
+                      declaration.init.type === "Literal" &&
+                      typeof declaration.init.value === "string" &&
+                      !isCommonException(declaration.init.value)
+                  ) {
+                      hardcodedValues.push({
+                          scriptName: scriptName,
+                          variableName: declaration.id.name,
+                          field: "hard_coded_value_detected",
+                          status: CONSTANTS.FAIL,
+                          type: typeof declaration.init.value,
+                          line: declaration.loc.start.line,
+                          column: declaration.loc.start.column,
+                      });
+                  }
+              });
+          }
 
-            // Object literals
-            if (
-                node.type === "Property" &&
-                node.value.type === "Literal" &&
-                typeof node.value.value === "string" &&
-                !isCommonException(node.value.value)
-            ) {
-                hardcodedValues.push({
-                    scriptName: scriptName,
-                    variableName: node.key.name || node.key.value,
-                    field: "hard_coded_value_detected",
-                    status: CONSTANTS.FAIL,
-                    type: typeof node.value.value,
-                    line: node.loc.start.line,
-                    column: node.loc.start.column,
-                });
-            }
-        },
-    });
+          // Object literals
+          if (
+              node.type === "Property" &&
+              node.value.type === "Literal" &&
+              typeof node.value.value === "string" &&
+              !isCommonException(node.value.value)
+          ) {
+              hardcodedValues.push({
+                  scriptName: scriptName,
+                  variableName: node.key.name || node.key.value,
+                  field: "hard_coded_value_detected",
+                  status: CONSTANTS.FAIL,
+                  type: typeof node.value.value,
+                  line: node.loc.start.line,
+                  column: node.loc.start.column,
+              });
+          }
+      },
+  });
 
-    return hardcodedValues;
+  return hardcodedValues;
 }
 
 // Helper functions
