@@ -55,7 +55,7 @@ describe("Auth0 API Retry Logic", function() {
     global.setTimeout = (fn) => fn();
 
     try {
-      const response = await axios.get("https://test.com/api");
+      const response = await axios.get("https://auth0.com/api");
       expect(response.data.success).to.be.true;
       expect(attempts).to.equal(3); // Initial + 2 retries
       
@@ -88,7 +88,7 @@ describe("Auth0 API Retry Logic", function() {
     global.setTimeout = (fn) => fn();
 
     try {
-      await axios.get("https://test.com/api");
+      await axios.get("https://auth0.com/api");
       throw new Error("Should have failed");
     } catch (error) {
       expect(error.response.status).to.equal(429);
@@ -127,7 +127,7 @@ describe("Auth0 API Retry Logic", function() {
     };
 
     try {
-      await axios.get("https://test.com/api");
+      await axios.get("https://auth0.com/api");
       expect(attempts).to.equal(2);
       // Delay should be around 2000ms + jitter
       expect(delays[0]).to.be.at.least(2000);
@@ -165,7 +165,7 @@ describe("Auth0 API Retry Logic", function() {
     };
 
     try {
-      await axios.get("https://test.com/api");
+      await axios.get("https://auth0.com/api");
       expect(attempts).to.equal(2);
       // Delay should be default, around 1000ms + jitter
       expect(delays[0]).to.be.at.least(1000);
@@ -203,7 +203,7 @@ describe("Auth0 API Retry Logic", function() {
     };
 
     try {
-      await axios.get("https://test.com/api");
+      await axios.get("https://auth0.com/api");
       expect(attempts).to.equal(2);
       // Delay should be default, around 1000ms + jitter
       expect(delays[0]).to.be.at.least(1000);
