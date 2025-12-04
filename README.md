@@ -80,6 +80,11 @@ a0checkmate
 
 Follow the interactive prompts to get started.
 
+To update CheckMate:
+
+```bash
+npm update -g @auth0/auth0-checkmate
+```
 ---
 
 ### Option 2 – Run from Source
