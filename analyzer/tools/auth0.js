@@ -10,6 +10,52 @@ const PER_PAGE = 100;
 axios.defaults.headers.common["User-Agent"] =
   `${packageName}/${packageVersion}`;
 
+// Add exponential backoff interceptor
+axios.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const config = error.config;
+
+    // Retry on 429 (Too Many Requests)
+    if (error.response && error.response.status === 429) {
+      config.__retryCount = config.__retryCount || 0;
+      const MAX_RETRIES = 5;
+
+      if (config.__retryCount >= MAX_RETRIES) {
+        return Promise.reject(error);
+      }
+
+      // Calculate delay
+      let delayInMs = 1000;
+      if (error.response.headers["retry-after"]) {
+        //usually Auth0 provides seconds in retry-after header
+        const retryAfter = parseInt(error.response.headers["retry-after"], 10);
+        if (!isNaN(retryAfter)) {
+          delayInMs = retryAfter * 1000;
+        }
+      } else {
+        // In case Auth0 changes retry-after header
+        delayInMs = Math.pow(2, config.__retryCount) * 1000;
+      }
+
+      // Add some jitter to prevent thundering herd
+      delayInMs += Math.random() * 1000;
+
+      logger.log(
+        "warn",
+        `Rate limited. Retrying in ${Math.round(delayInMs)}ms... 
+        (Attempt ${config.__retryCount}/${MAX_RETRIES}) due to ${error.response.status} response`,
+      );
+
+      config.__retryCount += 1;
+      await new Promise((resolve) => setTimeout(resolve, delayInMs));
+      return axios(config);
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 async function getAccessToken(domain, client_id, client_secret, access_token) {
   if (access_token) {
     return access_token;
