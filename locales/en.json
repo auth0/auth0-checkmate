@@ -411,7 +411,7 @@
 			]
 		},
 		"missing_jwt_alg": "The application with client_id (%s) does not have a JWT Signature Algorithm, defaults to (%s)",
-		"not_using_asymmetric_alg": "The application with client_id (%s) is not configured to use (%s) JWT Signature Algorithm",
+		"not_using_asymmetric_alg": "The application with client_id (%s) is not configured to use RS256 JWT Signature Algorithm",
 		"using_asymmetric_alg": "The application with client_id (%s) is configured to use (%s) JWT Signature Algorithm",
 		"severity_message": "%s applications/clients require the correct JWT algorithm to be configured."
 	},
