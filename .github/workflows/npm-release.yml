@@ -70,8 +70,6 @@ jobs:
 
       - name: Publish release to NPM
         shell: bash
-        env:
-          NODE_AUTH_TOKEN: ""
         run: |
           echo "About to run: npm publish --provenance --tag ${{ steps.npm-tag.outputs.tag }}"
-          npm publish --provenance --tag ${{ steps.npm-tag.outputs.tag }}
+          NODE_AUTH_TOKEN="" npm publish --provenance --tag ${{ steps.npm-tag.outputs.tag }}
