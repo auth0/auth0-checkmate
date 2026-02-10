@@ -46,7 +46,7 @@ jobs:
           fi
 
       - name: Setup Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444  # v5.0.0 on 2025-09-02
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238  # v6.2.0 on 2026-02-11
         with:
           node-version: 24
           cache: npm
