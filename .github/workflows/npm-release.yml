@@ -50,7 +50,6 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          registry-url: https://registry.npmjs.org
 
       - name: Install dependencies
         run: npm ci
@@ -73,5 +72,3 @@ jobs:
         run: |
           echo "About to run: npm publish --provenance --tag ${{ steps.npm-tag.outputs.tag }}"
           npm publish --provenance --tag ${{ steps.npm-tag.outputs.tag }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
