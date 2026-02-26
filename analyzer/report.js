@@ -307,6 +307,7 @@ async function generateReport(locale, tenantConfig, config) {
             });
           });
           break;
+        case "checkPreRegistrationUserEnumeration":
         case "checkActionsHardCodedValues":
         case "checkDASHardCodedValues":
           report.disclaimer = i18n.__(`${report.name}.disclaimer`);

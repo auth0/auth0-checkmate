@@ -135,7 +135,8 @@
 			"items": [
 				"NPM Dependencies",
 				"Actions Runtime",
-				"Hardcoded Artifacts"
+				"Hardcoded Artifacts",
+				"Information Leakage in Signup Flow"
 			]
 		},
 		{
@@ -1368,6 +1369,35 @@
 		"severity_message": "Potential hardcoded credentials, may expose sensitive information.",
 		"hard_coded_value_detected": "Variable name <b>%s</b> at line <b>%d</b> and column <b>%d</b>.",
 		"action_script_title": "Identified potential hardcoded credentials in <b>\"%s\"</b> script at:"
+	},
+	"checkPreRegistrationUserEnumeration": {
+		"title": "Information Leakage in Signup Flow",
+		"category": "Actions",
+		"advisory": {
+			"issue": "Exposing sensitive information during a signup attempt",
+			"description": {
+				"what_it_is": "User enumeration occurs when an application reveals whether a user exists in the system based on the response provided during actions like registration.",
+				"why_its_risky": [
+					"Using 'api.access.deny' in a Pre-User Registration Action to block signups from existing accounts may allow attackers to programmatically 'scrape' or verify which of your customers have accounts.",
+					"If a Pre-User Registration Action is rejecting a signup attempt based on internal risk scoring then threat actors may leverage this information to tune their methods to evade detection.",
+					"Disclosing account existance or or exposing risk scoring approaches in the Action, enables threat actors to more easily perform targeted attacks like phishing and credential stuffing, "
+				]
+			},
+			"how_to_fix": [
+				"Avoid using 'api.access.deny' in Pre-Registration Actions to notify users that an account is already registered or to notify them that risk level of the request was assessed to be too great.",
+				"All registration attempts should receive a generic success response. If an account already exists, consider triggering a secure, automated email to the registered address informing the user of the attempt. This maintains a seamless user experience while protecting account privacy."
+			]
+		},
+		"description": "Analyzes Pre-User Registration Actions for the use of 'api.access.deny', which can leak information or enable user enumeration.",
+		"docsPath": [
+			"https://auth0.com/docs/customize/actions/action-coding-guidelines"
+		],
+		"severity": "Low",
+		"status": "green",
+		"severity_message": "Potential user enumeration detected in a Pre User Registration Action.",
+		"user_enumeration_vulnerability": "Found <b>%s</b> at line <b>%d</b>, column <b>%d</b> which may leak information.",
+		"action_script_title": "Identified usage of api.access.deny in <b>\"%s\"</b> Action script:",
+		"disclaimer": "Please review the Action to determine if any information is exposed that may be useful to a threat actor."
 	},
 	"checkCanonicalDomain": {
 		"title": "Auth0 Domain Check",
