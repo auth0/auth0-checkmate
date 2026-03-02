@@ -91,7 +91,7 @@ function checkPreRegistrationUserEnumeration(options) {
           reports.push({ name: actionName, report: findings });
         }
       } catch (e) {
-        console.error(`[CHECK ERROR] Skipping Actions due to error: ${actionName}`);
+        console.error(`[CHECK ERROR] Skipping Actions "${actionName}" due to error: ${e.message}`);
         continue;
       }
     }
