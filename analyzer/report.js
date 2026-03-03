@@ -307,6 +307,7 @@ async function generateReport(locale, tenantConfig, config) {
             });
           });
           break;
+        case "checkPasswordResetMFA":  
         case "checkPreRegistrationUserEnumeration":
         case "checkActionsHardCodedValues":
         case "checkDASHardCodedValues":

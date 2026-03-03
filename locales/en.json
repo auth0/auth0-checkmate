@@ -136,7 +136,8 @@
 				"NPM Dependencies",
 				"Actions Runtime",
 				"Hardcoded Artifacts",
-				"Information Leakage in Signup Flow"
+				"Information Leakage in Signup Flow",
+				"MFA for Password Reset"
 			]
 		},
 		{
@@ -1398,6 +1399,39 @@
 		"user_enumeration_vulnerability": "Found <b>%s</b> at line <b>%d</b>, column <b>%d</b> which may leak information.",
 		"action_script_title": "Identified usage of api.access.deny in <b>\"%s\"</b> Action script:",
 		"disclaimer": "Please review the Action to determine if any information is exposed that may be useful to a threat actor."
+	},
+	"checkPasswordResetMFA": {
+		"title": "MFA for Password Reset",
+		"category": "Actions",
+		"advisory": {
+			"issue": "Missing MFA Challenge during Password Reset",
+			"description": {
+				"what_it_is": "This check verifies if your Password Reset Post Challenge Action requires a second factor before allowing a user to change their password.",
+				"why_its_risky": [
+					"If an attacker gains access to a user's email account, they can trigger a password reset and take over the identity without any further verification.",
+					"MFA during password reset ensures that even with a compromised email, the attacker has to overcome the secondary factor challenge."
+				]
+			},
+			"how_to_fix": [
+				"Create or update an Action in the Password Reset Post Challenge flow.",
+				"Use 'api.authentication.challengeWith()' to trigger an MFA challenge for users who have enrolled factors.",
+				"Ensure the Action is 'Deployed' and attached to the Password Reset trigger in the Auth0 Pipeline."
+			]
+		},
+		"description": "Analyzes Password Reset Actions to ensure MFA is being enforced as an additional security layer.",
+		"docsPath": [
+			"https://auth0.com/docs/customize/actions/explore-triggers/password-reset-triggers",
+			"https://auth0.com/marketplace/category/identity-proofing"
+		],
+		"severity": "Moderate",
+		"status": "yellow",
+		"severity_message": "an MFA Challenge is not detected in the Password Reset flow.",
+		"mfa_challenge_detected": "MFA Challenge (<b>%s</b>) correctly implemented at line <b>%d</b>.",
+		"missing_mfa_step": "Action script exists but does not appear to trigger an MFA challenge.",
+		"no_password_reset_action": "No Action is currently configured for the Password Reset trigger. Password resets are only protected by email access.",
+		"no_actions_configured": "No Actions found in tenant.",
+		"disclaimer": "This finding may be a false positive if Identity Proofing or similar mitigation is enforced elsewhere in the authentication or password reset workflow. Verify any alternative security controls are active before dismissing this recommendation.",
+		"action_script_title": "A deployed Password Reset Action that triggers an MFA challenge was not found based on searching for the 'api.authentication.challengeWith()' or equivalent method."
 	},
 	"checkCanonicalDomain": {
 		"title": "Auth0 Domain Check",
