@@ -78,7 +78,6 @@ function checkPasswordResetMFA(options) {
     for (const action of actionsList) {
       const triggers = action.supported_triggers || [];
       const isPassReset = triggers.some(t => t.id === "password-reset-post-challenge");
-      console.log("***************** action status " + action.name + " " + action.status);
       if (isPassReset) { // deployed_version.deployed
         passwordResetActionsFound.push(action.name);
         if (hasMFAChallenge(action.code, action.name)) {
