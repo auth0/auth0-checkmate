@@ -1420,8 +1420,7 @@
 		},
 		"description": "Analyzes Password Reset Actions to ensure MFA is being enforced as an additional security layer.",
 		"docsPath": [
-			"https://auth0.com/docs/customize/actions/explore-triggers/password-reset-triggers",
-			"https://auth0.com/marketplace/category/identity-proofing"
+			"https://auth0.com/docs/customize/actions/explore-triggers/password-reset-triggers"
 		],
 		"severity": "Moderate",
 		"status": "yellow",
