@@ -77,6 +77,11 @@ function checkURLsForApp(app) {
     return report;
   }
   allowed_logout_urls.forEach((url) => {
+    if (!url) {
+      // Skip null/undefined/empty URLs and log warning
+      console.warn(`[WARNING] App "${app.name}" (${app.client_id}) has null/undefined URL in allowed_logout_urls`);
+      return;
+    }
     const subArr = insecurePatterns.filter((str) => url.includes(str));
     if (subArr.length > 0) {
       report.push({
