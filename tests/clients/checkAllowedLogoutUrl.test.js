@@ -146,4 +146,47 @@ describe("checkAllowedLogoutUrl", function () {
       ]);
     });
   });
+
+  it("should handle null/undefined URLs in allowed_logout_urls array without crashing", function () {
+    const options = {
+      clients: [
+        {
+          name: "Test App with Null URLs",
+          client_id: "client_with_null",
+          allowed_logout_urls: ["https://contoso.com", null, "http://localhost:3000", undefined], // Contains null and undefined
+          app_type: "spa",
+          is_first_party: false,
+        },
+      ],
+    };
+
+    checkAllowedLogoutUrl(options, (reports) => {
+      // Should only process valid URLs and skip null/undefined
+      expect(reports).to.deep.equal([
+        {
+          name: "Test App with Null URLs (client_with_null)",
+          report: [
+            {
+              name: "Test App with Null URLs (client_with_null)",
+              client_id: "client_with_null",
+              field: "insecure_allowed_logout_urls",
+              value: "http://localhost:3000",
+              status: CONSTANTS.FAIL,
+              app_type: "spa",
+              is_first_party: false,
+            },
+            {
+              name: "Test App with Null URLs (client_with_null)",
+              client_id: "client_with_null",
+              field: "secure_allowed_logout_urls",
+              status: CONSTANTS.SUCCESS,
+              value: "https://contoso.com",
+              app_type: "spa",
+              is_first_party: false,
+            },
+          ],
+        },
+      ]);
+    });
+  });
 });
