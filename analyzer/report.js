@@ -53,8 +53,6 @@ const templateData = fs.readFileSync(
   "utf8"
 );
 
-console.log('templateData', templateData);
-
 async function runProductionChecks(tenant, validators) {
   try {
     logger.log("info", "Checking your configuration...");
