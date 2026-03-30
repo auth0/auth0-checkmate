@@ -1,5 +1,9 @@
+const fs = require("fs");
 const i18n = require("i18n");
+const path = require("path");
 const _ = require("lodash");
+const Handlebars = require("handlebars");
+const puppeteer = require("puppeteer");
 const listOfAnalyser = require("./lib/listOfAnalyser");
 const {
   getAccessToken,
@@ -24,7 +28,33 @@ const {
 
 const logger = require("./lib/logger");
 const { getSummaryReport } = require("./tools/summary");
-const { convertToTitleCase, tranformReport } = require("./tools/utils");
+const { convertToTitleCase, tranformReport, getToday } = require("./tools/utils");
+const { version } = require("../package.json");
+
+i18n.configure({
+  defaultLocale: "en",
+  objectNotation: true,
+  directory: path.join(__dirname, "../locales")
+});
+
+Handlebars.registerHelper("chooseFont", function (locale) {
+  if (locale === "ja") return "Noto Sans JP, sans-serif";
+  if (locale === "ko") return "Noto Sans KR, sans-serif";
+  return "DM Sans, sans-serif";
+});
+Handlebars.registerHelper("replace", function (str, search, replace) {
+  return str.replace(search, replace);
+});
+Handlebars.registerHelper("and", (a, b) => a && b);
+Handlebars.registerHelper("inc", (a) => parseInt(a) + 1);
+
+const templateData = fs.readFileSync(
+  path.join(__dirname, "../views/pdf_cli_report.handlebars"),
+  "utf8"
+);
+
+console.log('templateData', templateData);
+
 async function runProductionChecks(tenant, validators) {
   try {
     logger.log("info", "Checking your configuration...");
@@ -170,7 +200,7 @@ async function generateReport(locale, tenantConfig, config) {
             cd.message = i18n.__(`checkEmailTemplates.${cd.field}`, cd.value);
           });
           break;
-          case "checkErrorPageTemplate":
+        case "checkErrorPageTemplate":
           report.details.forEach((cd) => {
             cd.message = i18n.__(`checkErrorPageTemplate.${cd.field}`, cd.value);
           });
@@ -307,7 +337,7 @@ async function generateReport(locale, tenantConfig, config) {
             });
           });
           break;
-        case "checkPasswordResetMFA":  
+        case "checkPasswordResetMFA":
         case "checkPreRegistrationUserEnumeration":
         case "checkActionsHardCodedValues":
         case "checkDASHardCodedValues":
@@ -334,7 +364,7 @@ async function generateReport(locale, tenantConfig, config) {
                   return `<li>${message}</li>`;
                 }).join("\n");
                 const dasTitle = i18n.__(`${report.name}.action_script_title`,
-                    scriptName);
+                  scriptName);
                 return `<p>${dasTitle}<p>\n<ul>\n${listItems}\n</ul>`;
               });
 
@@ -401,6 +431,59 @@ async function generateReport(locale, tenantConfig, config) {
   }
 }
 
+async function generatePdfBuffer(report, auth0Domain, locale) {
+  try {
+    locale = locale || "en";
+    const today = await getToday(locale);
+
+    const data = { report, auth0Domain, today, locale, version, config: {} };
+
+    const browser = await puppeteer.launch({
+      headless: true, // Run in headless mode
+      args: [
+        "--no-sandbox", // Disable the sandbox
+        "--disable-setuid-sandbox", // Disable setuid sandbox
+      ],
+    });
+    const template = Handlebars.compile(templateData);
+    const htmlContent = template({
+      locale: data.locale,
+      data,
+      preamble: data.report.preamble,
+    });
+    const page = await browser.newPage();
+    // Load the compiled HTML content into Puppeteer
+
+    await page.setContent(`${htmlContent}`, { waitUntil: "networkidle2" });
+
+    const pdfResult = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      displayHeaderFooter: true,
+      headerTemplate: `<div></div>`,
+      footerTemplate: `
+        <div style="font-size:10px; width:100%; padding:10px 0; display:flex; align-items:center; justify-content:space-between; border-top:1px solid #ddd;">
+          <span style="flex:1; text-align:center;">Confidential. For internal evaluation purposes only.</span>
+          <span style="flex:1; text-align:right; padding-right:20px;">Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
+        </div>`,
+      margin: {
+        top: "20px",
+        bottom: "60px",
+      },
+    });
+    // Puppeteer v20+ returns Uint8Array, not Buffer. Express's res.send() calls
+    // Buffer.isBuffer() and JSON-serialises anything that fails the check,
+    // producing {"0":37,"1":80,...} instead of raw binary. Convert explicitly.
+
+    await browser.close();
+    return Buffer.from(pdfResult);
+  } catch (error) {
+    logger.log("error", `Error generating PDF: ${error}`);
+    return null;
+  }
+}
+
 module.exports = {
   generateReport,
+  generatePdfBuffer,
 };

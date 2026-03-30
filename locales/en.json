@@ -182,7 +182,7 @@
 		},
 		"no_custom_domains": "This tenant is not configured to use a custom domain. We recommend using custom domains with Universal Login for the most seamless and secure experience for end users. We also highly recommend using custom domains for passkey authentication, given they are tied to a specific domain during enrollment.",
 		"ready": "This tenant is configured to use a custom domain. %s",
-		"pending_verfification": "The tenant's custom domain configuration is incomplete, %s",
+		"pending_verification": "The tenant's custom domain configuration is incomplete, %s",
 		"severity": "High",
 		"status": "red",
 		"severity_message": "Configure a Custom Domain",
