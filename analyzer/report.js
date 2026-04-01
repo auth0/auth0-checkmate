@@ -430,19 +430,20 @@ async function generateReport(locale, tenantConfig, config) {
 }
 
 async function generatePdfBuffer(report, auth0Domain, locale) {
+  locale = locale || "en";
+  const today = await getToday(locale);
+
+  const data = { report, auth0Domain, today, locale, version, config: {} };
+
+  const browser = await puppeteer.launch({
+    headless: true, // Run in headless mode
+    args: [
+      "--no-sandbox", // Disable the sandbox
+      "--disable-setuid-sandbox", // Disable setuid sandbox
+    ],
+  });
+
   try {
-    locale = locale || "en";
-    const today = await getToday(locale);
-
-    const data = { report, auth0Domain, today, locale, version, config: {} };
-
-    const browser = await puppeteer.launch({
-      headless: true, // Run in headless mode
-      args: [
-        "--no-sandbox", // Disable the sandbox
-        "--disable-setuid-sandbox", // Disable setuid sandbox
-      ],
-    });
     const template = Handlebars.compile(templateData);
     const htmlContent = template({
       locale: data.locale,
@@ -450,9 +451,32 @@ async function generatePdfBuffer(report, auth0Domain, locale) {
       preamble: data.report.preamble,
     });
     const page = await browser.newPage();
-    // Load the compiled HTML content into Puppeteer
 
-    await page.setContent(`${htmlContent}`, { waitUntil: "networkidle2" });
+    // Disable JS execution in the Puppeteer page. Disabling
+    // JS eliminates the browser-side execution surface during PDF rendering.
+    await page.setJavaScriptEnabled(false);
+
+    // Allowlist only the CDN hostnames the template legitimately loads from
+    // (Bootstrap, Google Fonts). All other outbound requests — including RFC 1918
+    // addresses and cloud metadata endpoints — are aborted to prevent SSRF via
+    // passive resource loading (e.g. <img src="http://169.254.169.254/...">) in
+    // case tenant-controlled data ever reaches an unescaped template field.
+    await page.setRequestInterception(true);
+    page.on("request", (req) => {
+      const url = new URL(req.url());
+      const allowed = [
+        "fonts.googleapis.com",
+        "fonts.gstatic.com",
+        "cdn.jsdelivr.net",
+      ];
+      if (req.resourceType() === "document" || allowed.includes(url.hostname)) {
+        req.continue();
+      } else {
+        req.abort();
+      }
+    });
+
+    await page.setContent(htmlContent, { waitUntil: "networkidle2" });
 
     const pdfResult = await page.pdf({
       format: "A4",
@@ -473,11 +497,12 @@ async function generatePdfBuffer(report, auth0Domain, locale) {
     // Buffer.isBuffer() and JSON-serialises anything that fails the check,
     // producing {"0":37,"1":80,...} instead of raw binary. Convert explicitly.
 
-    await browser.close();
     return Buffer.from(pdfResult);
   } catch (error) {
     logger.log("error", `Error generating PDF: ${error}`);
-    return null;
+    throw error;
+  } finally {
+    await browser.close();
   }
 }
 
