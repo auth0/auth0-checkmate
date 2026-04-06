@@ -1476,5 +1476,36 @@
 			"https://auth0.com/docs/customize/events/events-best-practices",
 			"https://auth0.com/docs/customize/events/event-testing-observability-and-failure-recovery"
 		]
+	},
+	"checkDPoP": {
+		"title": "Applications - DPoP (Proof of Possession)",
+		"category": "Applications",
+		"description": "DPoP (Demonstrating Proof of Possession) cryptographically binds access tokens to a specific client key pair, preventing stolen tokens from being replayed by an attacker. We recommend enabling DPoP for all applications using the authorization code or refresh token grant types.",
+		"docsPath": [
+			"https://auth0.com/docs/secure/sender-constraining/demonstrating-proof-of-possession-dpop"
+		],
+		"severity": "Moderate",
+		"status": "yellow",
+		"advisory": {
+			"issue": "Access Tokens Not Bound to Client Proof of Possession",
+			"description": {
+				"what_it_is": "DPoP (Demonstrating Proof of Possession) is an OAuth security mechanism that cryptographically binds access tokens to a specific client key pair. When DPoP is required, a token stolen in transit cannot be replayed by an attacker because they would also need possession of the client's private key.",
+				"why_its_risky": [
+					"Without DPoP, bearer tokens can be used by any party that obtains them, making token theft a critical threat vector.",
+					"Access tokens intercepted via network attacks, XSS, or compromised infrastructure can be replayed until expiry with no way to detect misuse.",
+					"Applications using refresh tokens without DPoP are particularly exposed if tokens are leaked from client storage or logs.",
+					"Bearer token misuse may go undetected since there is no cryptographic binding to identify the legitimate caller."
+				]
+			},
+			"how_to_fix": [
+				"Enable DPoP by setting require_proof_of_possession to true on each application via the Auth0 Dashboard or Management API.",
+				"Prioritize enabling DPoP for applications configured with the authorization_code or refresh_token grant types.",
+				"Ensure your client SDK or library supports generating and sending DPoP proofs with each token request.",
+				"Test DPoP-enabled flows in a non-production environment before rolling out to production applications."
+			]
+		},
+		"severity_message": "%s applications / clients do not require DPoP (Proof of Possession)",
+		"require_proof_of_possession": "DPoP (Proof of Possession) is not enforced for this application (require_proof_of_possession: %s)",
+		"undefined": "DPoP (Proof of Possession) is not required for this application"
 	}
 }
