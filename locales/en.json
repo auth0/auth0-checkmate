@@ -1515,8 +1515,7 @@
 		"category": "Resource Servers (APIs)",
 		"description": "Validates that API access token lifetimes are appropriately configured. Shorter lifetimes reduce the window of opportunity if tokens are compromised. Auth0 recommends that sensitive APIs use shorter token lifetimes.",
 		"docsPath": [
-			"https://auth0.com/docs/get-started/apis/api-settings",
-			"https://auth0.com/docs/secure/tokens/access-tokens"
+			"https://auth0.com/docs/get-started/apis/api-settings"
 		],
 		"severity": "Info",
 		"status": "blue",
