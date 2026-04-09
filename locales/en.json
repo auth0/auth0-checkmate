@@ -1486,7 +1486,7 @@
 		],
 		"severity": "Low",
 		"status": "green",
-		"disclaimer": "Token Sender-Constraining for applications is available only to customers with the Highly Regulated Identities (HRI) add-on.",
+		"disclaimer": "Token Sender-Constraining for applications is available only to customers on an Enterprise plan.",
 		"advisory": {
 			"issue": "Token Sender-Constraining Not Enabled for Application",
 			"description": {
