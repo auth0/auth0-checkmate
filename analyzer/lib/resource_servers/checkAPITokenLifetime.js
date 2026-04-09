@@ -1,14 +1,25 @@
 /*
-Resource Server (API) - Token Lifetime Check
-
-Validates that API access token lifetimes are appropriately configured.
-Auth0 recommends shorter lifetimes for sensitive APIs (e.g., banking).
-
-Thresholds:
-- Default: 86400 seconds (24 hours)
-- Warning: > 24 hours but < 7 days
-- Fail: >= 7 days (604800 seconds)
-- Maximum allowed by Auth0: 30 days (2592000 seconds)
+  {
+    "id": "xxxxxxxxx",
+    "name": "Test long token",
+    "identifier": "test2",
+    "allow_offline_access": true,
+    "skip_consent_for_verifiable_first_party_clients": true,
+    "subject_type_authorization": {
+      "client": {
+        "policy": "require_client_grant"
+      },
+      "user": {
+        "policy": "allow_all"
+      }
+    },
+    "token_lifetime": 864000,
+    "token_lifetime_for_web": 7200,
+    "signing_alg": "RS256",
+    "signing_secret": "xxxxxxxxxxxxxx",
+    "enforce_policies": false,
+    "token_dialect": "access_token"
+  }
 */
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");

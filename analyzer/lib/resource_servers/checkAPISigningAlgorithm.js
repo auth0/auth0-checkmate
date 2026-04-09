@@ -1,10 +1,24 @@
 /*
-Resource Server (API) - Signing Algorithm Check
-
-Validates that APIs use RS256 (asymmetric) signing algorithm instead of HS256 (symmetric).
-RS256 is recommended because:
-- Only Auth0 can sign tokens (private key is not shared)
-- Easier key rotation without redeploying applications
+  {
+    "id": "xxxxxxxxxxxx",
+    "name": "test wrong alg",
+    "identifier": "test1",
+    "allow_offline_access": false,
+    "skip_consent_for_verifiable_first_party_clients": true,
+    "subject_type_authorization": {
+      "user": {
+        "policy": "require_client_grant"
+      },
+      "client": {
+        "policy": "require_client_grant"
+      }
+    },
+    "token_lifetime": 86400,
+    "token_lifetime_for_web": 7200,
+    "signing_alg": "HS256",
+    "signing_secret": "xxxxxxxxxxxxxxxxxx",
+    "token_dialect": "access_token"
+  }
 */
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
