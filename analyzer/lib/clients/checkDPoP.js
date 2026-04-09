@@ -22,7 +22,13 @@ const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
 
-const DPOP_RELEVANT_GRANT_TYPES = ["authorization_code", "refresh_token"];
+const DPOP_RELEVANT_GRANT_TYPES = [
+    "authorization_code",
+    "refresh_token",
+    "client_credentials",
+    "password",
+    "urn:ietf:params:oauth:grant-type:device_code",
+];
 
 function validateDPoPForApp(app) {
     const enabledGrantTypes = app.grant_types || [];
