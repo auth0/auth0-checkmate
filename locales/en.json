@@ -50,7 +50,8 @@
 				"Grant Types",
 				"JWT Signing Algorithm",
 				"Cross Origin Authentication",
-				"Refresh Tokens"
+				"Refresh Tokens",
+				"Token Sender-Constraining"
 			]
 		},
 		{
