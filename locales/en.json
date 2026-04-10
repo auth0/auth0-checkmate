@@ -50,7 +50,8 @@
 				"Grant Types",
 				"JWT Signing Algorithm",
 				"Cross Origin Authentication",
-				"Refresh Tokens"
+				"Refresh Tokens",
+				"Token Sender-Constraining"
 			]
 		},
 		{
@@ -1476,5 +1477,36 @@
 			"https://auth0.com/docs/customize/events/events-best-practices",
 			"https://auth0.com/docs/customize/events/event-testing-observability-and-failure-recovery"
 		]
+	},
+	"checkDPoP": {
+		"title": "Applications - Token Sender-Constraining",
+		"category": "Applications",
+		"description": "Token Sender-Constraining cryptographically binds access tokens to the client that requested them, preventing stolen tokens from being replayed by an attacker. We recommend enabling Token Sender-Constraining for all applications using the authorization code, refresh token, client credentials, password (ROPC), or device code grant types.",
+		"docsPath": [
+			"https://auth0.com/docs/secure/sender-constraining"
+		],
+		"severity": "Low",
+		"status": "green",
+		"disclaimer": "Token Sender-Constraining for applications is available only to customers on an Enterprise plan.",
+		"advisory": {
+			"issue": "Token Sender-Constraining Not Enabled for Application",
+			"description": {
+				"what_it_is": "Token Sender-Constraining is an Auth0 security setting that cryptographically binds access tokens to the requesting client's key pair. When enabled, a token stolen in transit cannot be replayed by an attacker because they would also need possession of the client's private key.",
+				"why_its_risky": [
+					"Without Token Sender-Constraining, bearer tokens can be used by any party that obtains them, making token theft a critical threat vector.",
+					"Access tokens intercepted via network attacks, XSS, or compromised infrastructure can be replayed until expiry with no way to detect misuse.",
+					"Applications using refresh tokens without sender-constraining are particularly exposed if tokens are leaked from client storage or logs.",
+					"Bearer token misuse may go undetected since there is no cryptographic binding to identify the legitimate caller."
+				]
+			},
+			"how_to_fix": [
+				"In the Auth0 Dashboard navigate to Applications > [Your App] > Settings > Token Sender-Constraining and enable the setting.",
+				"An API (Resource Server) must also be configured to require the Sender Constraining Method such as DPoP or mTLS. If the API doesn't check for the cryptographic binding, the extra security is ignored",
+				"Ensure your client SDK or library supports generating and sending DPoP proofs with each token request."
+			]
+		},
+		"severity_message": "%s applications / clients do not have Token Sender-Constraining enabled",
+		"require_proof_of_possession": "Token Sender-Constraining is not enabled for this application (require_proof_of_possession: %s)",
+		"undefined": "Token Sender-Constraining is not enabled for this application"
 	}
 }

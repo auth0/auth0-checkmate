@@ -165,6 +165,7 @@ async function generateReport(locale, tenantConfig, config) {
         config.auth0Domain,
         config.auth0MgmtToken
       );
+
     }
     const statusOrder = ["green", "amber", "red"];
     let fullReport =
@@ -380,6 +381,19 @@ async function generateReport(locale, tenantConfig, config) {
 
           // Replace original report.details with the new structure
           report.details = transformedDetails;
+          break;
+        case "checkDPoP":
+          report.disclaimer = i18n.__(`${report.name}.disclaimer`);
+          report.advisory = i18n.__(`${report.name}.advisory`);
+          grouped = _.groupBy(report.details, "name");
+          res = tranformReport(grouped);
+          res.forEach((item) => {
+            item.values.forEach((detail) => {
+              detail.report.forEach((c) => {
+                c.message = i18n.__(`${report.name}.${c.field}`, c.value);
+              });
+            });
+          });
           break;
         case "checkDependencies":
           report.details.forEach((cd) => {
