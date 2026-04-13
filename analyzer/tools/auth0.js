@@ -463,6 +463,20 @@ async function getEventStreams(domain, accessToken) {
     return [error.response.data];
   }
 }
+
+async function getResourceServers(domain, accessToken) {
+  const url = `https://${domain}/api/v2/resource-servers`;
+  const headers = { Authorization: `Bearer ${accessToken}` };
+  logger.log("info", `Getting resource servers (APIs)`);
+
+  try {
+    const response = await axios.get(url, { headers });
+    return response.data;
+  } catch (error) {
+    logger.log("error", `Failed to get resource servers ${error.message}`);
+    return [];
+  }
+}
 module.exports = {
   getAccessToken,
   getCustomDomains,
@@ -486,4 +500,5 @@ module.exports = {
   getLogs,
   getNetworkACL,
   getEventStreams,
+  getResourceServers,
 };

@@ -155,6 +155,14 @@
 			"title": "Event Streams (Early Access Capability)",
 			"required_scope": "read:event_streamss",
 			"items": []
+		},
+		{
+			"title": "Resource Servers (APIs)",
+			"required_scope": "read:resource_servers",
+			"items": [
+				"Signing Algorithm",
+				"Token Lifetime"
+			]
 		}
 	],
 	"validator_summary": "Checked <b>%s</b> validators against tenant <b>%s</b> in total.",
@@ -1477,6 +1485,59 @@
 			"https://auth0.com/docs/customize/events/events-best-practices",
 			"https://auth0.com/docs/customize/events/event-testing-observability-and-failure-recovery"
 		]
+	},
+	"checkAPISigningAlgorithm": {
+		"title": "Resource Servers (APIs) - Signing Algorithm",
+		"category": "Resource Servers (APIs)",
+		"description": "Validates that APIs use RS256 signing algorithm instead of HS256.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/apis/api-settings"
+		],
+		"severity": "Moderate",
+		"status": "yellow",
+		"severity_message": "%s API(s) using insecure signing algorithm",
+		"advisory": {
+			"issue": "Insecure Token Signing Algorithm",
+			"description": {
+				"what_it_is": "The signing algorithm determines how access tokens are cryptographically signed.",
+				"why_its_risky": [
+					"HS256 requires sharing the signing secret with your API, increasing the risk of secret exposure. Anyone with the HS256 secret can forge valid tokens."
+				]
+			},
+			"how_to_fix": [
+				"Use RS256 (asymmetric) signing algorithm for new APIs. It is recommended because the token will be signed with your tenant private key."
+			]
+		},
+		"using_symmetric_alg": "API \"%s\" is using HS256 signing algorithm. RS256 is recommended for better security.",
+		"using_asymmetric_alg": "API \"%s\" is using %s signing algorithm."
+	},
+	"checkAPITokenLifetime": {
+		"title": "Resource Servers (APIs) - Token Lifetime",
+		"category": "Resource Servers (APIs)",
+		"description": "Validates that API access token lifetimes are appropriately configured. Shorter lifetimes reduce the window of opportunity if tokens are compromised. Auth0 recommends that sensitive APIs use shorter token lifetimes.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/apis/api-settings"
+		],
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "%s API(s) have extended token lifetimes",
+		"advisory": {
+			"issue": "Extended Access Token Lifetime",
+			"description": {
+				"what_it_is": "Token lifetime determines how long an access token remains valid. Auth0's default is 24 hours (86400 seconds), with a maximum of 30 days.",
+				"why_its_risky": [
+					"Long-lived tokens increase the window of opportunity for attackers if tokens are compromised.",
+					"Auth0 recommends that sensitive APIs use shorter token lifetimes (e.g., a banking API should expire more quickly than a to-do API)."
+				]
+			},
+			"how_to_fix": [
+				"Review token lifetime settings for each API based on sensitivity.",
+				"Use shorter lifetimes (e.g., 1 hour) for sensitive APIs."
+			]
+		},
+		"token_lifetime_too_long": "API \"%s\" has an access token lifetime of %s. This exceeds the recommended maximum of 7 days. Consider reducing the lifetime for sensitive APIs.",
+		"token_lifetime_extended": "API \"%s\" has an access token lifetime of %s. This exceeds the default of 24 hours. Review if this is appropriate for your security requirements.",
+		"token_lifetime_appropriate": "API \"%s\" has an access token lifetime of %s."
 	},
 	"checkDPoP": {
 		"title": "Applications - Token Sender-Constraining",
