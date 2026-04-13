@@ -51,7 +51,9 @@
 				"JWT Signing Algorithm",
 				"Cross Origin Authentication",
 				"Refresh Tokens",
-				"Token Sender-Constraining"
+				"Token Sender-Constraining",
+				"Pushed Authorization Requests (PAR)",
+				"JWT Authorization Requests (JAR)"
 			]
 		},
 		{
@@ -1569,5 +1571,76 @@
 		"severity_message": "%s applications / clients do not have Token Sender-Constraining enabled",
 		"require_proof_of_possession": "Token Sender-Constraining is not enabled for this application (require_proof_of_possession: %s)",
 		"undefined": "Token Sender-Constraining is not enabled for this application"
+	},
+	"checkPAR": {
+		"title": "Applications - Pushed Authorization Requests (PAR)",
+		"category": "Applications",
+		"description": "Pushed Authorization Requests (PAR) strengthens the authorization flow by sending authorization parameters directly to the authorization server before the user agent redirect, preventing parameter tampering and request interception. PAR is a key security control for highly regulated environments such as open banking and FAPI-compliant applications.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow/authorization-code-flow-with-par"
+		],
+		"severity": "Low",
+		"status": "green",
+		"disclaimer": "Pushed Authorization Requests (PAR) for applications is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
+		"advisory": {
+			"issue": "Pushed Authorization Requests (PAR) Not Required for Application",
+			"description": {
+				"what_it_is": "Pushed Authorization Requests (PAR) is an OAuth 2.0 extension (RFC 9126) that allows clients to push authorization request parameters directly to the authorization server via a back-channel request before initiating the front-channel redirect. The authorization server returns a request URI that is then used for the user agent redirect, preventing sensitive parameters from being exposed in the browser.",
+				"why_its_risky": [
+					"Without PAR, authorization parameters are passed in the redirect URI query string, where they may be logged by browsers, proxies, or referrer headers.",
+					"Attackers who can intercept or modify the redirect URI can tamper with authorization parameters such as scopes, response types, or redirect URIs.",
+					"PAR is required by FAPI 1.0 Advanced and FAPI 2.0 security profiles, which are mandated in open banking and other highly regulated sectors.",
+					"PAR combined with JAR provides strong protection against authorization request tampering and replay attacks."
+				]
+			},
+			"how_to_fix": [
+				"In the Auth0 Dashboard navigate to Applications > [Your App] > Settings and enable Require Pushed Authorization Requests.",
+				"Ensure your client application is updated to send authorization parameters via the PAR endpoint (/oauth/par) before initiating the authorization redirect."
+			]
+		},
+		"severity_message": "%s applications / clients do not require Pushed Authorization Requests (PAR)",
+		"require_pushed_authorization_requests": "Pushed Authorization Requests (PAR) is not required for this application (require_pushed_authorization_requests: %s)",
+		"undefined": "Pushed Authorization Requests (PAR) is not required for this application"
+	},
+	"checkJAR": {
+		"title": "Applications - JWT Authorization Requests (JAR)",
+		"category": "Applications",
+		"description": "JWT Authorization Requests (JAR) requires that authorization requests be sent as signed JWTs, ensuring the integrity and authenticity of every authorization request. JAR prevents parameter injection and request tampering, and is a foundational control for FAPI-compliant and highly regulated identity deployments.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow/authorization-code-flow-with-jar"
+		],
+		"severity": "Low",
+		"status": "green",
+		"disclaimer": "JWT Authorization Requests (JAR) for applications is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
+		"advisory": {
+			"issue": "JWT Authorization Requests (JAR) Not Required for Application",
+			"description": {
+				"what_it_is": "JWT Authorization Requests (JAR) is an OAuth 2.0 extension (RFC 9101) that requires clients to send authorization requests as signed JWTs rather than plain query parameters. The authorization server validates the JWT signature using a pre-registered public key, ensuring that the request parameters cannot be tampered with in transit.",
+				"why_its_risky": [
+					"Without JAR, authorization request parameters can be modified by an attacker who intercepts the redirect, potentially escalating scopes or changing the redirect URI.",
+					"Unsigned authorization requests provide no integrity guarantee — the authorization server cannot verify that the request originated from the legitimate client.",
+					"JAR is required by FAPI 1.0 Advanced and FAPI 2.0 security profiles, which are mandated in open banking and other highly regulated sectors.",
+					"Without signed requests, authorization code injection attacks are more feasible as there is no cryptographic binding between the request and the client."
+				]
+			},
+			"how_to_fix": [
+				"In the Auth0 Dashboard navigate to Applications > [Your App] > Settings and enable Require JWT-Secured Authorization Requests (JAR).",
+				"Register a public key (credential) under the application's JAR settings so that Auth0 can verify the signed request JWTs.",
+				"Update your client application to sign authorization requests as JWTs using your registered private key before sending them to the authorization endpoint."
+			]
+		},
+		"severity_message": "%s applications / clients do not require JWT Authorization Requests (JAR)",
+		"signed_request_object.required": "JWT Authorization Requests (JAR) are not required for this application (signed_request_object.required: %s)",
+		"signed_request_object.credentials": "JWT Authorization Requests (JAR) is required but no signing credentials are configured for this application. JAR cannot function without a registered public key.",
+		"undefined": "JWT Authorization Requests (JAR) are not required for this application"
+	},
+	"checkDPoPResourceServer": {
+		"title": "checkDPoPResourceServer.title",
+		"description": "checkDPoPResourceServer.description",
+		"docsPath": "checkDPoPResourceServer.docsPath",
+		"severity": "checkDPoPResourceServer.severity",
+		"severity_message": "checkDPoPResourceServer.severity_message",
+		"advisory": "checkDPoPResourceServer.advisory",
+		"undefined": "checkDPoPResourceServer.undefined"
 	}
 }
