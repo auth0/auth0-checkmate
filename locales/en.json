@@ -53,7 +53,8 @@
 				"Refresh Tokens",
 				"Token Sender-Constraining",
 				"Pushed Authorization Requests (PAR)",
-				"JWT Authorization Requests (JAR)"
+				"JWT Authorization Requests (JAR)",
+				"Private Key JWT"
 			]
 		},
 		{
@@ -1580,8 +1581,8 @@
 		"docsPath": [
 			"https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow/authorization-code-flow-with-par"
 		],
-		"severity": "Low",
-		"status": "green",
+		"severity": "Informational",
+		"status": "blue",
 		"disclaimer": "Pushed Authorization Requests (PAR) for applications is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
 		"advisory": {
 			"issue": "Pushed Authorization Requests (PAR) Not Required for Application",
@@ -1610,8 +1611,8 @@
 		"docsPath": [
 			"https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow/authorization-code-flow-with-jar"
 		],
-		"severity": "Low",
-		"status": "green",
+		"severity": "Informational",
+		"status": "blue",
 		"disclaimer": "JWT Authorization Requests (JAR) for applications is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
 		"advisory": {
 			"issue": "JWT Authorization Requests (JAR) Not Required for Application",
@@ -1651,8 +1652,8 @@
 		"docsPath": [
 			"https://auth0.com/docs/secure/tokens/access-tokens/json-web-encryption"
 		],
-		"severity": "Low",
-		"status": "green",
+		"severity": "Informational",
+		"status": "blue",
 		"disclaimer": "JSON Web Encryption (JWE) for Resource Servers is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
 		"advisory": {
 			"issue": "JSON Web Encryption (JWE) Not Configured for Resource Server",
@@ -1675,5 +1676,37 @@
 		"token_encryption.format": "JSON Web Encryption (JWE) format is not valid for this Resource Server (format: %s)",
 		"token_encryption.encryption_key": "JSON Web Encryption (JWE) is enabled but no encryption key is configured for this Resource Server (encryption_key: %s)",
 		"undefined": "JSON Web Encryption (JWE) is not configured for this Resource Server"
+	},
+	"checkPrivateKeyJWT": {
+		"title": "Applications - Private Key JWT",
+		"category": "Applications",
+		"description": "Private Key JWT authentication eliminates the use of shared client secrets by requiring confidential applications to prove their identity using a cryptographically signed JWT backed by a registered public key. This provides stronger client authentication for machine-to-machine and confidential client flows, removing the risks associated with long-lived shared secrets.",
+		"docsPath": [
+			"https://auth0.com/docs/authenticate/enterprise-connections/private-key-jwt-client-auth"
+		],
+		"severity": "Informational",
+		"status": "blue",
+		"disclaimer": "Private Key JWT for application credentials is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
+		"advisory": {
+			"issue": "Private Key JWT Not Configured for Application",
+			"description": {
+				"what_it_is": "Private Key JWT is a client authentication method (RFC 7523) that allows confidential clients to authenticate to Auth0's token endpoint using a signed JWT assertion rather than a shared secret. The client signs the assertion with its private key, and Auth0 verifies the signature using the pre-registered public key, eliminating the risks associated with shared client secrets.",
+				"why_its_risky": [
+					"Client secrets are symmetric credentials — if leaked from source code, environment variables, or logs, they can be used by any attacker to impersonate the application.",
+					"Shared secrets cannot be cryptographically tied to the specific instance making the request, making them susceptible to credential theft and reuse.",
+					"Private Key JWT provides non-repudiation and stronger assurance that token requests originate from the legitimate client, not a party in possession of a stolen secret.",
+					"Regulatory frameworks such as FAPI 2.0 mandate asymmetric client authentication methods to reduce the risk of credential compromise in highly regulated environments."
+				]
+			},
+			"how_to_fix": [
+				"In the Auth0 Dashboard navigate to Applications > [Your App] > Credentials and add a new credential using the 'Private Key JWT' authentication method.",
+				"Generate an RSA or EC key pair and upload the public key (or a certificate containing it) to the application's credential configuration.",
+				"Update your client application to sign a JWT assertion with your private key and submit it as the client_assertion parameter on token endpoint requests.",
+				"Once configured, remove any existing client secrets that are no longer needed to reduce your credential attack surface."
+			]
+		},
+		"severity_message": "%s applications / clients do not have Private Key JWT configured",
+		"client_authentication_methods.private_key_jwt": "Private Key JWT is not configured for this application. Consider using Private Key JWT instead of a client secret for stronger client authentication.",
+		"undefined": "Private Key JWT authentication method is not configured for this application"
 	}
 }
