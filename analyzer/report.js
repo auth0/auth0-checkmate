@@ -431,6 +431,18 @@ async function generateReport(locale, tenantConfig, config) {
             });
           });
           break;
+        case "checkJWEResourceServer":
+          report.disclaimer = i18n.__(`${report.name}.disclaimer`);
+          grouped = _.groupBy(report.details, "name");
+          res = tranformReport(grouped);
+          res.forEach((item) => {
+            item.values.forEach((detail) => {
+              detail.report.forEach((c) => {
+                c.message = i18n.__(`${report.name}.${c.field}`, c.value);
+              });
+            });
+          });
+          break;
         default:
           report.details.forEach((cd) => {
             cd.message = i18n.__(`${report.name}.${cd.field}`, cd.value);

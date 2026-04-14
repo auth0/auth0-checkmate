@@ -163,7 +163,8 @@
 			"required_scope": "read:resource_servers",
 			"items": [
 				"Signing Algorithm",
-				"Token Lifetime"
+				"Token Lifetime",
+				"JSON Web Encryption (JWE)"
 			]
 		}
 	],
@@ -1642,5 +1643,37 @@
 		"severity_message": "checkDPoPResourceServer.severity_message",
 		"advisory": "checkDPoPResourceServer.advisory",
 		"undefined": "checkDPoPResourceServer.undefined"
+	},
+	"checkJWEResourceServer": {
+		"title": "Resource Servers (APIs) - JSON Web Encryption (JWE)",
+		"category": "Resource Servers (APIs)",
+		"description": "JSON Web Encryption (JWE) ensures that access tokens issued for this API are encrypted before delivery, preventing token contents from being read by parties other than the intended recipient. JWE is a foundational control for highly regulated environments where token payload confidentiality is required.",
+		"docsPath": [
+			"https://auth0.com/docs/secure/tokens/access-tokens/json-web-encryption"
+		],
+		"severity": "Low",
+		"status": "green",
+		"disclaimer": "JSON Web Encryption (JWE) for Resource Servers is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
+		"advisory": {
+			"issue": "JSON Web Encryption (JWE) Not Configured for Resource Server",
+			"description": {
+				"what_it_is": "JSON Web Encryption (JWE) is a standard (RFC 7516) that allows access tokens to be encrypted before delivery to the client. When JWE is enabled for a Resource Server, Auth0 encrypts the token payload using the API's public key, ensuring only the intended API can decrypt and read the token claims.",
+				"why_its_risky": [
+					"Without JWE, access tokens are plain JWTs whose claims can be read by any party that intercepts or receives the token.",
+					"Sensitive claims such as user data, roles, or entitlements embedded in the token payload are exposed to intermediate parties.",
+					"In highly regulated environments such as open banking and healthcare, token payload confidentiality may be a compliance requirement."
+				]
+			},
+			"how_to_fix": [
+				"In the Auth0 Dashboard, navigate to APIs > [Your API] > Settings and enable JSON Web Encryption (JWE).",
+				"Upload or configure a public encryption key for the API to use when encrypting tokens.",
+				"Ensure your API's token handling code can decrypt incoming JWE tokens using the corresponding private key."
+			]
+		},
+		"severity_message": "%s Resource Server(s) do not have JSON Web Encryption (JWE) configured",
+		"token_encryption": "JSON Web Encryption (JWE) is not configured for this Resource Server (token_encryption: %s)",
+		"token_encryption.format": "JSON Web Encryption (JWE) format is not valid for this Resource Server (format: %s)",
+		"token_encryption.encryption_key": "JSON Web Encryption (JWE) is enabled but no encryption key is configured for this Resource Server (encryption_key: %s)",
+		"undefined": "JSON Web Encryption (JWE) is not configured for this Resource Server"
 	}
 }
