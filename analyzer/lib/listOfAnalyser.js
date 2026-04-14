@@ -4,10 +4,12 @@ const path = require("path");
 let requiredModules = [];
 
 // Match only directories in the current directory
-const directories = glob.sync(path.join(__dirname, "/*/")); // Synchronously match directories in the current directory
+// Fix Windows backslash issue by converting to forward slashes (glob only recognizes forward slashes)
+const basePath = __dirname.replace(/\\/g, '/');
+const directories = glob.sync(basePath + "/*/");
 directories.forEach((directory) => {
   // Match all files in each directory
-  const pathName = path.join(directory, "*.*");
+  const pathName = directory.replace(/\\/g, '/') + "*.*"; // Fix Windows backslash issue
   const files = glob.sync(pathName); // Synchronously match files in the directory
   files.forEach((file) => {
     const filePath = path.resolve(file);
