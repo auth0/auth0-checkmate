@@ -3,7 +3,8 @@ const i18n = require("i18n");
 const path = require("path");
 const _ = require("lodash");
 const Handlebars = require("handlebars");
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-core");
+const chromium = require("@sparticuz/chromium");
 const listOfAnalyser = require("./lib/listOfAnalyser");
 const {
   getAccessToken,
@@ -474,11 +475,9 @@ async function generatePdfBuffer(report, auth0Domain, locale) {
   const data = { report, auth0Domain, today, locale, version, config: {} };
 
   const browser = await puppeteer.launch({
-    headless: true, // Run in headless mode
-    args: [
-      "--no-sandbox", // Disable the sandbox
-      "--disable-setuid-sandbox", // Disable setuid sandbox
-    ],
+    args: chromium.args,
+    executablePath: await chromium.executablePath(),
+    headless: chromium.headless,
   });
 
   try {
