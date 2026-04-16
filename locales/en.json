@@ -165,7 +165,8 @@
 			"items": [
 				"Signing Algorithm",
 				"Token Lifetime",
-				"JSON Web Encryption (JWE)"
+				"JSON Web Encryption (JWE)",
+				"Token Sender-Constraining"
 			]
 		}
 	],
@@ -1637,13 +1638,36 @@
 		"undefined": "JWT Authorization Requests (JAR) are not required for this application"
 	},
 	"checkDPoPResourceServer": {
-		"title": "checkDPoPResourceServer.title",
-		"description": "checkDPoPResourceServer.description",
-		"docsPath": "checkDPoPResourceServer.docsPath",
-		"severity": "checkDPoPResourceServer.severity",
-		"severity_message": "checkDPoPResourceServer.severity_message",
-		"advisory": "checkDPoPResourceServer.advisory",
-		"undefined": "checkDPoPResourceServer.undefined"
+		"title": "Resource Servers (APIs) - Token Sender-Constraining",
+		"category": "Resource Servers (APIs)",
+		"description": "Token Sender-Constraining cryptographically binds access tokens to the client that requested them using DPoP or mTLS, preventing stolen tokens from being replayed by an attacker. Configuring Token Sender-Constraining on the Resource Server (API) is required to enforce binding — without it, even if applications are configured to use DPoP or mTLS, the API will accept unbounded bearer tokens and the protection is not enforced.",
+		"docsPath": [
+			"https://auth0.com/docs/secure/sender-constraining"
+		],
+		"severity": "Low",
+		"status": "green",
+		"disclaimer": "Token Sender-Constraining (DPoP / mTLS) for Resource Servers is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
+		"advisory": {
+			"issue": "Token Sender-Constraining Not Configured for Resource Server",
+			"description": {
+				"what_it_is": "Token Sender-Constraining cryptographically binds access tokens to the requesting client's key pair using DPoP (Demonstrating Proof of Possession) or mTLS (Mutual TLS). Configuring the Resource Server (API) to require proof of possession ensures that the API will only accept tokens that are cryptographically bound to the client that requested them, preventing stolen tokens from being replayed by an attacker.",
+				"why_its_risky": [
+					"Without Token Sender-Constraining configured on the Resource Server, bearer tokens issued for that API can be used by any party that obtains them, even if the application is configured to use DPoP or mTLS.",
+					"A misconfigured or absent Resource Server sender-constraining setting means the API accepts unbounded tokens, negating the protection provided by DPoP or mTLS on the client side.",
+					"Access tokens intercepted via network attacks, XSS, or compromised infrastructure can be replayed until expiry with no way to detect misuse.",
+					"Highly regulated environments such as open banking and FAPI-compliant deployments require token sender-constraining at both the application and Resource Server level."
+				]
+			},
+			"how_to_fix": [
+				"In the Auth0 Dashboard, navigate to APIs > [Your API] > Settings > Token Sender-Constraining and configure the mechanism (DPoP or mTLS) and enforcement scope.",
+				"Ensure the corresponding applications are also configured to use the same Token Sender-Constraining method so that the binding is enforced end-to-end.",
+				"Verify that your API implementation validates the DPoP proof or mTLS client certificate on every request to the protected resource."
+			]
+		},
+		"severity_message": "%s Resource Server(s) do not have Token Sender-Constraining configured",
+		"proof_of_possession": "Token Sender-Constraining is not configured for this Resource Server (proof_of_possession: %s)",
+		"proof_of_possession.mechanism": "Token Sender-Constraining mechanism is not valid for this Resource Server (proof_of_possession.mechanism: %s)",
+		"undefined": "Token Sender-Constraining is not configured for this Resource Server"
 	},
 	"checkJWEResourceServer": {
 		"title": "Resource Servers (APIs) - JSON Web Encryption (JWE)",
