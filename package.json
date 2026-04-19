@@ -1,6 +1,6 @@
 {
   "name": "@auth0/auth0-checkmate",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "A command line tool for checking configuration of your Auth0 tenant",
   "main": "analyzer/report.js",
   "scripts": {
@@ -29,7 +29,7 @@
     "jsonwebtoken": "^9.0.3",
     "lodash": "^4.18.1",
     "moment": "^2.30.1",
-    "puppeteer": "^24.36.0",
+    "puppeteer": "^24.41.0",
     "semver": "^7.7.3",
     "winston": "^3.19.0"
   },
