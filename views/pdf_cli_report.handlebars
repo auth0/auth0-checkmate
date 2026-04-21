@@ -23,27 +23,18 @@
 
     <style
     >
-        @page: first {
+        @page :first {
             size: A4;
             margin: 0;
         }
 
-        /* Full-page for the first page */
         @page {
             size: A4;
             margin: 100px 20px;
         }
 
-        /* Margins for the content pages */
-
         body {
-            font-family: {
-                    {
-                    chooseFont locale
-                }
-            }
-
-            ;
+            font-family: {{chooseFont locale}};
             background-color: #FFFFFF;
             color: #191919;
             margin: 20px;
