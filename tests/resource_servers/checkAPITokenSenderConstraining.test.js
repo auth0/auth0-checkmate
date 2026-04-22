@@ -1,10 +1,10 @@
 const chai = require("chai");
 const expect = chai.expect;
 
-const checkDPoPResourceServer = require("../../analyzer/lib/resource_servers/checkDPoPResourceServer");
+const checkTokenConstrainingResourceServer = require("../../analyzer/lib/resource_servers/checkAPITokenSenderConstraining");
 const CONSTANTS = require("../../analyzer/lib/constants");
 
-describe("checkDPoPResourceServer", function() {
+describe("checkTokenConstrainingResourceServer", function() {
 
     it("should report failure when proof_of_possession is absent (not configured)", function() {
         const options = {
@@ -16,7 +16,7 @@ describe("checkDPoPResourceServer", function() {
             }]
         };
 
-        checkDPoPResourceServer(options, (result) => {
+        checkTokenConstrainingResourceServer(options, (result) => {
             expect(result).to.be.an("array").with.lengthOf(1);
             expect(result[0].name).to.equal("Legacy API (https://legacy-api.example.com)");
             expect(result[0].report).to.be.an("array").with.lengthOf(1);
@@ -43,7 +43,7 @@ describe("checkDPoPResourceServer", function() {
             }]
         };
 
-        checkDPoPResourceServer(options, (result) => {
+        checkTokenConstrainingResourceServer(options, (result) => {
             expect(result[0].report).to.be.an("array").with.lengthOf(1);
             expect(result[0].report[0]).to.include({
                 field: "proof_of_possession.mechanism",
@@ -67,7 +67,7 @@ describe("checkDPoPResourceServer", function() {
             }]
         };
 
-        checkDPoPResourceServer(options, (result) => {
+        checkTokenConstrainingResourceServer(options, (result) => {
             expect(result[0].report).to.be.an("array").with.lengthOf(1);
             expect(result[0].report[0]).to.include({
                 field: "proof_of_possession.mechanism",
@@ -92,7 +92,7 @@ describe("checkDPoPResourceServer", function() {
             }]
         };
 
-        checkDPoPResourceServer(options, (result) => {
+        checkTokenConstrainingResourceServer(options, (result) => {
             expect(result).to.be.an("array").with.lengthOf(1);
             expect(result[0].name).to.equal("DPOP (https://dpop)");
             expect(result[0].report).to.be.an("array").that.is.empty;
@@ -114,7 +114,7 @@ describe("checkDPoPResourceServer", function() {
             }]
         };
 
-        checkDPoPResourceServer(options, (result) => {
+        checkTokenConstrainingResourceServer(options, (result) => {
             expect(result[0].report).to.be.an("array").that.is.empty;
         });
     });
@@ -134,7 +134,7 @@ describe("checkDPoPResourceServer", function() {
             }]
         };
 
-        checkDPoPResourceServer(options, (result) => {
+        checkTokenConstrainingResourceServer(options, (result) => {
             expect(result[0].report).to.be.an("array").that.is.empty;
         });
     });
@@ -149,7 +149,7 @@ describe("checkDPoPResourceServer", function() {
             }]
         };
 
-        checkDPoPResourceServer(options, (result) => {
+        checkTokenConstrainingResourceServer(options, (result) => {
             expect(result).to.be.an("array").that.is.empty;
         });
     });
@@ -183,7 +183,7 @@ describe("checkDPoPResourceServer", function() {
             ]
         };
 
-        checkDPoPResourceServer(options, (result) => {
+        checkTokenConstrainingResourceServer(options, (result) => {
             // system RS is skipped; 2 non-system RSes are included
             expect(result).to.be.an("array").with.lengthOf(2);
 
@@ -202,7 +202,7 @@ describe("checkDPoPResourceServer", function() {
 
     it("should return empty result if no resource servers are provided", function() {
         const options = { resourceServers: [] };
-        checkDPoPResourceServer(options, (result) => {
+        checkTokenConstrainingResourceServer(options, (result) => {
             expect(result).to.be.an("array").that.is.empty;
         });
     });

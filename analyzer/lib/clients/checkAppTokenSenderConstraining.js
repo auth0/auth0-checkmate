@@ -22,7 +22,7 @@ const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
 
-const DPOP_RELEVANT_GRANT_TYPES = [
+const TOKEN_SENDER_CONSTRAINING_RELEVANT_GRANT_TYPES = [
     "authorization_code",
     "refresh_token",
     "client_credentials",
@@ -30,15 +30,15 @@ const DPOP_RELEVANT_GRANT_TYPES = [
     "urn:ietf:params:oauth:grant-type:device_code",
 ];
 
-function validateDPoPForApp(app) {
+function validateTokenSenderConstrainingForApp(app) {
     const enabledGrantTypes = app.grant_types || [];
     const report = [];
 
-    const hasDPoPRelevantGrant = DPOP_RELEVANT_GRANT_TYPES.some((g) =>
+    const hasTokenSenderConstrainingRelevantGrant = TOKEN_SENDER_CONSTRAINING_RELEVANT_GRANT_TYPES.some((g) =>
         enabledGrantTypes.includes(g)
     );
 
-    if (hasDPoPRelevantGrant && app.require_proof_of_possession !== true) {
+    if (hasTokenSenderConstrainingRelevantGrant && app.require_proof_of_possession !== true) {
         report.push({
             name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
             client_id: app.client_id,
@@ -52,15 +52,15 @@ function validateDPoPForApp(app) {
     return report;
 }
 
-function checkDPoP(options) {
-    return executeCheck("checkDPoP", (callback) => {
+function checkAppTokenSenderConstraining(options) {
+    return executeCheck("checkAppTokenSenderConstraining", (callback) => {
         const { clients } = options || [];
         const reports = [];
         if (_.isEmpty(clients)) {
             return callback(reports);
         }
         clients.forEach((client) => {
-            var report = validateDPoPForApp(client);
+            var report = validateTokenSenderConstrainingForApp(client);
             var name = client.name.concat(` (${client.client_id})`);
             reports.push({ name: name, report: report });
         });
@@ -68,4 +68,4 @@ function checkDPoP(options) {
     });
 }
 
-module.exports = checkDPoP;
+module.exports = checkAppTokenSenderConstraining;

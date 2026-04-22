@@ -69,8 +69,8 @@ function validateDPoPForResourceServer(rs) {
     return report;
 }
 
-function checkDPoPResourceServer(options) {
-    return executeCheck("checkDPoPResourceServer", (callback) => {
+function checkTokenConstrainingResourceServer(options) {
+    return executeCheck("checkTokenConstrainingResourceServer", (callback) => {
         const { resourceServers } = options || {};
         const reports = [];
         if (_.isEmpty(resourceServers)) {
@@ -89,4 +89,4 @@ function checkDPoPResourceServer(options) {
     });
 }
 
-module.exports = checkDPoPResourceServer;
+module.exports = checkTokenConstrainingResourceServer;

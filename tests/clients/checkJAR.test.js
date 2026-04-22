@@ -34,7 +34,7 @@ describe("checkJAR", function() {
         });
     });
 
-    it("should report failure if implicit grant is used and JAR is not required", function() {
+    it("should skip public SPA clients (app_type spa)", function() {
         const options = {
             clients: [{
                 name: "Legacy SPA",
@@ -47,11 +47,42 @@ describe("checkJAR", function() {
 
         checkJAR(options, (result) => {
             expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "signed_request_object.required",
-                status: CONSTANTS.FAIL,
-            });
+            expect(result[0].report).to.be.an("array").that.is.empty;
+        });
+    });
+
+    it("should skip public native clients (app_type native)", function() {
+        const options = {
+            clients: [{
+                name: "Native App",
+                client_id: "client_native",
+                app_type: "native",
+                is_first_party: true,
+                grant_types: ["authorization_code"],
+            }]
+        };
+
+        checkJAR(options, (result) => {
+            expect(result).to.be.an("array").with.lengthOf(1);
+            expect(result[0].report).to.be.an("array").that.is.empty;
+        });
+    });
+
+    it("should skip clients with token_endpoint_auth_method none", function() {
+        const options = {
+            clients: [{
+                name: "Public Web App",
+                client_id: "client_public",
+                app_type: "regular_web",
+                is_first_party: true,
+                token_endpoint_auth_method: "none",
+                grant_types: ["authorization_code"],
+            }]
+        };
+
+        checkJAR(options, (result) => {
+            expect(result).to.be.an("array").with.lengthOf(1);
+            expect(result[0].report).to.be.an("array").that.is.empty;
         });
     });
 
@@ -60,7 +91,7 @@ describe("checkJAR", function() {
             clients: [{
                 name: "HRI App",
                 client_id: "client_hri",
-                app_type: "spa",
+                app_type: "regular_web",
                 is_first_party: true,
                 grant_types: ["authorization_code", "refresh_token"],
             }]
@@ -81,7 +112,7 @@ describe("checkJAR", function() {
             clients: [{
                 name: "Misconfigured HRI App",
                 client_id: "client_misconfig",
-                app_type: "spa",
+                app_type: "regular_web",
                 is_first_party: true,
                 grant_types: ["authorization_code"],
                 signed_request_object: {
@@ -107,9 +138,9 @@ describe("checkJAR", function() {
             clients: [{
                 name: "Secure HRI App",
                 client_id: "client_secure",
-                app_type: "spa",
+                app_type: "regular_web",
                 is_first_party: true,
-                grant_types: ["authorization_code", "implicit", "refresh_token"],
+                grant_types: ["authorization_code", "refresh_token"],
                 signed_request_object: {
                     required: true,
                     credentials: [

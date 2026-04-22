@@ -388,7 +388,7 @@ async function generateReport(locale, tenantConfig, config) {
           // Replace original report.details with the new structure
           report.details = transformedDetails;
           break;
-        case "checkDPoP":
+        case "checkAppTokenSenderConstraining":
           report.disclaimer = i18n.__(`${report.name}.disclaimer`);
           report.advisory = i18n.__(`${report.name}.advisory`);
           grouped = _.groupBy(report.details, "name");
@@ -443,7 +443,7 @@ async function generateReport(locale, tenantConfig, config) {
             });
           });
           break;
-        case "checkDPoPResourceServer":
+        case "checkTokenConstrainingResourceServer":
           report.disclaimer = i18n.__(`${report.name}.disclaimer`);
           report.advisory = i18n.__(`${report.name}.advisory`);
           grouped = _.groupBy(report.details, "name");

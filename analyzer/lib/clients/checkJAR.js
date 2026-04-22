@@ -23,6 +23,10 @@
   }
   ]
 }
+
+JAR is only supported for confidential clients. Auth0's JAR validation
+rejects public clients (SPAs and native apps). A client is treated as
+public when token_endpoint_auth_method is "none" or app_type is "spa" or "native".
 */
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
@@ -33,9 +37,21 @@ const JAR_RELEVANT_GRANT_TYPES = [
     "implicit",
 ];
 
+const PUBLIC_CLIENT_APP_TYPES = ["spa", "native"];
+
+function isPublicClient(app) {
+    if (app.token_endpoint_auth_method === "none") return true;
+    if (PUBLIC_CLIENT_APP_TYPES.includes(app.app_type)) return true;
+    return false;
+}
+
 function validateJARForApp(app) {
     const enabledGrantTypes = app.grant_types || [];
     const report = [];
+
+    if (isPublicClient(app)) {
+        return report;
+    }
 
     const hasJARRelevantGrant = JAR_RELEVANT_GRANT_TYPES.some((g) =>
         enabledGrantTypes.includes(g)

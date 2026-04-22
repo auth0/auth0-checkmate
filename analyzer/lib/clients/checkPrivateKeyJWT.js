@@ -76,6 +76,11 @@ function checkPrivateKeyJWT(options) {
                 return;
             }
 
+            // Skip clients with token sender constraining enabled (mTLS handles client auth)
+            if (client.require_proof_of_possession === true) {
+                return;
+            }
+
             const report = validatePrivateKeyJWTForApp(client);
             const name = client.name.concat(` (${client.client_id})`);
             reports.push({ name: name, report: report });

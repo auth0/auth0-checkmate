@@ -151,6 +151,24 @@ describe("checkPrivateKeyJWT", function () {
         });
     });
 
+    it("should skip clients with token sender constraining enabled", function () {
+        const options = {
+            clients: [{
+                name: "mTLS App",
+                client_id: "client_mtls",
+                global: false,
+                is_first_party: true,
+                app_type: "non_interactive",
+                grant_types: ["client_credentials"],
+                require_proof_of_possession: true,
+            }],
+        };
+
+        checkPrivateKeyJWT(options).then((result) => {
+            expect(result.details).to.be.an("array").that.is.empty;
+        });
+    });
+
     it("should handle a mix of public and confidential clients correctly", function () {
         const options = {
             clients: [

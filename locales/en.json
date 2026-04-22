@@ -1544,7 +1544,7 @@
 		"token_lifetime_extended": "API \"%s\" has an access token lifetime of %s. This exceeds the default of 24 hours. Review if this is appropriate for your security requirements.",
 		"token_lifetime_appropriate": "API \"%s\" has an access token lifetime of %s."
 	},
-	"checkDPoP": {
+	"checkAppTokenSenderConstraining": {
 		"title": "Applications - Token Sender-Constraining",
 		"category": "Applications",
 		"description": "Token Sender-Constraining cryptographically binds access tokens to the client that requested them, preventing stolen tokens from being replayed by an attacker. We recommend enabling Token Sender-Constraining for all applications using the authorization code, refresh token, client credentials, password (ROPC), or device code grant types.",
@@ -1597,7 +1597,7 @@
 				]
 			},
 			"how_to_fix": [
-				"In the Auth0 Dashboard navigate to Applications > [Your App] > Settings and enable Require Pushed Authorization Requests.",
+				"In the Auth0 Dashboard, Under Tenant Settings -> Advanced, enable the Allow Pushed Authorization Request button.  Then navigate to Applications > [Your App] > Settings and enable Require Pushed Authorization Requests.",
 				"Ensure your client application is updated to send authorization parameters via the PAR endpoint (/oauth/par) before initiating the authorization redirect."
 			]
 		},
@@ -1622,7 +1622,6 @@
 				"why_its_risky": [
 					"Without JAR, authorization request parameters can be modified by an attacker who intercepts the redirect, potentially escalating scopes or changing the redirect URI.",
 					"Unsigned authorization requests provide no integrity guarantee — the authorization server cannot verify that the request originated from the legitimate client.",
-					"JAR is required by FAPI 1.0 Advanced and FAPI 2.0 security profiles, which are mandated in open banking and other highly regulated sectors.",
 					"Without signed requests, authorization code injection attacks are more feasible as there is no cryptographic binding between the request and the client."
 				]
 			},
@@ -1637,7 +1636,7 @@
 		"signed_request_object.credentials": "JWT Authorization Requests (JAR) is required but no signing credentials are configured for this application. JAR cannot function without a registered public key.",
 		"undefined": "JWT Authorization Requests (JAR) are not required for this application"
 	},
-	"checkDPoPResourceServer": {
+	"checkTokenConstrainingResourceServer": {
 		"title": "Resource Servers (APIs) - Token Sender-Constraining",
 		"category": "Resource Servers (APIs)",
 		"description": "Token Sender-Constraining cryptographically binds access tokens to the client that requested them using DPoP or mTLS, preventing stolen tokens from being replayed by an attacker. Configuring Token Sender-Constraining on the Resource Server (API) is required to enforce binding — without it, even if applications are configured to use DPoP or mTLS, the API will accept unbounded bearer tokens and the protection is not enforced.",
@@ -1646,7 +1645,7 @@
 		],
 		"severity": "Low",
 		"status": "green",
-		"disclaimer": "Token Sender-Constraining (DPoP / mTLS) for Resource Servers is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
+		"disclaimer": "Token Sender-Constraining (DPoP) for Resource Servers is available only to customers on an Enterprise plan; additionally, usage of the mTLS Token Sender Constraining option requires the Highly Regulated Identity (HRI) add-on.",
 		"advisory": {
 			"issue": "Token Sender-Constraining Not Configured for Resource Server",
 			"description": {
@@ -1706,11 +1705,11 @@
 		"category": "Applications",
 		"description": "Private Key JWT authentication eliminates the use of shared client secrets by requiring confidential applications to prove their identity using a cryptographically signed JWT backed by a registered public key. This provides stronger client authentication for machine-to-machine and confidential client flows, removing the risks associated with long-lived shared secrets.",
 		"docsPath": [
-			"https://auth0.com/docs/authenticate/enterprise-connections/private-key-jwt-client-auth"
+			"https://auth0.com/docs/get-started/applications/configure-private-key-jwt"
 		],
 		"severity": "Informational",
 		"status": "blue",
-		"disclaimer": "Private Key JWT for application credentials is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
+		"disclaimer": "Private Key JWT for application credentials is available only to customers on an Enterprise plan.",
 		"advisory": {
 			"issue": "Private Key JWT Not Configured for Application",
 			"description": {
