@@ -19,14 +19,6 @@ proof_of_possession.mechanism values:
   "dpop"  => DPoP (Demonstrating Proof of Possession)
   "mtls"  => Mutual TLS
 
-proof_of_possession.required:
-  true   => enforced
-  false  => configured but not mandatory
-
-proof_of_possession.required_for:
-  "all_clients"    => all clients must use proof of possession
-  "public_clients" => only public clients must use proof of possession
-
 When proof_of_possession is absent from the API response, token sender
 constraining is not configured for that resource server.
 */
