@@ -1,36 +1,34 @@
 
 /*
 {
-  "allowed_logout_urls": [
-    "https://contoso.com"
+  "enabled_locales": [
+    "en"
   ],
   "flags": {
-    "allow_changing_enable_sso": true,
+    "allow_changing_enable_sso": false,
     "disable_impersonation": true,
-    "enable_dynamic_client_registration": true, // Can be false or undefined
     "enable_sso": true,
     "universal_login": true,
     "revoke_refresh_token_grant": false,
+    "improved_signup_bot_detection_in_classic": true,
     "disable_clickjack_protection_headers": false
   },
-  "default_redirection_uri": "https://contoso.com/login",
-  "idle_session_lifetime": 72, //default
-  "session_lifetime": 168, //default
+  "idle_session_lifetime": 1,
+  "ephemeral_session_lifetime": 4,
+  "idle_ephemeral_session_lifetime": 2,
+  "sandbox_version": "22",
+  "session_lifetime": 3,
   "oidc_logout": {
     "rp_logout_end_session_endpoint_discovery": true
   },
   "session_cookie": {
-    "mode": "persistent" //default
+    "mode": "non-persistent"
   },
-  "support_email": "",
-  "support_url": "",
-  "sandbox_version": "22",
   "sandbox_versions_available": [
     "22",
-    "18",
-    "16",
-    "12"
-  ]
+    "18"
+  ],
+  "resource_parameter_profile": "audience"
 }
 */
 const _ = require("lodash");
@@ -48,46 +46,59 @@ function checkSessionLifetime(options) {
       });
       return callback(report);
     }
-    const { idle_session_lifetime, session_lifetime, session_cookie  } = tenant;
-    if (_.isEmpty(idle_session_lifetime)) {
-      report.push({
-        field: "idle_session_lifetime",
-        value: CONSTANTS.DEFAULT_IDLE_SESSION_LIFETIME,
-        status: CONSTANTS.FAIL, //to surface this configuration in the report
-      });         
+    const {
+      idle_session_lifetime,
+      session_lifetime,
+      idle_ephemeral_session_lifetime,
+      ephemeral_session_lifetime,
+      session_cookie
+    } = tenant;
+
+    // Determine session cookie mode
+    const sessionCookieMode = session_cookie?.mode || CONSTANTS.DEFAULT_SESSION_COOKIE_MODE;
+
+    // Select the appropriate values based on session cookie mode
+    let idleValue, lifetimeValue;
+
+    if (sessionCookieMode === "non-persistent") {
+      // Non-persistent mode: use ephemeral session settings
+      idleValue = (idle_ephemeral_session_lifetime == null)
+        ? CONSTANTS.DEFAULT_IDLE_SESSION_LIFETIME
+        : `${idle_ephemeral_session_lifetime}h`;
+
+      lifetimeValue = (ephemeral_session_lifetime == null)
+        ? CONSTANTS.DEFAULT_SESSION_LIFETIME
+        : `${ephemeral_session_lifetime}h`;
     } else {
-      report.push({
-        field: "idle_session_lifetime",
-        value: `${idle_session_lifetime}h`,
-        status: CONSTANTS.FAIL, //to surface this configuration in the report
-      }); 
+      // Persistent mode: use regular session settings
+      idleValue = (idle_session_lifetime == null)
+        ? CONSTANTS.DEFAULT_IDLE_SESSION_LIFETIME
+        : `${idle_session_lifetime}h`;
+
+      lifetimeValue = (session_lifetime == null)
+        ? CONSTANTS.DEFAULT_SESSION_LIFETIME
+        : `${session_lifetime}h`;
     }
-    if (_.isEmpty(session_lifetime)) {
-      report.push({
-        field: "session_lifetime",
-        value: CONSTANTS.DEFAULT_SESSION_LIFETIME,
-        status: CONSTANTS.FAIL, //to surface this configuration in the report
-      });          
-    } else {
-      report.push({
-        field: "session_lifetime",
-        value: `${session_lifetime}h`,
-        status: CONSTANTS.FAIL, //to surface this configuration in the report
-      });         
-    }
-    if (_.isEmpty(session_cookie)) {
-      report.push({
-        field: "session_cookie_mode",
-        value: CONSTANTS.DEFAULT_SESSION_COOKIE_MODE,
-        status: CONSTANTS.FAIL, //to surface this configuration in the report
-      });          
-    } else {
-      report.push({
-        field: "session_cookie_mode",
-        value: session_cookie?.mode,
-        status: CONSTANTS.FAIL, //to surface this configuration in the report
-      });         
-    }
+
+    // Report with consistent field names
+    report.push({
+      field: "idle_session_lifetime",
+      value: idleValue,
+      status: CONSTANTS.FAIL, //to surface this configuration in the report
+    });
+
+    report.push({
+      field: "session_lifetime",
+      value: lifetimeValue,
+      status: CONSTANTS.FAIL, //to surface this configuration in the report
+    });
+
+    report.push({
+      field: "session_cookie_mode",
+      value: sessionCookieMode,
+      status: CONSTANTS.FAIL, //to surface this configuration in the report
+    });
+
     return callback(report);
   });
 }

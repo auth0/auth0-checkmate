@@ -1093,7 +1093,9 @@
 		"session_cookie_mode": "Session Cookie Mode: %s",
 		"severity": "Info",
 		"status": "blue",
-		"severity_message": "Review Tenant Settings > Advanced > Session Expiration"
+		"severity_message": "Review Tenant Settings > Advanced > Session Expiration",
+		"idle_ephemeral_session_lifetime": "checkSessionLifetime.idle_ephemeral_session_lifetime",
+		"ephemeral_session_lifetime": "checkSessionLifetime.ephemeral_session_lifetime"
 	},
 	"checkSupportEmail": {
 		"title": "Support Email",
