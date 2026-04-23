@@ -54,7 +54,8 @@
 				"Token Sender-Constraining",
 				"Pushed Authorization Requests (PAR)",
 				"JWT Authorization Requests (JAR)",
-				"Private Key JWT"
+				"Private Key JWT",
+				"Back-Channel Logout"
 			]
 		},
 		{
@@ -1733,5 +1734,36 @@
 		"severity_message": "%s applications / clients do not have Private Key JWT configured",
 		"client_authentication_methods.private_key_jwt": "Private Key JWT is not configured for this application. Consider using Private Key JWT instead of a client secret for stronger client authentication.",
 		"undefined": "Private Key JWT authentication method is not configured for this application"
-	}
+	},
+	"checkBackchannelLogout": {
+        "title": "Applications - Back-Channel Logout",
+        "category": "Applications",
+        "description": "Back-Channel Logout enables the identity provider to directly notify applications when a session is terminated, ensuring that all sessions across applications are invalidated immediately. Auth0 supports the OpenID Connect Back-Channel Logout 1.0 specification, which leverages session IDs (sid) in ID tokens and Logout Tokens to coordinate session termination via back-channel communication.",
+        "docsPath": [
+            "https://auth0.com/docs/authenticate/login/logout/back-channel-logout"
+        ],
+        "severity": "Moderate",
+        "status": "yellow",
+        "disclaimer": "Back-Channel Logout is available only to customers on an Enterprise plan subscription.",
+        "advisory": {
+            "issue": "Back-Channel Logout URI Not Configured for Application",
+            "description": {
+                "what_it_is": "Back-Channel Logout (OIDC Back-Channel Logout 1.0) allows the Auth0 tenant to directly call a pre-registered logout URI on your application server when a user session is terminated — without relying on the user's browser. The tenant sends a signed Logout Token containing the user's sub and sid claims, which the application uses to identify and terminate the corresponding local session. This enables centralized, reliable session revocation across all applications sharing the same Auth0 session.",
+                "why_its_risky": [
+                    "Without Back-Channel Logout, application sessions may remain active even after the user logs out of Auth0, leaving a window for session hijacking or unauthorized access.",
+                    "Front-channel logout relies on the user's browser completing redirects — if the browser is closed, network issues occur, or redirects are blocked, applications may never receive the logout signal.",
+                    "In multi-application environments, a logout from one application will not propagate to others without back-channel coordination, violating the principle of centralized session control."
+                ]
+            },
+            "how_to_fix": [
+                "In the Auth0 Dashboard, navigate to Applications > [Your App] > OpenID Connect Back-Channel Logout and configure a Back-Channel Logout URI that is reachable from the Auth0 tenant server.",
+                "Implement the logout endpoint to validate the incoming Logout Token: verify the issuer, audience, signature, expiry, and that the events claim contains 'http://schemas.openid.net/event/backchannel-logout'.",
+                "Store the session ID (sid) received in ID tokens during login so it can be matched against incoming Logout Tokens.",
+                "Extract the sid claim from the Logout Token and use it to locate and terminate the matching local application session."
+            ]
+        },
+        "severity_message": "%s applications do not have Back-Channel Logout configured",
+        "oidc_backchannel_logout.backchannel_logout_urls": "Back-Channel Logout is not configured for this application. Consider adding a Back-Channel Logout URI to ensure reliable session termination across all applications.",
+        "undefined": "Back-Channel Logout URI is not configured for this application"
+    }
 }
