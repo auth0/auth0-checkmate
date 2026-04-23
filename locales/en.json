@@ -1584,7 +1584,7 @@
 		"docsPath": [
 			"https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow/authorization-code-flow-with-par"
 		],
-		"severity": "Informational",
+		"severity": "Info",
 		"status": "blue",
 		"disclaimer": "Pushed Authorization Requests (PAR) for applications is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
 		"advisory": {
@@ -1614,7 +1614,7 @@
 		"docsPath": [
 			"https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow/authorization-code-flow-with-jar"
 		],
-		"severity": "Informational",
+		"severity": "Info",
 		"status": "blue",
 		"disclaimer": "JWT Authorization Requests (JAR) for applications is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
 		"advisory": {
@@ -1677,7 +1677,7 @@
 		"docsPath": [
 			"https://auth0.com/docs/secure/tokens/access-tokens/json-web-encryption"
 		],
-		"severity": "Informational",
+		"severity": "Info",
 		"status": "blue",
 		"disclaimer": "JSON Web Encryption (JWE) for Resource Servers is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
 		"advisory": {
@@ -1709,7 +1709,7 @@
 		"docsPath": [
 			"https://auth0.com/docs/get-started/applications/configure-private-key-jwt"
 		],
-		"severity": "Informational",
+		"severity": "Info",
 		"status": "blue",
 		"disclaimer": "Private Key JWT for application credentials is available only to customers on an Enterprise plan.",
 		"advisory": {
