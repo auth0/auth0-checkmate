@@ -1,10 +1,10 @@
 const chai = require("chai");
 const expect = chai.expect;
 
-const checkDPoP = require("../../analyzer/lib/clients/checkDPoP");
+const checkAppTokenSenderConstraining = require("../../analyzer/lib/clients/checkAppTokenSenderConstraining");
 const CONSTANTS = require("../../analyzer/lib/constants");
 
-describe("checkDPoP", function() {
+describe("checkAppTokenSenderConstraining", function() {
 
     it("should report failure if authorization_code grant is used and Token Sender-Constraining is not enabled", function() {
         const options = {
@@ -18,7 +18,7 @@ describe("checkDPoP", function() {
             }]
         };
 
-        checkDPoP(options, (result) => {
+        checkAppTokenSenderConstraining(options, (result) => {
             expect(result).to.be.an("array").with.lengthOf(1);
             expect(result[0].name).to.equal("Web App (client_web)");
             expect(result[0].report).to.be.an("array").with.lengthOf(1);
@@ -44,7 +44,7 @@ describe("checkDPoP", function() {
             }]
         };
 
-        checkDPoP(options, (result) => {
+        checkAppTokenSenderConstraining(options, (result) => {
             expect(result).to.be.an("array").with.lengthOf(1);
             expect(result[0].report).to.be.an("array").with.lengthOf(1);
             expect(result[0].report[0]).to.include({
@@ -65,7 +65,7 @@ describe("checkDPoP", function() {
             }]
         };
 
-        checkDPoP(options, (result) => {
+        checkAppTokenSenderConstraining(options, (result) => {
             expect(result[0].report).to.be.an("array").with.lengthOf(1);
             expect(result[0].report[0]).to.include({
                 field: "require_proof_of_possession",
@@ -87,7 +87,7 @@ describe("checkDPoP", function() {
             }]
         };
 
-        checkDPoP(options, (result) => {
+        checkAppTokenSenderConstraining(options, (result) => {
             expect(result).to.be.an("array").with.lengthOf(1);
             expect(result[0].name).to.equal("Secure App (client_secure)");
             expect(result[0].report).to.be.an("array").that.is.empty;
@@ -106,7 +106,7 @@ describe("checkDPoP", function() {
             }]
         };
 
-        checkDPoP(options, (result) => {
+        checkAppTokenSenderConstraining(options, (result) => {
             expect(result).to.be.an("array").with.lengthOf(1);
             expect(result[0].report).to.be.an("array").with.lengthOf(1);
             expect(result[0].report[0]).to.include({
@@ -129,7 +129,7 @@ describe("checkDPoP", function() {
             }]
         };
 
-        checkDPoP(options, (result) => {
+        checkAppTokenSenderConstraining(options, (result) => {
             expect(result).to.be.an("array").with.lengthOf(1);
             expect(result[0].report).to.be.an("array").with.lengthOf(1);
             expect(result[0].report[0]).to.include({
@@ -152,7 +152,7 @@ describe("checkDPoP", function() {
             }]
         };
 
-        checkDPoP(options, (result) => {
+        checkAppTokenSenderConstraining(options, (result) => {
             expect(result).to.be.an("array").with.lengthOf(1);
             expect(result[0].report).to.be.an("array").with.lengthOf(1);
             expect(result[0].report[0]).to.include({
@@ -175,7 +175,7 @@ describe("checkDPoP", function() {
             }]
         };
 
-        checkDPoP(options, (result) => {
+        checkAppTokenSenderConstraining(options, (result) => {
             expect(result).to.be.an("array").with.lengthOf(1);
             expect(result[0].report).to.be.an("array").that.is.empty;
         });
@@ -183,7 +183,7 @@ describe("checkDPoP", function() {
 
     it("should return empty result if no clients are provided", function() {
         const options = { clients: [] };
-        checkDPoP(options, (result) => {
+        checkAppTokenSenderConstraining(options, (result) => {
             expect(result).to.be.an("array").that.is.empty;
         });
     });

@@ -51,7 +51,10 @@
 				"JWT Signing Algorithm",
 				"Cross Origin Authentication",
 				"Refresh Tokens",
-				"Token Sender-Constraining"
+				"Token Sender-Constraining",
+				"Pushed Authorization Requests (PAR)",
+				"JWT Authorization Requests (JAR)",
+				"Private Key JWT"
 			]
 		},
 		{
@@ -161,7 +164,9 @@
 			"required_scope": "read:resource_servers",
 			"items": [
 				"Signing Algorithm",
-				"Token Lifetime"
+				"Token Lifetime",
+				"JSON Web Encryption (JWE)",
+				"Token Sender-Constraining"
 			]
 		}
 	],
@@ -1541,7 +1546,7 @@
 		"token_lifetime_extended": "API \"%s\" has an access token lifetime of %s. This exceeds the default of 24 hours. Review if this is appropriate for your security requirements.",
 		"token_lifetime_appropriate": "API \"%s\" has an access token lifetime of %s."
 	},
-	"checkDPoP": {
+	"checkAppTokenSenderConstraining": {
 		"title": "Applications - Token Sender-Constraining",
 		"category": "Applications",
 		"description": "Token Sender-Constraining cryptographically binds access tokens to the client that requested them, preventing stolen tokens from being replayed by an attacker. We recommend enabling Token Sender-Constraining for all applications using the authorization code, refresh token, client credentials, password (ROPC), or device code grant types.",
@@ -1571,5 +1576,162 @@
 		"severity_message": "%s applications / clients do not have Token Sender-Constraining enabled",
 		"require_proof_of_possession": "Token Sender-Constraining is not enabled for this application (require_proof_of_possession: %s)",
 		"undefined": "Token Sender-Constraining is not enabled for this application"
+	},
+	"checkPAR": {
+		"title": "Applications - Pushed Authorization Requests (PAR)",
+		"category": "Applications",
+		"description": "Pushed Authorization Requests (PAR) strengthens the authorization flow by sending authorization parameters directly to the authorization server before the user agent redirect, preventing parameter tampering and request interception. PAR is a key security control for highly regulated environments such as open banking and FAPI-compliant applications.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow/authorization-code-flow-with-par"
+		],
+		"severity": "Informational",
+		"status": "blue",
+		"disclaimer": "Pushed Authorization Requests (PAR) for applications is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
+		"advisory": {
+			"issue": "Pushed Authorization Requests (PAR) Not Required for Application",
+			"description": {
+				"what_it_is": "Pushed Authorization Requests (PAR) is an OAuth 2.0 extension (RFC 9126) that allows clients to push authorization request parameters directly to the authorization server via a back-channel request before initiating the front-channel redirect. The authorization server returns a request URI that is then used for the user agent redirect, preventing sensitive parameters from being exposed in the browser.",
+				"why_its_risky": [
+					"Without PAR, authorization parameters are passed in the redirect URI query string, where they may be logged by browsers, proxies, or referrer headers.",
+					"Attackers who can intercept or modify the redirect URI can tamper with authorization parameters such as scopes, response types, or redirect URIs.",
+					"PAR is required by FAPI 1.0 Advanced and FAPI 2.0 security profiles, which are mandated in open banking and other highly regulated sectors.",
+					"PAR combined with JAR provides strong protection against authorization request tampering and replay attacks."
+				]
+			},
+			"how_to_fix": [
+				"In the Auth0 Dashboard, Under Tenant Settings -> Advanced, enable the Allow Pushed Authorization Request button.  Then navigate to Applications > [Your App] > Settings and enable Require Pushed Authorization Requests.",
+				"Ensure your client application is updated to send authorization parameters via the PAR endpoint (/oauth/par) before initiating the authorization redirect."
+			]
+		},
+		"severity_message": "%s applications / clients do not require Pushed Authorization Requests (PAR)",
+		"require_pushed_authorization_requests": "Pushed Authorization Requests (PAR) is not required for this application (require_pushed_authorization_requests: %s)",
+		"undefined": "Pushed Authorization Requests (PAR) is not required for this application"
+	},
+	"checkJAR": {
+		"title": "Applications - JWT Authorization Requests (JAR)",
+		"category": "Applications",
+		"description": "JWT Authorization Requests (JAR) requires that authorization requests be sent as signed JWTs, ensuring the integrity and authenticity of every authorization request. JAR prevents parameter injection and request tampering, and is a foundational control for FAPI-compliant and highly regulated identity deployments.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow/authorization-code-flow-with-jar"
+		],
+		"severity": "Informational",
+		"status": "blue",
+		"disclaimer": "JWT Authorization Requests (JAR) for applications is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
+		"advisory": {
+			"issue": "JWT Authorization Requests (JAR) Not Required for Application",
+			"description": {
+				"what_it_is": "JWT Authorization Requests (JAR) is an OAuth 2.0 extension (RFC 9101) that requires clients to send authorization requests as signed JWTs rather than plain query parameters. The authorization server validates the JWT signature using a pre-registered public key, ensuring that the request parameters cannot be tampered with in transit.",
+				"why_its_risky": [
+					"Without JAR, authorization request parameters can be modified by an attacker who intercepts the redirect, potentially escalating scopes or changing the redirect URI.",
+					"Unsigned authorization requests provide no integrity guarantee — the authorization server cannot verify that the request originated from the legitimate client.",
+					"Without signed requests, authorization code injection attacks are more feasible as there is no cryptographic binding between the request and the client."
+				]
+			},
+			"how_to_fix": [
+				"In the Auth0 Dashboard navigate to Applications > [Your App] > Settings and enable Require JWT-Secured Authorization Requests (JAR).",
+				"Register a public key (credential) under the application's JAR settings so that Auth0 can verify the signed request JWTs.",
+				"Update your client application to sign authorization requests as JWTs using your registered private key before sending them to the authorization endpoint."
+			]
+		},
+		"severity_message": "%s applications / clients do not require JWT Authorization Requests (JAR)",
+		"signed_request_object.required": "JWT Authorization Requests (JAR) are not required for this application (signed_request_object.required: %s)",
+		"signed_request_object.credentials": "JWT Authorization Requests (JAR) is required but no signing credentials are configured for this application. JAR cannot function without a registered public key.",
+		"undefined": "JWT Authorization Requests (JAR) are not required for this application"
+	},
+	"checkTokenConstrainingResourceServer": {
+		"title": "Resource Servers (APIs) - Token Sender-Constraining",
+		"category": "Resource Servers (APIs)",
+		"description": "Token Sender-Constraining cryptographically binds access tokens to the client that requested them using DPoP or mTLS, preventing stolen tokens from being replayed by an attacker. Configuring Token Sender-Constraining on the Resource Server (API) is required to enforce binding — without it, even if applications are configured to use DPoP or mTLS, the API will accept unbounded bearer tokens and the protection is not enforced.",
+		"docsPath": [
+			"https://auth0.com/docs/secure/sender-constraining"
+		],
+		"severity": "Low",
+		"status": "green",
+		"disclaimer": "Token Sender-Constraining (DPoP) for Resource Servers is available only to customers on an Enterprise plan; additionally, usage of the mTLS Token Sender Constraining option requires the Highly Regulated Identity (HRI) add-on.",
+		"advisory": {
+			"issue": "Token Sender-Constraining Not Configured for Resource Server",
+			"description": {
+				"what_it_is": "Token Sender-Constraining cryptographically binds access tokens to the requesting client's key pair using DPoP (Demonstrating Proof of Possession) or mTLS (Mutual TLS). Configuring the Resource Server (API) to require proof of possession ensures that the API will only accept tokens that are cryptographically bound to the client that requested them, preventing stolen tokens from being replayed by an attacker.",
+				"why_its_risky": [
+					"Without Token Sender-Constraining configured on the Resource Server, bearer tokens issued for that API can be used by any party that obtains them, even if the application is configured to use DPoP or mTLS.",
+					"A misconfigured or absent Resource Server sender-constraining setting means the API accepts unbounded tokens, negating the protection provided by DPoP or mTLS on the client side.",
+					"Access tokens intercepted via network attacks, XSS, or compromised infrastructure can be replayed until expiry with no way to detect misuse.",
+					"Highly regulated environments such as open banking and FAPI-compliant deployments require token sender-constraining at both the application and Resource Server level."
+				]
+			},
+			"how_to_fix": [
+				"In the Auth0 Dashboard, navigate to APIs > [Your API] > Settings > Token Sender-Constraining and configure the mechanism (DPoP or mTLS) and enforcement scope.",
+				"Ensure the corresponding applications are also configured to use the same Token Sender-Constraining method so that the binding is enforced end-to-end.",
+				"Verify that your API implementation validates the DPoP proof or mTLS client certificate on every request to the protected resource."
+			]
+		},
+		"severity_message": "%s Resource Server(s) do not have Token Sender-Constraining configured",
+		"proof_of_possession": "Token Sender-Constraining is not configured for this Resource Server (proof_of_possession: %s)",
+		"proof_of_possession.mechanism": "Token Sender-Constraining mechanism is not valid for this Resource Server (proof_of_possession.mechanism: %s)",
+		"undefined": "Token Sender-Constraining is not configured for this Resource Server"
+	},
+	"checkJWEResourceServer": {
+		"title": "Resource Servers (APIs) - JSON Web Encryption (JWE)",
+		"category": "Resource Servers (APIs)",
+		"description": "JSON Web Encryption (JWE) ensures that access tokens issued for this API are encrypted before delivery, preventing token contents from being read by parties other than the intended recipient. JWE is a foundational control for highly regulated environments where token payload confidentiality is required.",
+		"docsPath": [
+			"https://auth0.com/docs/secure/tokens/access-tokens/json-web-encryption"
+		],
+		"severity": "Informational",
+		"status": "blue",
+		"disclaimer": "JSON Web Encryption (JWE) for Resource Servers is available only to customers on an Enterprise plan with the Highly Regulated Identity (HRI) add-on.",
+		"advisory": {
+			"issue": "JSON Web Encryption (JWE) Not Configured for Resource Server",
+			"description": {
+				"what_it_is": "JSON Web Encryption (JWE) is a standard (RFC 7516) that allows access tokens to be encrypted before delivery to the client. When JWE is enabled for a Resource Server, Auth0 encrypts the token payload using the API's public key, ensuring only the intended API can decrypt and read the token claims.",
+				"why_its_risky": [
+					"Without JWE, access tokens are plain JWTs whose claims can be read by any party that intercepts or receives the token.",
+					"Sensitive claims such as user data, roles, or entitlements embedded in the token payload are exposed to intermediate parties.",
+					"In highly regulated environments such as open banking and healthcare, token payload confidentiality may be a compliance requirement."
+				]
+			},
+			"how_to_fix": [
+				"In the Auth0 Dashboard, navigate to APIs > [Your API] > Settings and enable JSON Web Encryption (JWE).",
+				"Upload or configure a public encryption key for the API to use when encrypting tokens.",
+				"Ensure your API's token handling code can decrypt incoming JWE tokens using the corresponding private key."
+			]
+		},
+		"severity_message": "%s Resource Server(s) do not have JSON Web Encryption (JWE) configured",
+		"token_encryption": "JSON Web Encryption (JWE) is not configured for this Resource Server (token_encryption: %s)",
+		"token_encryption.format": "JSON Web Encryption (JWE) format is not valid for this Resource Server (format: %s)",
+		"token_encryption.encryption_key": "JSON Web Encryption (JWE) is enabled but no encryption key is configured for this Resource Server (encryption_key: %s)",
+		"undefined": "JSON Web Encryption (JWE) is not configured for this Resource Server"
+	},
+	"checkPrivateKeyJWT": {
+		"title": "Applications - Private Key JWT",
+		"category": "Applications",
+		"description": "Private Key JWT authentication eliminates the use of shared client secrets by requiring confidential applications to prove their identity using a cryptographically signed JWT backed by a registered public key. This provides stronger client authentication for machine-to-machine and confidential client flows, removing the risks associated with long-lived shared secrets.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/applications/configure-private-key-jwt"
+		],
+		"severity": "Informational",
+		"status": "blue",
+		"disclaimer": "Private Key JWT for application credentials is available only to customers on an Enterprise plan.",
+		"advisory": {
+			"issue": "Private Key JWT Not Configured for Application",
+			"description": {
+				"what_it_is": "Private Key JWT is a client authentication method (RFC 7523) that allows confidential clients to authenticate to Auth0's token endpoint using a signed JWT assertion rather than a shared secret. The client signs the assertion with its private key, and Auth0 verifies the signature using the pre-registered public key, eliminating the risks associated with shared client secrets.",
+				"why_its_risky": [
+					"Client secrets are symmetric credentials — if leaked from source code, environment variables, or logs, they can be used by any attacker to impersonate the application.",
+					"Shared secrets cannot be cryptographically tied to the specific instance making the request, making them susceptible to credential theft and reuse.",
+					"Private Key JWT provides non-repudiation and stronger assurance that token requests originate from the legitimate client, not a party in possession of a stolen secret.",
+					"Regulatory frameworks such as FAPI 2.0 mandate asymmetric client authentication methods to reduce the risk of credential compromise in highly regulated environments."
+				]
+			},
+			"how_to_fix": [
+				"In the Auth0 Dashboard navigate to Applications > [Your App] > Credentials and add a new credential using the 'Private Key JWT' authentication method.",
+				"Generate an RSA or EC key pair and upload the public key (or a certificate containing it) to the application's credential configuration.",
+				"Update your client application to sign a JWT assertion with your private key and submit it as the client_assertion parameter on token endpoint requests.",
+				"Once configured, remove any existing client secrets that are no longer needed to reduce your credential attack surface."
+			]
+		},
+		"severity_message": "%s applications / clients do not have Private Key JWT configured",
+		"client_authentication_methods.private_key_jwt": "Private Key JWT is not configured for this application. Consider using Private Key JWT instead of a client secret for stronger client authentication.",
+		"undefined": "Private Key JWT authentication method is not configured for this application"
 	}
 }
