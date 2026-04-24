@@ -1604,7 +1604,7 @@
 				"Ensure your client application is updated to send authorization parameters via the PAR endpoint (/oauth/par) before initiating the authorization redirect."
 			]
 		},
-		"severity_message": "%s applications / clients do not require Pushed Authorization Requests (PAR)",
+		"severity_message": "%s applications / clients do not have Pushed Authorization Requests (PAR) configured",
 		"require_pushed_authorization_requests": "Pushed Authorization Requests (PAR) is not required for this application (require_pushed_authorization_requests: %s)",
 		"undefined": "Pushed Authorization Requests (PAR) is not required for this application"
 	},
@@ -1634,7 +1634,7 @@
 				"Update your client application to sign authorization requests as JWTs using your registered private key before sending them to the authorization endpoint."
 			]
 		},
-		"severity_message": "%s applications / clients do not require JWT Authorization Requests (JAR)",
+		"severity_message": "%s applications / clients do not have JWT Authorization Requests (JAR) configured",
 		"signed_request_object.required": "JWT Authorization Requests (JAR) are not required for this application (signed_request_object.required: %s)",
 		"signed_request_object.credentials": "JWT Authorization Requests (JAR) is required but no signing credentials are configured for this application. JAR cannot function without a registered public key.",
 		"undefined": "JWT Authorization Requests (JAR) are not required for this application"
@@ -1738,7 +1738,7 @@
 	"checkBackchannelLogout": {
         "title": "Applications - Back-Channel Logout",
         "category": "Applications",
-        "description": "Back-Channel Logout enables the identity provider to directly notify applications when a session is terminated, ensuring that all sessions across applications are invalidated immediately. Auth0 supports the OpenID Connect Back-Channel Logout 1.0 specification, which leverages session IDs (sid) in ID tokens and Logout Tokens to coordinate session termination via back-channel communication.",
+        "description": "Back-Channel Logout enables the identity provider to directly notify applications when a session is terminated, ensuring that all application sessions are invalidated immediately. Auth0 supports the OpenID Connect Back-Channel Logout 1.0 specification, which leverages session IDs (sid) in ID tokens and Logout Tokens to coordinate session termination via back-channel communication.",
         "docsPath": [
             "https://auth0.com/docs/authenticate/login/logout/back-channel-logout"
         ],
