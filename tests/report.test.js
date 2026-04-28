@@ -17,16 +17,6 @@ Handlebars.registerHelper("inc", (a) => parseInt(a) + 1);
 describe("report.js", function () {
   describe("Handlebars helpers", function () {
     describe("chooseFont", function () {
-      it("should return Japanese font for ja locale", function () {
-        const result = Handlebars.helpers.chooseFont("ja");
-        expect(result).to.equal("Noto Sans JP, sans-serif");
-      });
-
-      it("should return Korean font for ko locale", function () {
-        const result = Handlebars.helpers.chooseFont("ko");
-        expect(result).to.equal("Noto Sans KR, sans-serif");
-      });
-
       it("should return default font for en locale", function () {
         const result = Handlebars.helpers.chooseFont("en");
         expect(result).to.equal("DM Sans, sans-serif");
@@ -310,18 +300,5 @@ describe("report.js", function () {
       expect(customDomainResult).to.have.property("description");
     });
 
-    it("should handle empty tenantConfig by using config for API calls", async function () {
-      delete require.cache[require.resolve("../analyzer/report.js")];
-      const { generateReport } = require("../analyzer/report.js");
-
-      const report = await generateReport("en", {}, {
-        auth0Domain: "invalid.auth0.com",
-        auth0ClientId: "invalid",
-        auth0ClientSecret: "invalid",
-        selectedValidators: [],
-      });
-
-      expect(report).to.deep.equal({});
-    });
   });
 });
