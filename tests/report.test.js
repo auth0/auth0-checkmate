@@ -246,7 +246,7 @@ describe("report.js", function () {
 
       const config = {
         auth0Domain: "test.auth0.com",
-        selectedValidators: [], // Run no validators for faster test
+        selectedValidators: ["checkCustomDomain"], // run only one validator
       };
 
       const report = await generateReport("en", tenantConfig, config);
