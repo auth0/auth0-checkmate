@@ -477,6 +477,20 @@ async function getResourceServers(domain, accessToken) {
     return [];
   }
 }
+
+async function getClientGrants(domain, accessToken) {
+  const url = `https://${domain}/api/v2/client-grants?include_totals=false`;
+  const headers = { Authorization: `Bearer ${accessToken}` };
+  logger.log("info", `Getting client grants`);
+  try {
+    const response = await axios.get(url, { headers });
+    return response.data;
+  } catch (error) {
+    logger.log("error", `Failed to get client grants ${error.message}`);
+    return [];
+  }
+}
+
 module.exports = {
   getAccessToken,
   getCustomDomains,
@@ -501,4 +515,5 @@ module.exports = {
   getNetworkACL,
   getEventStreams,
   getResourceServers,
+  getClientGrants,
 };

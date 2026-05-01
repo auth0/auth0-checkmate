@@ -166,7 +166,8 @@
 				"Signing Algorithm",
 				"Token Lifetime",
 				"JSON Web Encryption (JWE)",
-				"Token Sender-Constraining"
+				"Token Sender-Constraining",
+				"Rich Authorization Request (RAR)"
 			]
 		}
 	],
@@ -1733,5 +1734,66 @@
 		"severity_message": "%s applications / clients do not have Private Key JWT configured",
 		"client_authentication_methods.private_key_jwt": "Private Key JWT is not configured for this application. Consider using Private Key JWT instead of a client secret for stronger client authentication.",
 		"undefined": "Private Key JWT authentication method is not configured for this application"
+	},
+	"checkRAREnforcement": {
+		"title": "Resource Servers (APIs) - Rich Authorization Requests (RAR) Enforcement",
+		"category": "Resource Servers (APIs)",
+		"description": "Configuring authorization_details types on an API enables RAR, but does not automatically enforce step-up authentication when those details are requested. Enforcement requires either the transactional-authorization-with-mfa consent policy on the API, or a deployed post-login Action that reads event.transaction.requested_authorization_details and triggers step-up with a method such as api.multifactor.enable.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/apis/configure-rich-authorization-requests",
+			"https://auth0.com/docs/secure/multi-factor-authentication/step-up-authentication",
+			"https://datatracker.ietf.org/doc/html/rfc9396"
+		],
+		"advisory": {
+			"issue": "Rich Authorization Requests (RAR) Configured Without Step-Up Authentication",
+			"description": {
+				"what_it_is": "This API has authorization_details types registered, enabling Rich Authorization Requests. However, no enforcement mechanism was detected: the API does not use the transactional-authorization-with-mfa consent policy, and no deployed post-login Action was found that both reads event.transaction.requested_authorization_details and triggers step-up authentication.",
+				"why_its_risky": [
+					"Without enforcement, clients can include authorization_details in their requests, but the authorization server will not require elevated authentication to fulfil them, negating the security benefit of RAR.",
+					"Regulated use cases such as payment initiation (PSD2/FAPI) require that high-risk authorization_details types are backed by a verifiable step-up challenge before tokens are issued.",
+					"An attacker who obtains a valid session could request sensitive authorization_details types without being challenged for a second factor."
+				]
+			},
+			"how_to_fix": [
+				"Option 1 (recommended): In the Auth0 Dashboard, navigate to APIs → [your API] → Settings and set the Consent Policy to 'Transactional Authorization with MFA'. This automatically enforces step-up MFA for any request that includes authorization_details for this API.",
+				"Option 2: Create or update a post-login Action that reads event.transaction.requested_authorization_details, evaluates the requested types, and calls api.authentication.challengeWith({ type: '...' }) or api.multifactor.enable() to require step-up before the token is issued.",
+				"Ensure the Action is deployed (status: built, all changes deployed) and bound to the post-login trigger flow."
+			]
+		},
+		"severity": "Moderate",
+		"status": "yellow",
+		"severity_message": "%s APIs have RAR configured but no step-up authentication detected",
+		"rar_enforcement": "RAR is configured for this API but no enforcement mechanism was detected. Add the transactional-authorization-with-mfa consent policy or a post-login Action that reads event.transaction.requested_authorization_details and triggers step-up authentication.",
+		"undefined": "RAR is configured for this API but no step-up authentication was detected."
+	},
+	"checkRAR": {
+		"title": "Resource Servers (APIs) - Rich Authorization Requests (RAR)",
+		"category": "Resource Servers (APIs)",
+		"description": "Rich Authorization Requests (RFC 9396) allow clients to request fine-grained, type-based authorization beyond OAuth scopes using the authorization_details parameter. Auth0 supports RAR for Authorization Code flows with PAR and CIBA flows. APIs accessible by these clients are strong candidates for RAR adoption.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/apis/configure-rich-authorization-requests",
+			"https://datatracker.ietf.org/doc/html/rfc9396"
+		],
+		"advisory": {
+			"issue": "Rich Authorization Requests (RAR) Not Configured",
+			"description": {
+				"what_it_is": "This API is accessed by applications using PAR or CIBA flows that natively support Rich Authorization Requests. RAR enables clients to pass structured, type-based authorization_details alongside the authorization request, providing fine-grained consent and access control beyond scopes.",
+				"why_its_risky": [
+					"Scope-only authorization cannot express resource-level or action-level constraints, limiting least-privilege enforcement.",
+					"Without RAR, transactional use cases (e.g. payment initiation, account access) rely on coarse-grained scopes that may over-grant access.",
+					"RAR is designed for regulated industries such as open banking (PSD2/FAPI) where granular authorization evidence is required."
+				]
+			},
+			"how_to_fix": [
+				"Navigate to Auth0 Dashboard → Applications → APIs → [your API] → Permissions tab.",
+				"Register one or more authorization_details types (e.g. payment_initiation, account_information).",
+				"Update client applications to include authorization_details in their PAR or CIBA requests."
+			]
+		},
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "%s APIs used by PAR or CIBA clients do not have Rich Authorization Requests (RAR) configured",
+		"authorization_details": "This API is accessed by PAR or CIBA clients but has no authorization_details types registered. Consider enabling RAR to provide fine-grained authorization control.",
+		"undefined": "This API is accessed by PAR or CIBA clients but has no authorization_details types registered."
 	}
 }

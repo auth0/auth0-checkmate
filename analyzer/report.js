@@ -24,6 +24,7 @@ const {
   getNetworkACL,
   getEventStreams,
   getResourceServers,
+  getClientGrants,
 } = require("./tools/auth0");
 
 const logger = require("./lib/logger");
@@ -167,6 +168,11 @@ async function generateReport(locale, tenantConfig, config) {
       );
 
       tenantConfig.resourceServers = await getResourceServers(
+        config.auth0Domain,
+        config.auth0MgmtToken
+      );
+
+      tenantConfig.clientGrants = await getClientGrants(
         config.auth0Domain,
         config.auth0MgmtToken
       );
@@ -426,6 +432,28 @@ async function generateReport(locale, tenantConfig, config) {
                   c.api_name,
                   c.value
                 );
+              });
+            });
+          });
+          break;
+        case "checkRAREnforcement":
+          grouped = _.groupBy(report.details, "name");
+          res = tranformReport(grouped);
+          res.forEach((item) => {
+            item.values.forEach((detail) => {
+              detail.report.forEach((c) => {
+                c.message = i18n.__(`${report.name}.${c.field}`, c.value);
+              });
+            });
+          });
+          break;
+        case "checkRAR":
+          grouped = _.groupBy(report.details, "name");
+          res = tranformReport(grouped);
+          res.forEach((item) => {
+            item.values.forEach((detail) => {
+              detail.report.forEach((c) => {
+                c.message = i18n.__(`${report.name}.${c.field}`, c.value);
               });
             });
           });
