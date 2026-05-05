@@ -2,7 +2,7 @@
 Check if canonical domain is blocked when custom domain is configured.
 
 When a custom domain exists and is ready, it's a best practice to block
-access to the canonical domain (*.auth0.com) to prevent users from
+access to the canonical domain to prevent users from
 bypassing the custom domain.
 
 ACL list structure:
@@ -69,7 +69,6 @@ function checkBlockCanonicalDomain(options) {
   return executeCheck("checkBlockCanonicalDomain", (callback) => {
     const report = [];
 
-    // Skip check if insufficient scope error
     const hasInsufficientScope = _.some(networkAcl, {
       errorCode: "insufficient_scope",
     });
@@ -80,11 +79,9 @@ function checkBlockCanonicalDomain(options) {
     // Only check if custom domain exists and is ready
     const hasReadyCustomDomain = _.some(customDomains, { status: "ready" });
     if (!hasReadyCustomDomain) {
-      // No custom domain, so blocking canonical domain is not applicable
       return callback(report);
     }
 
-    // Check if there's an ACL rule blocking the canonical domain
     const hasBlockingRule = _.some(networkAcl, (acl) => {
       if (!acl.active || !acl.rule) {
         return false;
@@ -92,18 +89,14 @@ function checkBlockCanonicalDomain(options) {
 
       const { match, scope, action } = acl.rule;
 
-      // Check if rule blocks authentication scope
       const blocksAuth = scope === "authentication";
 
-      // Check if rule blocks traffic
       const isBlocking = action && action.block === true;
 
-      // Check if rule matches canonical domain
       const matchesCanonical =
         match &&
         match.hostnames &&
         _.some(match.hostnames, (hostname) => {
-          // Match exact domain or wildcard pattern
           return hostname === canonicalDomain ||
                  hostname === `*.auth0.com` ||
                  hostname === `*.auth0app.com`;

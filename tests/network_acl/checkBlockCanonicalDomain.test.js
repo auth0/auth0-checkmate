@@ -3,14 +3,14 @@ const checkBlockCanonicalDomain = require("../../analyzer/lib/network_acl/checkB
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkBlockCanonicalDomain", function () {
-  const canonicalDomain = "ido-eng.cic-demo-platform.auth0app.com";
+  const canonicalDomain = "example-tenant.us.auth0app.com";
+  const customDomain = "auth.example.com";
 
-  // Happy path - custom domain configured AND canonical domain is blocked
   it("should return empty array when custom domain exists and canonical domain is blocked", async function () {
     const input = {
       customDomains: [
         {
-          domain: "ido-eng.identityready.io",
+          domain: "auth.example.com",
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -41,12 +41,11 @@ describe("checkBlockCanonicalDomain", function () {
     expect(result.details).to.have.lengthOf(0);
   });
 
-  // Fail case - custom domain configured but canonical domain is NOT blocked
   it("should return warning when custom domain exists but canonical domain is not blocked", async function () {
     const input = {
       customDomains: [
         {
-          domain: "ido-eng.identityready.io",
+          domain: "auth.example.com",
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -78,10 +77,10 @@ describe("checkBlockCanonicalDomain", function () {
     expect(result.details[0].field).to.equal("canonical_domain_not_blocked");
     expect(result.details[0].status).to.equal(CONSTANTS.WARN);
     expect(result.details[0].value).to.equal(canonicalDomain);
-    expect(result.details[0].customDomains).to.equal("ido-eng.identityready.io");
+    expect(result.details[0].customDomains).to.equal("auth.example.com");
   });
 
-  // Edge case - no custom domain configured (skip check)
+  // no custom domain configured (skip check)
   it("should return empty array when no custom domain is configured", async function () {
     const input = {
       customDomains: [],
@@ -94,12 +93,12 @@ describe("checkBlockCanonicalDomain", function () {
     expect(result.details).to.have.lengthOf(0);
   });
 
-  // Edge case - custom domain pending verification (skip check)
+  // custom domain pending verification (skip check)
   it("should return empty array when custom domain is pending verification", async function () {
     const input = {
       customDomains: [
         {
-          domain: "ido-eng.identityready.io",
+          domain: "auth.example.com",
           primary: true,
           status: "pending_verification",
           type: "auth0_managed_certs",
@@ -114,12 +113,11 @@ describe("checkBlockCanonicalDomain", function () {
     expect(result.details).to.have.lengthOf(0);
   });
 
-  // Edge case - insufficient scope error (skip check)
   it("should return empty array when insufficient_scope error", async function () {
     const input = {
       customDomains: [
         {
-          domain: "ido-eng.identityready.io",
+          domain: "auth.example.com",
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -138,12 +136,12 @@ describe("checkBlockCanonicalDomain", function () {
     expect(result.details).to.have.lengthOf(0);
   });
 
-  // Edge case - ACL rule exists but is inactive
+  // ACL rule exists but is inactive
   it("should return warning when ACL rule exists but is inactive", async function () {
     const input = {
       customDomains: [
         {
-          domain: "ido-eng.identityready.io",
+          domain: "auth.example.com",
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -181,7 +179,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "ido-eng.identityready.io",
+          domain: "auth.example.com",
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -219,7 +217,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "ido-eng.identityready.io",
+          domain: "auth.example.com",
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -257,7 +255,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "ido-eng.identityready.io",
+          domain: "auth.example.com",
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -280,7 +278,7 @@ describe("checkBlockCanonicalDomain", function () {
           id: "acl_12345",
         },
       ],
-      canonicalDomain: "ido-eng.us.auth0.com",
+      canonicalDomain: "example-tenant.us.auth0.com",
     };
 
     const result = await checkBlockCanonicalDomain(input);
@@ -293,7 +291,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "ido-eng.identityready.io",
+          domain: "auth.example.com",
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -357,7 +355,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "ido-eng.identityready.io",
+          domain: "auth.example.com",
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -394,7 +392,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "ido-eng.identityready.io",
+          domain: "auth.example.com",
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
