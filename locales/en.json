@@ -153,7 +153,10 @@
 		{
 			"title": "Tenant Access Control List",
 			"required_scope": "read:network_acls",
-			"items": []
+			"items": [
+				"ACL Enabled",
+				"Canonical Domain Blocked"
+			]
 		},
 		{
 			"title": "Event Streams (Early Access Capability)",
@@ -1476,6 +1479,20 @@
 		"no_network_acl": "The tenant does not have Tenant Access Control List configured.",
 		"network_acl_inactive": "This ACL %s is currently inactive. Please review the ACL rules periodically.",
 		"severity_message": "Enhance your security posture by configuring Tenant ACL.",
+		"disclaimer": "Tenant Access Control List (ACL) is available only to customers on an Enterprise plan."
+	},
+	"checkBlockCanonicalDomain": {
+		"title": "Block Canonical Domain with ACL",
+		"category": "Attack Protection",
+		"advisory": {},
+		"description": "When custom domains are configured, it's recommended to block access to the canonical Auth0 domain (*.auth0.com or *.auth0app.com) using Tenant Access Control List rules. This prevents users from bypassing your custom domain and ensures all traffic flows through your intended infrastructure.",
+		"docsPath": [
+			"https://auth0.com/docs/secure/tenant-access-control-list/use-cases#enforce-traffic-through-specific-infrastructure"
+		],
+		"severity": "Moderate",
+		"status": "yellow",
+		"canonical_domain_not_blocked": "Custom domain(s) <b>%s</b> are configured, but the canonical domain <b>%s</b> is not blocked by any active ACL rule. Users can bypass your custom domain by accessing the canonical domain directly.",
+		"severity_message": "Block the canonical domain to enforce custom domain usage and prevent bypass.",
 		"disclaimer": "Tenant Access Control List (ACL) is available only to customers on an Enterprise plan."
 	},
 	"checkEventStreams": {

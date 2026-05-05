@@ -161,6 +161,8 @@ async function generateReport(locale, tenantConfig, config) {
         config.auth0MgmtToken
       );
 
+      tenantConfig.canonicalDomain = config.auth0Domain;
+
       tenantConfig.eventStreams = await getEventStreams(
         config.auth0Domain,
         config.auth0MgmtToken
@@ -410,6 +412,12 @@ async function generateReport(locale, tenantConfig, config) {
           report.disclaimer = i18n.__(`${report.name}.disclaimer`);
           report.details.forEach((cd) => {
             cd.message = i18n.__(`${report.name}.${cd.field}`, cd.value);
+          });
+          break;
+        case "checkBlockCanonicalDomain":
+          report.disclaimer = i18n.__(`${report.name}.disclaimer`);
+          report.details.forEach((cd) => {
+            cd.message = i18n.__(`${report.name}.${cd.field}`, cd.customDomains, cd.value);
           });
           break;
         case "checkAPISigningAlgorithm":
