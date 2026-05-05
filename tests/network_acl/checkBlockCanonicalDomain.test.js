@@ -10,7 +10,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "auth.example.com",
+          domain: customDomain,
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -45,7 +45,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "auth.example.com",
+          domain: customDomain,
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -77,7 +77,7 @@ describe("checkBlockCanonicalDomain", function () {
     expect(result.details[0].field).to.equal("canonical_domain_not_blocked");
     expect(result.details[0].status).to.equal(CONSTANTS.WARN);
     expect(result.details[0].value).to.equal(canonicalDomain);
-    expect(result.details[0].customDomains).to.equal("auth.example.com");
+    expect(result.details[0].customDomains).to.equal(customDomain);
   });
 
   // no custom domain configured (skip check)
@@ -98,7 +98,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "auth.example.com",
+          domain: customDomain,
           primary: true,
           status: "pending_verification",
           type: "auth0_managed_certs",
@@ -117,7 +117,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "auth.example.com",
+          domain: customDomain,
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -141,7 +141,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "auth.example.com",
+          domain: customDomain,
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -179,7 +179,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "auth.example.com",
+          domain: customDomain,
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -217,7 +217,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "auth.example.com",
+          domain: customDomain,
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -255,7 +255,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "auth.example.com",
+          domain: customDomain,
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -291,7 +291,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "auth.example.com",
+          domain: customDomain,
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -355,7 +355,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "auth.example.com",
+          domain: customDomain,
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
@@ -392,7 +392,7 @@ describe("checkBlockCanonicalDomain", function () {
     const input = {
       customDomains: [
         {
-          domain: "auth.example.com",
+          domain: customDomain,
           primary: true,
           status: "ready",
           type: "auth0_managed_certs",
