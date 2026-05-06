@@ -420,6 +420,12 @@ async function generateReport(locale, tenantConfig, config) {
             cd.message = i18n.__(`${report.name}.${cd.field}`, cd.customDomains, cd.value);
           });
           break;
+        case "checkManagementAPIACL":
+          report.disclaimer = i18n.__(`${report.name}.disclaimer`);
+          report.details.forEach((cd) => {
+            cd.message = i18n.__(`${report.name}.${cd.field}`);
+          });
+          break;
         case "checkAPISigningAlgorithm":
         case "checkAPITokenLifetime":
           report.advisory = i18n.__(`${report.name}.advisory`);
