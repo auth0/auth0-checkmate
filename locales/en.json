@@ -155,7 +155,8 @@
 			"required_scope": "read:network_acls",
 			"items": [
 				"ACL Enabled",
-				"Canonical Domain Blocked"
+				"Canonical Domain Blocked",
+				"Management API Rule"
 			]
 		},
 		{
@@ -1493,6 +1494,21 @@
 		"status": "yellow",
 		"canonical_domain_not_blocked": "Custom domain(s) <b>%s</b> are configured, but the canonical domain <b>%s</b> is not blocked by any active ACL rule. Users can bypass your custom domain by accessing the canonical domain directly.",
 		"severity_message": "Block the canonical domain to enforce custom domain usage and prevent bypass.",
+		"disclaimer": "Tenant Access Control List (ACL) is available only to customers on an Enterprise plan."
+	},
+	"checkManagementAPIACL": {
+		"title": "Management API Access Control",
+		"category": "Attack Protection",
+		"advisory": {},
+		"description": "The Management API is a sensitive endpoint that can modify tenant configuration, applications, users, and security settings. Configuring an IP allowlist restricts Management API access to known IP addresses, reducing the risk of unauthorized access.",
+		"docsPath": [
+			"https://auth0.com/docs/secure/tenant-access-control-list",
+			"https://support.auth0.com/center/s/article/Tenant-Access-Control-List-ACL-use-case-examples"
+		],
+		"severity": "Low",
+		"status": "green",
+		"no_management_api_allowlist": "The tenant does not have an IP allowlist configured for Management API access. Consider restricting Management API access to known IP addresses or CIDRs.",
+		"severity_message": "Consider configuring an IP allowlist for Management API access.",
 		"disclaimer": "Tenant Access Control List (ACL) is available only to customers on an Enterprise plan."
 	},
 	"checkEventStreams": {
