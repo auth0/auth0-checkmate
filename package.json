@@ -43,7 +43,8 @@
     "nyc": "^17.1.0"
   },
   "overrides": {
-    "serialize-javascript": "7.0.5"
+    "serialize-javascript": "7.0.5",
+    "uuid": "^14.0.0"
   },
   "publishConfig": {
     "access": "public"
