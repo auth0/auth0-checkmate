@@ -97,10 +97,18 @@ async function generateReport(locale, tenantConfig, config) {
         config.auth0Domain,
         config.auth0MgmtToken,
       );
-      tenantConfig.clients = await getApplications(
-        config.auth0Domain,
-        config.auth0MgmtToken,
-      );
+      if (config.skipApplications) {
+        logger.log(
+          "info",
+          `Skipping Applications retrieval (AUTH0CHECKMATE_SKIP_APPLICATIONS enabled)`,
+        );
+        tenantConfig.clients = [];
+      } else {
+        tenantConfig.clients = await getApplications(
+          config.auth0Domain,
+          config.auth0MgmtToken,
+        );
+      }
       tenantConfig.databases = await getConnections(
         config.auth0Domain,
         config.auth0MgmtToken,

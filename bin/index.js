@@ -283,6 +283,14 @@ async function main() {
     console.log(chalk.yellow("⚠️  PDF report generation is disabled via AUTH0CHECKMATE_DISABLE_PDF_REPORTING environment variable."));
   }
 
+  // Check for AUTH0CHECKMATE_SKIP_APPLICATIONS
+  const skipApplications = process.env.AUTH0CHECKMATE_SKIP_APPLICATIONS &&
+                           process.env.AUTH0CHECKMATE_SKIP_APPLICATIONS.toLowerCase() === 'true';
+  answers.skipApplications = skipApplications;
+  if (skipApplications) {
+    console.log(chalk.yellow("⚠️  Application (clients) retrieval is disabled via AUTH0CHECKMATE_SKIP_APPLICATIONS environment variable. Application checks will be skipped."));
+  }
+
   // Check for Environment Variables
   const envDomain = process.env.AUTH0CHECKMATE_DOMAIN;
   const envClientId = process.env.AUTH0CHECKMATE_CLIENT_ID;
@@ -458,6 +466,7 @@ if (answers.showValidators) {
     filePath: path.isAbsolute(answers.filePath) ? answers.filePath : path.resolve(answers.filePath),
     selectedValidators: selectedValidators ? selectedValidators.split(',') : [],
     disablePdfReporting: answers.disablePdfReporting,
+    skipApplications: answers.skipApplications,
   };
 
   const tenant = {};
