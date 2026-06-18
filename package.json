@@ -1,6 +1,6 @@
 {
   "name": "@auth0/auth0-checkmate",
-  "version": "1.7.7",
+  "version": "1.7.8",
   "description": "A command line tool for checking configuration of your Auth0 tenant",
   "main": "analyzer/report.js",
   "scripts": {
@@ -40,7 +40,7 @@
     "eslint-plugin-mocha": "^10.5.0",
     "globals": "^16.0.0",
     "mocha": "^11.7.5",
-    "nyc": "^17.1.0"
+    "nyc": "^18.0.0"
   },
   "overrides": {
     "serialize-javascript": "7.0.5"
