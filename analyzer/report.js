@@ -434,6 +434,20 @@ async function generateReport(locale, tenantConfig, config) {
             cd.message = i18n.__(`${report.name}.${cd.field}`);
           });
           break;
+        case "checkManagementAPIUserAccess":
+          report.advisory = i18n.__(`${report.name}.advisory`);
+          report.details.forEach((cd) => {
+            cd.message = i18n.__(`${report.name}.${cd.field}`);
+          });
+          break;
+        case "checkAPIAuthorizationPolicy":
+          report.advisory = i18n.__(`${report.name}.advisory`);
+          report.details.forEach((detail) => {
+            detail.report.forEach((c) => {
+              c.message = i18n.__(`${report.name}.${c.field}`, c.api_name);
+            });
+          });
+          break;
         case "checkAPISigningAlgorithm":
         case "checkAPITokenLifetime":
           report.advisory = i18n.__(`${report.name}.advisory`);
