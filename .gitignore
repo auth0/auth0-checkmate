@@ -140,3 +140,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 .DS_store
+
+# Claude
+.claude/
+

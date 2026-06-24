@@ -172,7 +172,9 @@
 				"Signing Algorithm",
 				"Token Lifetime",
 				"JSON Web Encryption (JWE)",
-				"Token Sender-Constraining"
+				"Token Sender-Constraining",
+				"API Authorization Policy",
+				"Management API User Access"
 			]
 		}
 	],
@@ -1527,6 +1529,65 @@
 			"https://auth0.com/docs/customize/events/events-best-practices",
 			"https://auth0.com/docs/customize/events/event-testing-observability-and-failure-recovery"
 		]
+	},
+	"checkManagementAPIUserAccess": {
+		"title": "Resource Servers (APIs) - Management API User Access",
+		"category": "Resource Servers (APIs)",
+		"description": "Validates whether end users of arbitrary applications are allowed to obtain Auth0 Management API access tokens. By default the Management API permits user access from all applications, which exposes sensitive self-service scopes such as update:current_user_identities.",
+		"docsPath": [
+			"https://auth0.com/docs/manage-users/user-accounts/user-account-linking",
+			"https://auth0.com/docs/secure/tokens/access-tokens/get-management-api-access-tokens-for-single-page-applications",
+			"https://www.elttam.com/blog/exploiting-auth0-defaults-in-xss-attacks"
+		],
+		"severity": "High",
+		"status": "red",
+		"severity_message": "Management API user access is not restricted to approved applications.",
+		"advisory": {
+			"issue": "Management API User Access Enabled for All Applications",
+			"description": {
+				"what_it_is": "The Auth0 Management API can issue access tokens to end users via the {action}:current_user_{resource} scopes. By default this user access is allowed from every application in the tenant.",
+				"why_its_risky": [
+					"An attacker who achieves XSS in any first-party application can request a Management API token on behalf of the logged-in user. The consent prompt appears to come from a trusted application, increasing the chance the victim approves it.",
+					"With the update:current_user_identities scope an attacker can link an attacker-controlled account to the victim's account (POST /api/v2/users/{id}/identities), establishing persistent, unauthorized access that survives password changes."
+				]
+			},
+			"how_to_fix": [
+				"Restrict Management API user access by setting the user subject-type authorization policy to require_client_grant so only approved applications can obtain Management API tokens.",
+				"Perform profile updates and account linking from a back-end using machine-to-machine (client credentials) authentication instead of exposing those scopes to browser-based applications.",
+				"Require an additional authentication challenge (step-up MFA) before sensitive operations such as account linking or password changes."
+			]
+		},
+		"management_api_user_access_allowed": "The Auth0 Management API allows user access from all applications. Restrict user access to approved applications (require_client_grant) and handle account linking / profile updates via a back-end machine-to-machine flow.",
+		"management_api_user_access_restricted": "Management API user access is restricted to approved applications (require_client_grant)."
+	},
+	"checkAPIAuthorizationPolicy": {
+		"title": "Resource Servers (APIs) - API Authorization Policy",
+		"category": "Resource Servers (APIs)",
+		"description": "Validates that each API restricts which applications can obtain user access tokens for it. Allowing all applications to request tokens for an API lets an XSS bug in one application mint tokens for an unrelated API.",
+		"docsPath": [
+			"https://auth0.com/docs/get-started/apis/api-settings",
+			"https://auth0.com/docs/secure/tokens/access-tokens/validate-access-tokens",
+			"https://www.elttam.com/blog/exploiting-auth0-defaults-in-xss-attacks"
+		],
+		"severity": "Moderate",
+		"status": "yellow",
+		"severity_message": "%s API(s) allow user access tokens to be issued to all applications.",
+		"advisory": {
+			"issue": "API Access Not Restricted to Approved Applications",
+			"description": {
+				"what_it_is": "An API's authorization policy controls which applications can request user access tokens for its audience. When the policy allows all applications, any client in the tenant can obtain a token for the API.",
+				"why_its_risky": [
+					"An XSS vulnerability in one application can initiate an authorization request for a different API's audience and exfiltrate the resulting access token.",
+					"The risk is amplified when the API back-end does not validate the authorized party (azp) claim, because it cannot tell which application the token was issued to."
+				]
+			},
+			"how_to_fix": [
+				"Restrict API access to approved applications by setting the user subject-type authorization policy to require_client_grant.",
+				"Validate the azp claim against an allowlist of approved client IDs in the API back-end."
+			]
+		},
+		"api_access_unrestricted": "API \"%s\" allows user access tokens to be issued to all applications. Restrict access to approved applications (require_client_grant) and validate the azp claim in your API.",
+		"api_access_restricted": "API \"%s\" restricts user access tokens to approved applications (require_client_grant)."
 	},
 	"checkAPISigningAlgorithm": {
 		"title": "Resource Servers (APIs) - Signing Algorithm",
