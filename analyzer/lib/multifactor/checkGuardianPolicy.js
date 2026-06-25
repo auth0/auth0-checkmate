@@ -18,7 +18,7 @@ function checkGuardianPolicy(options) {
       });
       return callback(report);
     }
-    const policies = guardianPolicies.policies || [];
+    const policies = Array.isArray(guardianPolicies) ? guardianPolicies : (guardianPolicies.policies || []);
     if (_.isEmpty(policies)) {
       policies.push("empty");
       report.push({
