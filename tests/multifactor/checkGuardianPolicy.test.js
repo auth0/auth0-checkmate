@@ -6,7 +6,7 @@ const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkGuardianPolicy", function () {
   it("should return fail when guardianPolicies.policies is empty", function () {
-    const options = { guardianPolicies: { policies: [] } };
+    const options = { guardianPolicies: [] };
 
     checkGuardianPolicy(options, (report) => {
       expect(report).to.deep.equal([
@@ -20,7 +20,7 @@ describe("checkGuardianPolicy", function () {
   });
 
   it("should return success when guardianPolicies.policies has a value", function () {
-    const options = { guardianPolicies: { policies: ["all-applications"] } };
+    const options = { guardianPolicies: ["all-applications"] };
 
     checkGuardianPolicy(options, (report) => {
       expect(report).to.deep.equal([
