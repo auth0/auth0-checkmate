@@ -13,7 +13,7 @@
     "a0checkmate": "bin/index.js"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=20.18.3"
   },
   "dependencies": {
     "acorn": "^8.14.0",
@@ -29,7 +29,7 @@
     "jsonwebtoken": "^9.0.3",
     "lodash": "^4.18.1",
     "moment": "^2.30.1",
-    "puppeteer": "^25.0.2",
+    "puppeteer": "^24.36.0",
     "semver": "^7.7.3",
     "winston": "^3.19.0"
   },
