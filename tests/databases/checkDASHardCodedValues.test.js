@@ -66,6 +66,24 @@ describe("checkDASHardCodedValues", function() {
         expect(result.details).to.be.an("array").that.is.empty;
     });
 
+    it("should not throw when customization is enabled but customScripts is absent", async function() {
+        const mockData = {
+            databases: [
+                {
+                    name: "CustomizationEnabledNoScripts",
+                    options: {
+                        enabledDatabaseCustomization: true,
+                        // customScripts intentionally omitted
+                    },
+                },
+            ],
+        };
+
+        const result = await checkDASHardCodedValues(mockData);
+        // Nothing to scan, so no hardcoded-value findings.
+        expect(result.details).to.be.an("array").that.is.empty;
+    });
+
     it("should return failure if no databases are present", async function() {
         const report = await checkDASHardCodedValues({ databases: [] });
         expect(report.details).to.be.an("array").that.has.lengthOf(1);

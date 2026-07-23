@@ -157,8 +157,9 @@ function checkDASHardCodedValues(options) {
             return callback(reports);
         }
         databases.forEach((connection) => {
-            const { enabledDatabaseCustomization, customScripts } = connection.options;
-            if (enabledDatabaseCustomization) {
+            const { enabledDatabaseCustomization, customScripts } = connection.options || {};
+            // customScripts may be absent even when customization is enabled
+            if (enabledDatabaseCustomization && customScripts) {
                 Object.entries(customScripts).forEach(([scriptName, scriptCode]) => {
                     var report = detectHardcodedValues(scriptCode, scriptName);
                     if (report.length > 0) {
