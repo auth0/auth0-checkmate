@@ -57,7 +57,7 @@ As an example, CheckMate activity might result in a log entry like the one shown
 
 ## 📦 Prerequisites
 
-- [Node.js](https://nodejs.dev/) **v20.18.3 or higher**
+- [Node.js](https://nodejs.dev/) **v22.12.0 or higher**
 - A valid [Auth0 tenant](https://auth0.com/)
 
 ---
