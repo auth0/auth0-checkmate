@@ -67,12 +67,6 @@ describe("checkDASHardCodedValues", function() {
     });
 
     it("should not throw when customization is enabled but customScripts is absent", async function() {
-        // Reproduces the production failure: a DB connection can come back with
-        // enabledDatabaseCustomization: true but no customScripts (scripts
-        // omitted/redacted, e.g. by the CIS/TAM inspector). The old code called
-        // Object.entries(undefined) here, throwing
-        // "TypeError: Cannot convert undefined or null to object", which report.js
-        // caught and surfaced as "failed to generate report."
         const mockData = {
             databases: [
                 {
