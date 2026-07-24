@@ -88,6 +88,7 @@ async function generateReport(locale, tenantConfig, config) {
       if (!config.auth0MgmtToken) {
         config.auth0MgmtToken = await getAccessToken(
           config.auth0Domain,
+          config.auth0Audience,
           config.auth0ClientId,
           config.auth0ClientSecret,
           config.auth0MgmtToken,

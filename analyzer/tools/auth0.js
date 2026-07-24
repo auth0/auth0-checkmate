@@ -56,7 +56,7 @@ axios.interceptors.response.use(
   }
 );
 
-async function getAccessToken(domain, client_id, client_secret, access_token) {
+async function getAccessToken(domain, audience, client_id, client_secret, access_token) {
   if (access_token) {
     return access_token;
   }
@@ -70,7 +70,7 @@ async function getAccessToken(domain, client_id, client_secret, access_token) {
     grant_type: "client_credentials",
     client_id: client_id,
     client_secret: client_secret,
-    audience: `https://${domain}/api/v2/`,
+    audience: audience,
     scopes: CONSTANTS.REQUIRED_SCOPES,
   };
 

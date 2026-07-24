@@ -293,9 +293,10 @@ async function main() {
 
   // Check for Environment Variables
   const envDomain = process.env.AUTH0CHECKMATE_DOMAIN;
+  const envAudience = process.env.AUTH0CHECKMATE_AUDIENCE || `https://${envDomain}/api/v2/`; // Use default Auth0 Management API audience if not provided.
   const envClientId = process.env.AUTH0CHECKMATE_CLIENT_ID;
   const envClientSecret = process.env.AUTH0CHECKMATE_CLIENT_SECRET;
-  const envAuthReady = envDomain && envClientId && envClientSecret;
+  const envAuthReady = envDomain && envClientId && envClientSecret && envAudience;
   const envFilePath = process.env.AUTH0CHECKMATE_FILE_PATH; 
   const envShowValidators = process.env.AUTH0CHECKMATE_SHOW_VALIDATORS;
   let defaultShowValidators = null;
@@ -337,12 +338,13 @@ if (answers.showValidators) {
     answers.auth0Domain = envDomain;
     answers.auth0ClientId = envClientId;
     answers.auth0ClientSecret = envClientSecret;
+    answers.auth0Audience = envAudience;
 
     console.log(chalk.green(`\n✅  Using credentials from environment variables (Domain: ${envDomain}) to authenticate.`));
     
     try {
       // Get the token using the env vars
-      const accessToken = await getAccessToken(envDomain, envClientId, envClientSecret);
+      const accessToken = await getAccessToken(envDomain, envAudience, envClientId, envClientSecret);
       checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
       answers.auth0MgmtToken = accessToken;
     } catch (e) {
@@ -375,7 +377,19 @@ if (answers.showValidators) {
     });
     answers.auth0Domain = auth0Domain;
 
-    // Prompt 4: Auth0 Client ID (if needed)
+    // Prompt 4: Auth0 Management API Audience (if needed)
+    if (authMethod === "clientSecret") {
+      const { auth0Audience } = await inquirer.prompt({
+        type: "input",
+        name: "auth0Audience",
+        message: "Enter your Auth0 Management API Audience:",
+        default: `https://${auth0Domain}/api/v2/`,
+        validate: (input) => (input?.match(/^https:\/\/.+\.auth0\.com\/api\/v2\/$/) ? true : "Auth0 Management API Audience is required (e.g. https://your-tenant.auth0.com/api/v2/)."),
+      });
+      answers.auth0Audience = auth0Audience;
+    }
+
+    // Prompt 5: Auth0 Client ID (if needed)
     if (authMethod === "clientSecret") {
       const { auth0ClientId } = await inquirer.prompt({
         type: "input",
@@ -386,7 +400,7 @@ if (answers.showValidators) {
       answers.auth0ClientId = auth0ClientId;
     }
 
-    // Prompt 5: Auth0 Client Secret (if needed)
+    // Prompt 6: Auth0 Client Secret (if needed)
     if (authMethod === "clientSecret") {
       const { auth0ClientSecret } = await inquirer.prompt({
         type: "password",
@@ -396,7 +410,7 @@ if (answers.showValidators) {
       });
       answers.auth0ClientSecret = auth0ClientSecret;
       try {
-        const accessToken = await getAccessToken(answers.auth0Domain, answers.auth0ClientId, answers.auth0ClientSecret);
+        const accessToken = await getAccessToken(answers.auth0Domain, answers.auth0Audience, answers.auth0ClientId, answers.auth0ClientSecret);
         checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
         answers.auth0MgmtToken = accessToken;
       } catch (e) {
@@ -405,7 +419,7 @@ if (answers.showValidators) {
       }
     }
 
-    // Prompt 6: Auth0 Management Token (if needed)
+    // Prompt 7: Auth0 Management Token (if needed)
     if (authMethod === "auth0MgmtToken") {
       const { auth0MgmtToken } = await inquirer.prompt({
         type: "input",
@@ -419,7 +433,7 @@ if (answers.showValidators) {
     }
   }
 
-  // Prompt 7: Locale (if more than one)
+  // Prompt 8: Locale (if more than one)
   const locales = i18n.getLocales();
   if (locales.length > 1) {
     const { locale } = await inquirer.prompt({
@@ -434,7 +448,7 @@ if (answers.showValidators) {
     answers.locale = "en";
   }
 
-  // Prompt 8: File path
+  // Prompt 9: File path
   if (envFilePath) {
     // A. Use environment variable directly (non-interactive)
     answers.filePath = envFilePath;
@@ -460,6 +474,7 @@ if (answers.showValidators) {
   // Construct config
   const config = {
     auth0Domain: answers.auth0Domain,
+    auth0Audience: answers.auth0Audience,
     auth0ClientId: answers.auth0ClientId || null,
     auth0ClientSecret: answers.auth0ClientSecret || null,
     auth0MgmtToken: answers.auth0MgmtToken || null,

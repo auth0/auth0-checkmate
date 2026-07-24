@@ -67,7 +67,7 @@ describe("auth0.js", function() {
     it("should return existing access token when provided", async function() {
       const existingToken = "existing-token-123";
       
-      const result = await getAccessToken("test-domain", "client-id", "client-secret", existingToken);
+      const result = await getAccessToken("test-domain", "test-audience", "client-id", "client-secret", existingToken);
 
       expect(result).to.equal(existingToken);
     });
@@ -86,11 +86,11 @@ describe("auth0.js", function() {
         expect(body.grant_type).to.equal("client_credentials");
         expect(body.client_id).to.equal("test-client-id");
         expect(body.client_secret).to.equal("test-client-secret");
-        expect(body.audience).to.equal("https://test-domain/api/v2/");
+        expect(body.audience).to.equal("https://test-audience/api/v2/");
         return mockResponse;
       };
 
-      const result = await getAccessToken("test-domain", "test-client-id", "test-client-secret");
+      const result = await getAccessToken("test-domain", "https://test-audience/api/v2/", "test-client-id", "test-client-secret");
 
       expect(result).to.equal("test-access-token");
     });
@@ -101,7 +101,7 @@ describe("auth0.js", function() {
       };
 
       try {
-        await getAccessToken("test-domain", "test-client-id", "wrong-secret");
+        await getAccessToken("test-domain", "https://test-audience/api/v2/", "test-client-id", "wrong-secret");
         expect.fail("Should have thrown an error");
       } catch (error) {
         expect(error.message).to.contain("process.exit called with code 1");
