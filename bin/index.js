@@ -335,20 +335,20 @@ if (answers.showValidators) {
   if (envAuthReady) {
     // Use Environment Variables by default (non-interactive)
     authMethod = "envVars";
-    answers.auth0Domain = envDomain;
     answers.auth0ClientId = envClientId;
     answers.auth0ClientSecret = envClientSecret;
 
     if (envCustomDomain) {
-      answers.auth0CustomDomain = envCustomDomain;
-      console.log(chalk.green(`\n✅  Using credentials from environment variables (Domain: ${envDomain}, Custom Domain: ${envCustomDomain}) to authenticate.`));
+      answers.auth0Domain = envCustomDomain;
+      answers.auth0AudienceDomain = envDomain;
+      console.log(chalk.green(`\n✅  Using credentials from environment variables (Custom Domain: ${envCustomDomain}, Canonical Domain: ${envDomain}) to authenticate.`));
     } else {
+      answers.auth0Domain = envDomain;
       console.log(chalk.green(`\n✅  Using credentials from environment variables (Domain: ${envDomain}) to authenticate.`));
     }
 
     try {
-      // Get the token using the env vars
-      const accessToken = await getAccessToken(envDomain, envClientId, envClientSecret, undefined, envCustomDomain);
+      const accessToken = await getAccessToken(answers.auth0Domain, envClientId, envClientSecret, null, answers.auth0AudienceDomain);
       checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
       answers.auth0MgmtToken = accessToken;
     } catch (e) {
@@ -364,7 +364,7 @@ if (answers.showValidators) {
       choices: [
         { name: "Auth0 Client ID & Secret", value: "clientSecret" },
         { name: "Auth0 Management API Token", value: "auth0MgmtToken" },
-        { name: "Custom Domain Client ID & Secret", value: "customDomainClientSecret" },
+        { name: "Custom Domain Client ID & Secret", value: "customDomain" },
       ],
     });
     authMethod = selectedAuthMethod;
@@ -372,8 +372,51 @@ if (answers.showValidators) {
   answers.authMethod = authMethod; // Set the authMethod for the rest of the flow
 
 
-  if (authMethod !== "envVars") { 
-    // Prompt 3: Auth0 Domain (canonical, always used for Management API)
+  if (authMethod === "customDomain") {
+    // Option 3: custom domain for all HTTP calls; canonical domain only for audience claim
+    const { canonicalDomain } = await inquirer.prompt({
+      type: "input",
+      name: "canonicalDomain",
+      message: "Enter your Auth0 canonical domain (e.g. tenant.us.auth0.com):",
+      validate: (input) => (input ? true : "Canonical domain is required."),
+    });
+    answers.auth0AudienceDomain = canonicalDomain;
+
+    const { customDomain } = await inquirer.prompt({
+      type: "input",
+      name: "customDomain",
+      message: "Enter your custom domain (e.g. login.example.com):",
+      validate: (input) => (input ? true : "Custom domain is required."),
+    });
+    answers.auth0Domain = customDomain;
+
+    const { auth0ClientId } = await inquirer.prompt({
+      type: "input",
+      name: "auth0ClientId",
+      message: "Enter your Auth0 Client ID:",
+      validate: (input) => (input ? true : "Auth0 Client ID is required."),
+    });
+    answers.auth0ClientId = auth0ClientId;
+
+    const { auth0ClientSecret } = await inquirer.prompt({
+      type: "password",
+      name: "auth0ClientSecret",
+      message: "Enter your Auth0 Client Secret:",
+      validate: (input) => (input ? true : "Auth0 Client Secret is required."),
+    });
+    answers.auth0ClientSecret = auth0ClientSecret;
+
+    try {
+      const accessToken = await getAccessToken(answers.auth0Domain, answers.auth0ClientId, answers.auth0ClientSecret, null, answers.auth0AudienceDomain);
+      checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
+      answers.auth0MgmtToken = accessToken;
+    } catch (e) {
+      console.error(e.message);
+      process.exit(0);
+    }
+  } else if (authMethod !== "envVars") {
+    // Options 1 & 2: unchanged
+    // Prompt 3: Auth0 Domain
     const { auth0Domain } = await inquirer.prompt({
       type: "input",
       name: "auth0Domain",
@@ -382,19 +425,8 @@ if (answers.showValidators) {
     });
     answers.auth0Domain = auth0Domain;
 
-    // Prompt 4: Custom domain for token endpoint (only for customDomainClientSecret)
-    if (authMethod === "customDomainClientSecret") {
-      const { auth0CustomDomain } = await inquirer.prompt({
-        type: "input",
-        name: "auth0CustomDomain",
-        message: "Enter your custom domain:",
-        validate: (input) => (input ? true : "Custom domain is required."),
-      });
-      answers.auth0CustomDomain = auth0CustomDomain;
-    }
-
-    // Prompt 5: Auth0 Client ID (if needed)
-    if (authMethod === "clientSecret" || authMethod === "customDomainClientSecret") {
+    // Prompt 4: Auth0 Client ID (if needed)
+    if (authMethod === "clientSecret") {
       const { auth0ClientId } = await inquirer.prompt({
         type: "input",
         name: "auth0ClientId",
@@ -404,8 +436,8 @@ if (answers.showValidators) {
       answers.auth0ClientId = auth0ClientId;
     }
 
-    // Prompt 6: Auth0 Client Secret (if needed)
-    if (authMethod === "clientSecret" || authMethod === "customDomainClientSecret") {
+    // Prompt 5: Auth0 Client Secret (if needed)
+    if (authMethod === "clientSecret") {
       const { auth0ClientSecret } = await inquirer.prompt({
         type: "password",
         name: "auth0ClientSecret",
@@ -414,7 +446,7 @@ if (answers.showValidators) {
       });
       answers.auth0ClientSecret = auth0ClientSecret;
       try {
-        const accessToken = await getAccessToken(answers.auth0Domain, answers.auth0ClientId, answers.auth0ClientSecret, undefined, answers.auth0CustomDomain);
+        const accessToken = await getAccessToken(answers.auth0Domain, answers.auth0ClientId, answers.auth0ClientSecret);
         checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
         answers.auth0MgmtToken = accessToken;
       } catch (e) {
@@ -423,7 +455,7 @@ if (answers.showValidators) {
       }
     }
 
-    // Prompt 7: Auth0 Management Token (if needed)
+    // Prompt 6: Auth0 Management Token (if needed)
     if (authMethod === "auth0MgmtToken") {
       const { auth0MgmtToken } = await inquirer.prompt({
         type: "input",
@@ -437,7 +469,7 @@ if (answers.showValidators) {
     }
   }
 
-  // Prompt 8: Locale (if more than one)
+  // Prompt 7: Locale (if more than one)
   const locales = i18n.getLocales();
   if (locales.length > 1) {
     const { locale } = await inquirer.prompt({
@@ -452,7 +484,7 @@ if (answers.showValidators) {
     answers.locale = "en";
   }
 
-  // Prompt 9: File path
+  // Prompt 8: File path
   if (envFilePath) {
     // A. Use environment variable directly (non-interactive)
     answers.filePath = envFilePath;
@@ -478,7 +510,7 @@ if (answers.showValidators) {
   // Construct config
   const config = {
     auth0Domain: answers.auth0Domain,
-    auth0CustomDomain: answers.auth0CustomDomain || null,
+    auth0AudienceDomain: answers.auth0AudienceDomain || null,
     auth0ClientId: answers.auth0ClientId || null,
     auth0ClientSecret: answers.auth0ClientSecret || null,
     auth0MgmtToken: answers.auth0MgmtToken || null,

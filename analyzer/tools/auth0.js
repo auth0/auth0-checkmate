@@ -56,14 +56,13 @@ axios.interceptors.response.use(
   }
 );
 
-async function getAccessToken(domain, client_id, client_secret, access_token, tokenDomain) {
+async function getAccessToken(domain, client_id, client_secret, access_token, audienceDomain) {
   if (access_token) {
     return access_token;
   }
   logger.log("info", `Getting an access token for client_id ${client_id}`);
   logger.log("info", `Requesting scopes ${CONSTANTS.REQUIRED_SCOPES}`);
-  const effectiveTokenDomain = tokenDomain || domain;
-  const tokenUrl = `https://${effectiveTokenDomain}/oauth/token`;
+  const tokenUrl = `https://${domain}/oauth/token`;
   const headers = {
     "Content-Type": "application/json",
   };
@@ -71,7 +70,7 @@ async function getAccessToken(domain, client_id, client_secret, access_token, to
     grant_type: "client_credentials",
     client_id: client_id,
     client_secret: client_secret,
-    audience: `https://${domain}/api/v2/`,
+    audience: `https://${audienceDomain || domain}/api/v2/`,
     scopes: CONSTANTS.REQUIRED_SCOPES,
   };
 
@@ -419,11 +418,11 @@ async function getHooks(domain, accessToken) {
   }
 }
 
-async function getLogs(domain, accessToken) {
+async function getLogs(domain, accessToken, queryDomain) {
   const logTypes = CONSTANTS.LOG_TYPES;
   const fields = "type,hostname";
   const per_page = 1;
-  const query = `type: (${logTypes.join(" ")}) AND hostname: ${domain}`;
+  const query = `type: (${logTypes.join(" ")}) AND hostname: ${queryDomain || domain}`;
   const url = `https://${domain}/api/v2/logs?per_page=${per_page}&fields=${fields}&q=${query}`;
   const encodedUrl = encodeURI(url);
   const headers = { Authorization: `Bearer ${accessToken}` };
