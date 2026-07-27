@@ -387,7 +387,7 @@ if (answers.showValidators) {
       const { auth0CustomDomain } = await inquirer.prompt({
         type: "input",
         name: "auth0CustomDomain",
-        message: "Enter your custom Auth0 domain (used for authentication only, e.g. login.example.com):",
+        message: "Enter your custom domain:",
         validate: (input) => (input ? true : "Custom domain is required."),
       });
       answers.auth0CustomDomain = auth0CustomDomain;
