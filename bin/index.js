@@ -348,7 +348,7 @@ if (answers.showValidators) {
     }
 
     try {
-      const accessToken = await getAccessToken(answers.auth0Domain, envClientId, envClientSecret, null, answers.auth0CanonicalDomain);
+      const accessToken = await getAccessToken(answers.auth0Domain, envClientId, envClientSecret, answers.auth0CanonicalDomain);
       checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
       answers.auth0MgmtToken = accessToken;
     } catch (e) {
@@ -407,7 +407,7 @@ if (answers.showValidators) {
     answers.auth0ClientSecret = auth0ClientSecret;
 
     try {
-      const accessToken = await getAccessToken(answers.auth0Domain, answers.auth0ClientId, answers.auth0ClientSecret, null, answers.auth0CanonicalDomain);
+      const accessToken = await getAccessToken(answers.auth0Domain, answers.auth0ClientId, answers.auth0ClientSecret, answers.auth0CanonicalDomain);
       checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
       answers.auth0MgmtToken = accessToken;
     } catch (e) {

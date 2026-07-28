@@ -90,7 +90,6 @@ async function generateReport(locale, tenantConfig, config) {
           config.auth0Domain,
           config.auth0ClientId,
           config.auth0ClientSecret,
-          config.auth0MgmtToken,
           config.auth0CanonicalDomain,
         );
       }

@@ -56,10 +56,7 @@ axios.interceptors.response.use(
   }
 );
 
-async function getAccessToken(domain, client_id, client_secret, access_token, canonicalDomain) {
-  if (access_token) {
-    return access_token;
-  }
+async function getAccessToken(domain, client_id, client_secret, canonicalDomain) {
   logger.log("info", `Getting an access token for client_id ${client_id}`);
   logger.log("info", `Requesting scopes ${CONSTANTS.REQUIRED_SCOPES}`);
   const tokenUrl = `https://${domain}/oauth/token`;
