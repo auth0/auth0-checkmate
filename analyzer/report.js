@@ -91,7 +91,7 @@ async function generateReport(locale, tenantConfig, config) {
           config.auth0ClientId,
           config.auth0ClientSecret,
           config.auth0MgmtToken,
-          config.auth0AudienceDomain,
+          config.auth0CanonicalDomain,
         );
       }
       tenantConfig.customDomains = await getCustomDomains(
@@ -161,7 +161,7 @@ async function generateReport(locale, tenantConfig, config) {
       const { log_query, logs } = await getLogs(
         config.auth0Domain,
         config.auth0MgmtToken,
-        config.auth0AudienceDomain,
+        config.auth0CanonicalDomain,
       );
       tenantConfig.logs = logs;
       tenantConfig.log_query = log_query;
@@ -171,7 +171,7 @@ async function generateReport(locale, tenantConfig, config) {
         config.auth0MgmtToken
       );
 
-      tenantConfig.canonicalDomain = config.auth0AudienceDomain || config.auth0Domain;
+      tenantConfig.canonicalDomain = config.auth0CanonicalDomain || config.auth0Domain;
 
       tenantConfig.eventStreams = await getEventStreams(
         config.auth0Domain,

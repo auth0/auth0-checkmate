@@ -340,7 +340,7 @@ if (answers.showValidators) {
 
     if (envCustomDomain) {
       answers.auth0Domain = envCustomDomain;
-      answers.auth0AudienceDomain = envDomain;
+      answers.auth0CanonicalDomain = envDomain;
       console.log(chalk.green(`\n✅  Using credentials from environment variables (Custom Domain: ${envCustomDomain}, Canonical Domain: ${envDomain}) to authenticate.`));
     } else {
       answers.auth0Domain = envDomain;
@@ -348,7 +348,7 @@ if (answers.showValidators) {
     }
 
     try {
-      const accessToken = await getAccessToken(answers.auth0Domain, envClientId, envClientSecret, null, answers.auth0AudienceDomain);
+      const accessToken = await getAccessToken(answers.auth0Domain, envClientId, envClientSecret, null, answers.auth0CanonicalDomain);
       checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
       answers.auth0MgmtToken = accessToken;
     } catch (e) {
@@ -388,7 +388,7 @@ if (answers.showValidators) {
       message: "Enter your Auth0 canonical domain (e.g. tenant.us.auth0.com):",
       validate: (input) => (input ? true : "Canonical domain is required."),
     });
-    answers.auth0AudienceDomain = canonicalDomain;
+    answers.auth0CanonicalDomain = canonicalDomain;
 
     const { auth0ClientId } = await inquirer.prompt({
       type: "input",
@@ -407,7 +407,7 @@ if (answers.showValidators) {
     answers.auth0ClientSecret = auth0ClientSecret;
 
     try {
-      const accessToken = await getAccessToken(answers.auth0Domain, answers.auth0ClientId, answers.auth0ClientSecret, null, answers.auth0AudienceDomain);
+      const accessToken = await getAccessToken(answers.auth0Domain, answers.auth0ClientId, answers.auth0ClientSecret, null, answers.auth0CanonicalDomain);
       checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
       answers.auth0MgmtToken = accessToken;
     } catch (e) {
@@ -510,7 +510,7 @@ if (answers.showValidators) {
   // Construct config
   const config = {
     auth0Domain: answers.auth0Domain,
-    auth0AudienceDomain: answers.auth0AudienceDomain || null,
+    auth0CanonicalDomain: answers.auth0CanonicalDomain || null,
     auth0ClientId: answers.auth0ClientId || null,
     auth0ClientSecret: answers.auth0ClientSecret || null,
     auth0MgmtToken: answers.auth0MgmtToken || null,
