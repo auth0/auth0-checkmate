@@ -374,14 +374,6 @@ if (answers.showValidators) {
 
   if (authMethod === "customDomain") {
     // Option 3: custom domain for all HTTP calls; canonical domain only for audience claim
-    const { canonicalDomain } = await inquirer.prompt({
-      type: "input",
-      name: "canonicalDomain",
-      message: "Enter your Auth0 canonical domain (e.g. tenant.us.auth0.com):",
-      validate: (input) => (input ? true : "Canonical domain is required."),
-    });
-    answers.auth0AudienceDomain = canonicalDomain;
-
     const { customDomain } = await inquirer.prompt({
       type: "input",
       name: "customDomain",
@@ -389,6 +381,14 @@ if (answers.showValidators) {
       validate: (input) => (input ? true : "Custom domain is required."),
     });
     answers.auth0Domain = customDomain;
+
+    const { canonicalDomain } = await inquirer.prompt({
+      type: "input",
+      name: "canonicalDomain",
+      message: "Enter your Auth0 canonical domain (e.g. tenant.us.auth0.com):",
+      validate: (input) => (input ? true : "Canonical domain is required."),
+    });
+    answers.auth0AudienceDomain = canonicalDomain;
 
     const { auth0ClientId } = await inquirer.prompt({
       type: "input",
