@@ -64,14 +64,6 @@ describe("auth0.js", function() {
   });
 
   describe("getAccessToken", function() {
-    it("should return existing access token when provided", async function() {
-      const existingToken = "existing-token-123";
-      
-      const result = await getAccessToken("test-domain", "client-id", "client-secret", existingToken);
-
-      expect(result).to.equal(existingToken);
-    });
-
     it("should return access token on successful authentication", async function() {
       const mockResponse = {
         data: {

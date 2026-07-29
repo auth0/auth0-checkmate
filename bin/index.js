@@ -293,6 +293,7 @@ async function main() {
 
   // Check for Environment Variables
   const envDomain = process.env.AUTH0CHECKMATE_DOMAIN;
+  const envCustomDomain = process.env.AUTH0CHECKMATE_CUSTOM_DOMAIN;
   const envClientId = process.env.AUTH0CHECKMATE_CLIENT_ID;
   const envClientSecret = process.env.AUTH0CHECKMATE_CLIENT_SECRET;
   const envAuthReady = envDomain && envClientId && envClientSecret;
@@ -334,15 +335,20 @@ if (answers.showValidators) {
   if (envAuthReady) {
     // Use Environment Variables by default (non-interactive)
     authMethod = "envVars";
-    answers.auth0Domain = envDomain;
     answers.auth0ClientId = envClientId;
     answers.auth0ClientSecret = envClientSecret;
 
-    console.log(chalk.green(`\n✅  Using credentials from environment variables (Domain: ${envDomain}) to authenticate.`));
-    
+    if (envCustomDomain) {
+      answers.auth0Domain = envCustomDomain;
+      answers.auth0CanonicalDomain = envDomain;
+      console.log(chalk.green(`\n✅  Using credentials from environment variables (Custom Domain: ${envCustomDomain}, Canonical Domain: ${envDomain}) to authenticate.`));
+    } else {
+      answers.auth0Domain = envDomain;
+      console.log(chalk.green(`\n✅  Using credentials from environment variables (Domain: ${envDomain}) to authenticate.`));
+    }
+
     try {
-      // Get the token using the env vars
-      const accessToken = await getAccessToken(envDomain, envClientId, envClientSecret);
+      const accessToken = await getAccessToken(answers.auth0Domain, envClientId, envClientSecret, answers.auth0CanonicalDomain);
       checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
       answers.auth0MgmtToken = accessToken;
     } catch (e) {
@@ -358,6 +364,7 @@ if (answers.showValidators) {
       choices: [
         { name: "Auth0 Client ID & Secret", value: "clientSecret" },
         { name: "Auth0 Management API Token", value: "auth0MgmtToken" },
+        { name: "Custom Domain Client ID & Secret", value: "customDomain" },
       ],
     });
     authMethod = selectedAuthMethod;
@@ -365,7 +372,50 @@ if (answers.showValidators) {
   answers.authMethod = authMethod; // Set the authMethod for the rest of the flow
 
 
-  if (authMethod !== "envVars") { 
+  if (authMethod === "customDomain") {
+    // Option 3: custom domain for all HTTP calls; canonical domain only for audience claim
+    const { customDomain } = await inquirer.prompt({
+      type: "input",
+      name: "customDomain",
+      message: "Enter your custom domain (e.g. login.example.com):",
+      validate: (input) => (input ? true : "Custom domain is required."),
+    });
+    answers.auth0Domain = customDomain;
+
+    const { canonicalDomain } = await inquirer.prompt({
+      type: "input",
+      name: "canonicalDomain",
+      message: "Enter your Auth0 canonical domain (e.g. tenant.us.auth0.com):",
+      validate: (input) => (input ? true : "Canonical domain is required."),
+    });
+    answers.auth0CanonicalDomain = canonicalDomain;
+
+    const { auth0ClientId } = await inquirer.prompt({
+      type: "input",
+      name: "auth0ClientId",
+      message: "Enter your Auth0 Client ID:",
+      validate: (input) => (input ? true : "Auth0 Client ID is required."),
+    });
+    answers.auth0ClientId = auth0ClientId;
+
+    const { auth0ClientSecret } = await inquirer.prompt({
+      type: "password",
+      name: "auth0ClientSecret",
+      message: "Enter your Auth0 Client Secret:",
+      validate: (input) => (input ? true : "Auth0 Client Secret is required."),
+    });
+    answers.auth0ClientSecret = auth0ClientSecret;
+
+    try {
+      const accessToken = await getAccessToken(answers.auth0Domain, answers.auth0ClientId, answers.auth0ClientSecret, answers.auth0CanonicalDomain);
+      checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
+      answers.auth0MgmtToken = accessToken;
+    } catch (e) {
+      console.error(e.message);
+      process.exit(0);
+    }
+  } else if (authMethod !== "envVars") {
+    // Options 1 & 2: unchanged
     // Prompt 3: Auth0 Domain
     const { auth0Domain } = await inquirer.prompt({
       type: "input",
@@ -460,6 +510,7 @@ if (answers.showValidators) {
   // Construct config
   const config = {
     auth0Domain: answers.auth0Domain,
+    auth0CanonicalDomain: answers.auth0CanonicalDomain || null,
     auth0ClientId: answers.auth0ClientId || null,
     auth0ClientSecret: answers.auth0ClientSecret || null,
     auth0MgmtToken: answers.auth0MgmtToken || null,
