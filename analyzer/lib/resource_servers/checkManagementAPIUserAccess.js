@@ -56,7 +56,7 @@ function checkManagementAPIUserAccess(options) {
 
     const name = managementApi.name || "Auth0 Management API";
 
-    if (getUserPolicy(managementApi) === "require_client_grant") {
+    if (["require_client_grant", "deny_all"].includes(getUserPolicy(managementApi))) {
       report.push({
         field: "management_api_user_access_restricted",
         name: name,
