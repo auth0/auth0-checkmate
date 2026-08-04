@@ -71,6 +71,27 @@ describe("checkManagementAPIUserAccess", function () {
     expect(result.details[0].status).to.equal(CONSTANTS.FAIL);
   });
 
+  it("should pass when the user policy is deny_all", async function () {
+    const result = await checkManagementAPIUserAccess({
+      resourceServers: [
+        {
+          id: "system_api",
+          name: "Auth0 Management API",
+          identifier: MGMT_IDENTIFIER,
+          is_system: true,
+          subject_type_authorization: {
+            user: { policy: "deny_all" },
+            client: { policy: "require_client_grant" },
+          },
+        },
+      ],
+    });
+    expect(result.details[0].field).to.equal(
+      "management_api_user_access_restricted",
+    );
+    expect(result.details[0].status).to.equal(CONSTANTS.SUCCESS);
+  });
+
   it("should pass when the user policy is require_client_grant", async function () {
     const result = await checkManagementAPIUserAccess({
       resourceServers: [

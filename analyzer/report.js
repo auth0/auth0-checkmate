@@ -108,6 +108,13 @@ async function generateReport(locale, tenantConfig, config) {
           config.auth0Domain,
           config.auth0MgmtToken,
         );
+        if (tenantConfig.clients.length > 2000) {
+          logger.log(
+            "info",
+            `Skipping client validations: tenant has ${tenantConfig.clients.length} applications (limit: 2000)`,
+          );
+          tenantConfig.clients = [];
+        }
       }
       tenantConfig.databases = await getConnections(
         config.auth0Domain,
