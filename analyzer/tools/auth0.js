@@ -110,7 +110,7 @@ async function fetchClients(url, accessToken, page) {
 
     return response.data; // Array of clients
   } catch (error) {
-    console.error("Error fetching clients:", error);
+    console.error("Error fetching clients:", error.message);
     throw error;
   }
 }
