@@ -53,9 +53,6 @@ const templateData = fs.readFileSync(
   "utf8"
 );
 
-/**
- * Trim, drop empties and de-duplicate a list of requested validator names.
- */
 function normalizeValidatorSelection(selection) {
   return _.uniq(
     _.compact((selection || []).map((name) => String(name).trim())),
@@ -80,12 +77,8 @@ function suggestValidatorName(name, knownNames) {
   );
 }
 
-/**
- * Resolve requested validator names into the checks to run, in the order they
- * were requested. An empty selection runs every validator.
- * Throws when a name does not match a known validator, since silently running
- * everything (or nothing) would produce a misleading report.
- */
+/*Resolve requested validator names into the checks to run, in the order they were requested. An empty selection runs every validator. */
+
 function resolveSelectedValidators(selection) {
   const { checks } = listOfAnalyser;
   const requested = normalizeValidatorSelection(selection);
@@ -108,18 +101,11 @@ function resolveSelectedValidators(selection) {
   return requested.map((name) => checksByName.get(name));
 }
 
-/**
- * Every available validator name, for discovery and error messages.
- */
 function getValidatorNames() {
   return listOfAnalyser.checks.map((check) => check.name);
 }
 
-/**
- * Parse a comma-separated validator list (e.g. the RUN_VALIDATORS environment
- * variable) into a validated selection. Throws on unknown names so callers can
- * fail fast rather than produce a report that silently checked nothing.
- */
+/* Parse a comma-separated validator list */
 function parseValidatorSelection(value) {
   const selection = normalizeValidatorSelection((value || "").split(","));
   if (!_.isEmpty(selection)) {
