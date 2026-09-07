@@ -139,8 +139,6 @@ async function runProductionChecks(tenant, checksToRun) {
 }
 async function generateReport(locale, tenantConfig, config) {
   i18n.setLocale(locale);
-  // Resolved before the try block so an invalid selection surfaces to the
-  // caller instead of being swallowed into an empty report.
   const checksToRun = resolveSelectedValidators(config.selectedValidators);
   const isFilteredRun = checksToRun.length !== listOfAnalyser.checks.length;
   try {

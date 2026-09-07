@@ -204,12 +204,11 @@ Notes:
 - Surrounding whitespace, duplicates and trailing commas are ignored, so
   `RUN_VALIDATORS=" checkRules, checkCustomDomain, "` is valid.
 - Leave the variable unset (or empty) to run all validators.
-- Validators that are not selected are **not executed**, so their Management API
-  and external lookups are skipped too.
-- The report's **Scope** section and validator totals reflect only the
-  validators that ran, so a filtered report never overstates what was reviewed.
-  Note that the tenant configuration is still fetched in full, so the same
-  Management API read scopes are required regardless of the selection.
+- Validators that are not selected are **not executed**. The one external lookup
+  performed by a validator itself (the GitHub advisory lookup in
+  `checkDependencies`) is therefore skipped unless that validator is selected.
+- **The tenant configuration is still fetched in full.** `RUN_VALIDATORS`
+  controls which validators run, *not* which data is retrieved.
 
 ---
 
