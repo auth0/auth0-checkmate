@@ -14,6 +14,40 @@ Handlebars.registerHelper("replace", function (str, search, replace) {
 Handlebars.registerHelper("and", (a, b) => a && b);
 Handlebars.registerHelper("inc", (a) => parseInt(a) + 1);
 
+// A tenant configuration that satisfies every validator, so tests exercise
+// validator selection rather than missing-data handling.
+function buildTenantConfig() {
+  return {
+    customDomains: [{ domain: "custom.example.com", status: "ready" }],
+    clients: [],
+    databases: [],
+    attackProtection: {
+      breachedPasswordDetection: { enabled: false, shields: [], stage: {} },
+      bruteForceProtection: { enabled: false, shields: [], allowlist: [] },
+      suspiciousIpThrottling: { enabled: false, shields: [], allowlist: [] },
+    },
+    emailProvider: {},
+    logStreams: [],
+    emailTemplates: [],
+    errorPageTemplate: {},
+    tenant: {
+      friendly_name: "Test Tenant",
+      support_email: "support@test.com",
+      support_url: "https://support.test.com",
+    },
+    guardianFactors: [],
+    guardianPolicies: [],
+    rules: [],
+    hooks: [],
+    actions: [],
+    logs: [],
+    log_query: "",
+    networkAcl: [],
+    eventStreams: [],
+    resourceServers: [],
+  };
+}
+
 describe("report.js", function () {
   describe("Handlebars helpers", function () {
     describe("chooseFont", function () {
@@ -300,5 +334,194 @@ describe("report.js", function () {
       expect(customDomainResult).to.have.property("description");
     });
 
+    it("should not execute validators that were not selected", async function () {
+      this.timeout(10000);
+
+      delete require.cache[require.resolve("../analyzer/lib/listOfAnalyser.js")];
+      delete require.cache[require.resolve("../analyzer/report.js")];
+
+      // Wrap every check so we can observe which ones actually get invoked.
+      const listOfAnalyser = require("../analyzer/lib/listOfAnalyser.js");
+      const executed = [];
+      const originalChecks = listOfAnalyser.checks;
+      listOfAnalyser.checks = originalChecks.map((check) => {
+        const wrapped = (tenant) => {
+          executed.push(check.name);
+          return check(tenant);
+        };
+        Object.defineProperty(wrapped, "name", { value: check.name });
+        return wrapped;
+      });
+
+      try {
+        const { generateReport } = require("../analyzer/report.js");
+        const report = await generateReport("en", buildTenantConfig(), {
+          auth0Domain: "test.auth0.com",
+          selectedValidators: ["checkCustomDomain"],
+        });
+
+        expect(executed).to.deep.equal(["checkCustomDomain"]);
+        expect(report.full_report).to.have.lengthOf(1);
+        expect(report.full_report[0].name).to.equal("checkCustomDomain");
+      } finally {
+        listOfAnalyser.checks = originalChecks;
+        delete require.cache[require.resolve("../analyzer/lib/listOfAnalyser.js")];
+        delete require.cache[require.resolve("../analyzer/report.js")];
+      }
+    });
+
+    it("should run every validator when no selection is provided", async function () {
+      this.timeout(20000);
+
+      delete require.cache[require.resolve("../analyzer/report.js")];
+      const { generateReport } = require("../analyzer/report.js");
+      const { checks } = require("../analyzer/lib/listOfAnalyser.js");
+
+      const report = await generateReport("en", buildTenantConfig(), {
+        auth0Domain: "test.auth0.com",
+        selectedValidators: [],
+      });
+
+      expect(report.full_report).to.have.lengthOf(checks.length);
+      expect(report.summary).to.be.an("array");
+    });
+
+    it("should report scope and totals for the selected validators only", async function () {
+      this.timeout(10000);
+
+      delete require.cache[require.resolve("../analyzer/report.js")];
+      const { generateReport } = require("../analyzer/report.js");
+
+      const report = await generateReport("en", buildTenantConfig(), {
+        auth0Domain: "test.auth0.com",
+        selectedValidators: ["checkCustomDomain", "checkRules"],
+      });
+
+      expect(report.list_of_validators).to.deep.equal([
+        { title: "Custom Domains", items: [] },
+        { title: "Rules", items: [] },
+      ]);
+      expect(report.validator_summary).to.include("<b>2</b>");
+    });
+
+    it("should reject a selection containing unknown validator names", async function () {
+      delete require.cache[require.resolve("../analyzer/report.js")];
+      const { generateReport } = require("../analyzer/report.js");
+
+      try {
+        await generateReport("en", buildTenantConfig(), {
+          auth0Domain: "test.auth0.com",
+          selectedValidators: ["checkcustomdomain"],
+        });
+        throw new Error("expected generateReport to reject unknown validators");
+      } catch (error) {
+        expect(error.message).to.include("checkcustomdomain");
+        expect(error.message).to.include("checkCustomDomain");
+      }
+    });
+  });
+
+  describe("getValidatorNames", function () {
+    it("should list every available validator name", function () {
+      delete require.cache[require.resolve("../analyzer/report.js")];
+      const { getValidatorNames } = require("../analyzer/report.js");
+      const { checks } = require("../analyzer/lib/listOfAnalyser.js");
+
+      const names = getValidatorNames();
+
+      expect(names).to.have.lengthOf(checks.length);
+      expect(names).to.include("checkCustomDomain");
+      expect(names).to.deep.equal(checks.map((check) => check.name));
+    });
+  });
+
+  describe("parseValidatorSelection", function () {
+    it("should return an empty selection when unset or blank", function () {
+      delete require.cache[require.resolve("../analyzer/report.js")];
+      const { parseValidatorSelection } = require("../analyzer/report.js");
+
+      expect(parseValidatorSelection(undefined)).to.deep.equal([]);
+      expect(parseValidatorSelection("")).to.deep.equal([]);
+      expect(parseValidatorSelection("   ")).to.deep.equal([]);
+    });
+
+    it("should split a comma-separated list", function () {
+      delete require.cache[require.resolve("../analyzer/report.js")];
+      const { parseValidatorSelection } = require("../analyzer/report.js");
+
+      expect(
+        parseValidatorSelection("checkCustomDomain,checkRules"),
+      ).to.deep.equal(["checkCustomDomain", "checkRules"]);
+    });
+
+    it("should tolerate whitespace and trailing commas", function () {
+      delete require.cache[require.resolve("../analyzer/report.js")];
+      const { parseValidatorSelection } = require("../analyzer/report.js");
+
+      expect(
+        parseValidatorSelection(" checkCustomDomain , checkRules , "),
+      ).to.deep.equal(["checkCustomDomain", "checkRules"]);
+    });
+
+    it("should reject unknown names so the CLI can fail fast", function () {
+      delete require.cache[require.resolve("../analyzer/report.js")];
+      const { parseValidatorSelection } = require("../analyzer/report.js");
+
+      expect(() => parseValidatorSelection("checkRules,bogus")).to.throw(
+        /bogus/,
+      );
+    });
+  });
+
+  describe("resolveSelectedValidators", function () {
+    it("should return all checks when nothing is selected", function () {
+      delete require.cache[require.resolve("../analyzer/report.js")];
+      const { resolveSelectedValidators } = require("../analyzer/report.js");
+      const { checks } = require("../analyzer/lib/listOfAnalyser.js");
+
+      expect(resolveSelectedValidators([])).to.have.lengthOf(checks.length);
+      expect(resolveSelectedValidators(undefined)).to.have.lengthOf(checks.length);
+    });
+
+    it("should return only the selected checks, preserving selection order", function () {
+      delete require.cache[require.resolve("../analyzer/report.js")];
+      const { resolveSelectedValidators } = require("../analyzer/report.js");
+
+      const resolved = resolveSelectedValidators([
+        "checkRules",
+        "checkCustomDomain",
+      ]);
+
+      expect(resolved.map((check) => check.name)).to.deep.equal([
+        "checkRules",
+        "checkCustomDomain",
+      ]);
+    });
+
+    it("should throw listing unknown names and a suggestion", function () {
+      delete require.cache[require.resolve("../analyzer/report.js")];
+      const { resolveSelectedValidators } = require("../analyzer/report.js");
+
+      expect(() => resolveSelectedValidators(["checkRules", "nope"])).to.throw(
+        /nope/
+      );
+      expect(() => resolveSelectedValidators(["checkRule"])).to.throw(
+        /checkRules/
+      );
+    });
+
+    it("should ignore surrounding whitespace and duplicates", function () {
+      delete require.cache[require.resolve("../analyzer/report.js")];
+      const { resolveSelectedValidators } = require("../analyzer/report.js");
+
+      const resolved = resolveSelectedValidators([
+        " checkCustomDomain ",
+        "checkCustomDomain",
+      ]);
+
+      expect(resolved.map((check) => check.name)).to.deep.equal([
+        "checkCustomDomain",
+      ]);
+    });
   });
 });

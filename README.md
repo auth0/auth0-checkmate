@@ -174,7 +174,42 @@ To use CheckMate for Auth0, you need a **dedicated Auth0 Application** to author
     AUTH0CHECKMATE_CLIENT_SECRET=your_client_secret
     AUTH0CHECKMATE_FILE_PATH="./reports"
     AUTH0CHECKMATE_SHOW_VALIDATORS=false
+    AUTH0CHECKMATE_SKIP_APPLICATIONS=true|false
+    RUN_VALIDATORS=checkCustomDomain,checkRules
    ```
+
+---
+
+## 🎯 Running a Subset of Validators
+
+By default every validator runs. Set `RUN_VALIDATORS` to a comma-separated list
+of validator names to run only those checks — useful for iterating on a single
+finding or keeping CI runs fast.
+
+```bash
+RUN_VALIDATORS=checkCustomDomain,checkRules a0checkmate
+```
+
+To print the available validator names and exit:
+
+```bash
+RUN_VALIDATORS=list a0checkmate
+```
+
+Notes:
+
+- Names are **case-sensitive** and must match exactly. An unrecognized name
+  stops the run before authenticating and suggests the closest match, rather
+  than producing a report that silently checked nothing.
+- Surrounding whitespace, duplicates and trailing commas are ignored, so
+  `RUN_VALIDATORS=" checkRules, checkCustomDomain, "` is valid.
+- Leave the variable unset (or empty) to run all validators.
+- Validators that are not selected are **not executed**, so their Management API
+  and external lookups are skipped too.
+- The report's **Scope** section and validator totals reflect only the
+  validators that ran, so a filtered report never overstates what was reviewed.
+  Note that the tenant configuration is still fetched in full, so the same
+  Management API read scopes are required regardless of the selection.
 
 ---
 
