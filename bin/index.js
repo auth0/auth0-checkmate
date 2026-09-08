@@ -4,7 +4,13 @@ const fs = require("node:fs");
 const jwt = require('jsonwebtoken');
 const path = require("path");
 const logger = require("../analyzer/lib/logger");
-const { generateReport } = require("../analyzer/report");
+const {
+  generateReport,
+  parseValidatorSelection,
+  getValidatorNames,
+} = require("../analyzer/report");
+const listOfAnalyser = require("../analyzer/lib/listOfAnalyser");
+const totalValidatorCount = listOfAnalyser.checks.length;
 const chalk = require("chalk");
 const figlet = require("figlet");
 const inquirer = require("inquirer").default;
@@ -267,10 +273,30 @@ function printJsonAsBullets(json, indent = 0) {
 }
 
 async function main() {
-  const selectedValidators = process.env.RUN_VALIDATORS;
-  if (selectedValidators && !/^(\w+)(,\w+)*$/.test(selectedValidators)) {
-    throw new Error(
-      `RUN_VALIDATORS must be a comma-separated list of available validator names`
+  // RUN_VALIDATORS limits the run to a comma-separated list of validator names.
+  // Unknown names throw here so the run stops before authenticating.
+  if ((process.env.RUN_VALIDATORS || "").trim().toLowerCase() === "list") {
+    const names = getValidatorNames();
+    console.log(chalk.yellow(`\nAvailable validators (${names.length}):\n`));
+    names.forEach((name) => console.log(`  ${name}`));
+    console.log(
+      chalk.yellow(
+        "\nRun a subset with: RUN_VALIDATORS=checkCustomDomain,checkRules\n",
+      ),
+    );
+    return;
+  }
+  let selectedValidators;
+  try {
+    selectedValidators = parseValidatorSelection(process.env.RUN_VALIDATORS);
+  } catch (e) {
+    throw new Error(`Invalid RUN_VALIDATORS: ${e.message}`);
+  }
+  if (selectedValidators.length > 0) {
+    console.log(
+      chalk.yellow(
+        `\n⚠️  Only ${selectedValidators.length} of ${totalValidatorCount} validators will run (RUN_VALIDATORS): ${selectedValidators.join(", ")}`,
+      ),
     );
   }
   const answers = {};
@@ -515,7 +541,7 @@ if (answers.showValidators) {
     auth0ClientSecret: answers.auth0ClientSecret || null,
     auth0MgmtToken: answers.auth0MgmtToken || null,
     filePath: path.isAbsolute(answers.filePath) ? answers.filePath : path.resolve(answers.filePath),
-    selectedValidators: selectedValidators ? selectedValidators.split(',') : [],
+    selectedValidators,
     disablePdfReporting: answers.disablePdfReporting,
     skipApplications: answers.skipApplications,
   };

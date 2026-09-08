@@ -53,16 +53,72 @@ const templateData = fs.readFileSync(
   "utf8"
 );
 
-async function runProductionChecks(tenant, validators) {
+function normalizeValidatorSelection(selection) {
+  return _.uniq(
+    _.compact((selection || []).map((name) => String(name).trim())),
+  );
+}
+
+/**
+ * Find the closest known validator name for a mistyped one, so the error can
+ * point at the intended validator instead of just rejecting the input.
+ */
+function suggestValidatorName(name, knownNames) {
+  const requested = name.toLowerCase();
+  return (
+    knownNames.find((known) => known.toLowerCase() === requested) ||
+    knownNames.find((known) => {
+      const candidate = known.toLowerCase();
+      return (
+        candidate.startsWith(requested) || requested.startsWith(candidate)
+      );
+    }) ||
+    null
+  );
+}
+
+/*Resolve requested validator names into the checks to run, in the order they were requested. An empty selection runs every validator. */
+
+function resolveSelectedValidators(selection) {
+  const { checks } = listOfAnalyser;
+  const requested = normalizeValidatorSelection(selection);
+  if (_.isEmpty(requested)) {
+    return checks;
+  }
+  const checksByName = new Map(checks.map((check) => [check.name, check]));
+  const unknown = requested.filter((name) => !checksByName.has(name));
+  if (!_.isEmpty(unknown)) {
+    const knownNames = [...checksByName.keys()];
+    const details = unknown.map((name) => {
+      const suggestion = suggestValidatorName(name, knownNames);
+      return suggestion ? `"${name}" (did you mean "${suggestion}"?)` : `"${name}"`;
+    });
+    throw new Error(
+      `Unknown validator name(s): ${details.join(", ")}. ` +
+        `Validator names are case-sensitive. Run with RUN_VALIDATORS=list to print all ${knownNames.length} available names.`,
+    );
+  }
+  return requested.map((name) => checksByName.get(name));
+}
+
+function getValidatorNames() {
+  return listOfAnalyser.checks.map((check) => check.name);
+}
+
+/* Parse a comma-separated validator list */
+function parseValidatorSelection(value) {
+  const selection = normalizeValidatorSelection((value || "").split(","));
+  if (!_.isEmpty(selection)) {
+    resolveSelectedValidators(selection);
+  }
+  return selection;
+}
+
+async function runProductionChecks(tenant, checksToRun) {
   try {
     logger.log("info", "Checking your configuration...");
-    const validatorsToRun = new Set(validators);
-    const checksPromises = listOfAnalyser.checks.map((check) => {
+    const checksPromises = checksToRun.map((check) => {
       return new Promise((resolve) => {
-        if (!_.isEmpty(validatorsToRun) && !validatorsToRun.has(check.name)) {
-          //console.log(`Skipping ${check.name} `);
-          resolve({ name: check.name, details: [] });
-        }
         logger.log(
           "info",
           `Running validator ${convertToTitleCase(check.name)}`,
@@ -83,6 +139,8 @@ async function runProductionChecks(tenant, validators) {
 }
 async function generateReport(locale, tenantConfig, config) {
   i18n.setLocale(locale);
+  const checksToRun = resolveSelectedValidators(config.selectedValidators);
+  const isFilteredRun = checksToRun.length !== listOfAnalyser.checks.length;
   try {
     if (_.isEmpty(tenantConfig)) {
       if (!config.auth0MgmtToken) {
@@ -191,9 +249,7 @@ async function generateReport(locale, tenantConfig, config) {
     }
     
     const statusOrder = ["green", "amber", "red"];
-    let fullReport =
-      (await runProductionChecks(tenantConfig, config.selectedValidators)) ||
-      [];
+    let fullReport = (await runProductionChecks(tenantConfig, checksToRun)) || [];
     fullReport.forEach((report) => {
       let grouped = [],
         res = [],
@@ -506,7 +562,14 @@ async function generateReport(locale, tenantConfig, config) {
           break;
       }
     });
-    const list_of_validators = i18n.__("list_of_validators");
+    // On a filtered run the documented scope must list only the validators that
+    // actually ran, otherwise the report overstates what was reviewed.
+    const list_of_validators = isFilteredRun
+      ? checksToRun.map((check) => ({
+          title: i18n.__(`${check.name}.title`),
+          items: [],
+        }))
+      : i18n.__("list_of_validators");
     let all_validators = [];
     list_of_validators.forEach((validator) => {
       all_validators =
@@ -551,4 +614,7 @@ async function generateHtml(report, auth0Domain, locale) {
 module.exports = {
   generateReport,
   generateHtml,
+  resolveSelectedValidators,
+  parseValidatorSelection,
+  getValidatorNames,
 };
