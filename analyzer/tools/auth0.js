@@ -10,6 +10,19 @@ const PER_PAGE = 100;
 axios.defaults.headers.common["User-Agent"] =
   `${packageName}/${packageVersion}`;
 
+// Throttle outgoing requests to avoid exhausting Auth0 API rate limits
+const MIN_REQUEST_INTERVAL_MS = 200;
+let lastRequestTime = 0;
+axios.interceptors.request.use(async (config) => {
+  const now = Date.now();
+  const waitMs = lastRequestTime + MIN_REQUEST_INTERVAL_MS - now;
+  if (waitMs > 0) {
+    await new Promise((resolve) => setTimeout(resolve, waitMs));
+  }
+  lastRequestTime = Date.now();
+  return config;
+});
+
 // Add exponential backoff interceptor
 axios.interceptors.response.use(
   (response) => response,
