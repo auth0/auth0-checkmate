@@ -243,13 +243,17 @@ async function getBreachedPasswordSetting(domain, accessToken) {
 }
 
 async function getBotDetectionSetting(domain, accessToken) {
-  const url = `https://${domain}/api/v2/anomaly/captchas`;
+  const botDetectionUrl = `https://${domain}/api/v2/attack-protection/bot-detection`;
+  const captchaUrl = `https://${domain}/api/v2/attack-protection/captcha`;
   const headers = { Authorization: `Bearer ${accessToken}` };
   logger.log("info", `Getting bot detection setting`);
 
   try {
-    const response = await axios.get(url, { headers });
-    return response.data;
+    const [botDetectionResponse, captchaResponse] = await Promise.all([
+      axios.get(botDetectionUrl, { headers }),
+      axios.get(captchaUrl, { headers }),
+    ]);
+    return { ...botDetectionResponse.data, ...captchaResponse.data };
   } catch (error) {
     logger.log(
       "error",
@@ -437,7 +441,7 @@ async function getNetworkACL(domain, accessToken) {
     const url = `https://${domain}/api/v2/network-acls`;
     const headers = { Authorization: `Bearer ${accessToken}` };
     logger.log("info", `Getting Network ACL`);
-  
+
     try {
       const response = await axios.get(url, { headers });
       return response.data;
