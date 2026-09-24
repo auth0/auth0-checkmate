@@ -75,7 +75,7 @@ License: MIT
 Copyright (c) JS Foundation and other contributors
 Repository: https://github.com/moment/moment
 
-puppeteer (23.10.0)
+puppeteer (25.11.0)
 License: Apache-2.0
 Copyright 2017 Google Inc.
 Repository: https://github.com/puppeteer/puppeteer
