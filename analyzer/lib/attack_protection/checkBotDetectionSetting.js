@@ -1,13 +1,18 @@
 /*
+Merged from the public API endpoints /attack-protection/bot-detection and
+/attack-protection/captcha (previously the single /anomaly/captchas object):
 {
-    "selected": "auth0_v2",
-    "policy": "off",
-    "passwordless_policy": "always_on",
-    "password_reset_policy": "off",
-    "providers": {
-    },
-    "allowlist": []
+    "active_provider_id": "auth_challenge",
+    "bot_detection_level": "high",
+    "challenge_password_policy": "when_risky",
+    "challenge_passwordless_policy": "always",
+    "challenge_password_reset_policy": "never",
+    "allowlist": [],
+    "monitoring_mode_enabled": false
 }
+The three challenge_*_policy fields are a "never" | "when_risky" | "always"
+enum; "never" is the only disabled state, so both "when_risky" and "always"
+count as enabled.
 */
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
@@ -18,7 +23,7 @@ function validateBotDetectionSettings(config) {
   if (_.isEmpty(config)) {
     return report;
   }
-  if (config.policy !== "off") {
+  if (config.challenge_password_policy !== "never") {
     report.push({
       field: "policy_enabled",
       status: CONSTANTS.SUCCESS,
@@ -29,7 +34,7 @@ function validateBotDetectionSettings(config) {
       status: CONSTANTS.FAIL,
     });
   }
-  if (config.passwordless_policy !== "off") {
+  if (config.challenge_passwordless_policy !== "never") {
     report.push({
       field: "passwordless_policy_enabled",
       status: CONSTANTS.SUCCESS,
@@ -40,7 +45,7 @@ function validateBotDetectionSettings(config) {
       status: CONSTANTS.FAIL,
     });
   }
-  if (config.password_reset_policy !== "off") {
+  if (config.challenge_password_reset_policy !== "never") {
     report.push({
       field: "password_reset_policy_enabled",
       status: CONSTANTS.SUCCESS,
@@ -52,7 +57,7 @@ function validateBotDetectionSettings(config) {
     });
   }
   // Check allowlist
-  if (config.allowlist.length > 0) {
+  if ((config.allowlist || []).length > 0) {
     report.push({
       field: "allowlistPresent",
       status: CONSTANTS.FAIL,

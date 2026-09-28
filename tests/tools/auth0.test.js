@@ -145,7 +145,7 @@ describe("auth0.js", function() {
       axios.get = async function(url, options) {
         expect(url).to.equal("https://test-domain/api/v2/clients");
         expect(options.headers.Authorization).to.equal("Bearer test-token");
-        
+
         callCount++;
         if (callCount === 1) {
           // First page with full results
@@ -247,10 +247,10 @@ describe("auth0.js", function() {
       axios.get = async function(url, options) {
         expect(url).to.match(/https:\/\/test-domain\/api\/v2\/email-templates\/.+/);
         expect(options.headers.Authorization).to.equal("Bearer test-token");
-        
+
         const templateName = url.split('/').pop();
         callCount++;
-        
+
         if (mockTemplates[templateName]) {
           return { data: mockTemplates[templateName] };
         } else {
@@ -508,7 +508,7 @@ describe("auth0.js", function() {
 
     it("should return error response data on error", async function() {
       const errorResponse = { response: { data: { error: "Stream not found" } } };
-      
+
       axios.get = async function() {
         throw errorResponse;
       };
@@ -593,20 +593,29 @@ describe("auth0.js", function() {
     });
 
     describe("getBotDetectionSetting", function() {
-      it("should return bot detection settings on success", async function() {
-        const mockSettings = {
-          enabled: true,
-          provider: "recaptcha_v2"
+      it("should return merged bot detection and captcha settings on success", async function() {
+        const mockBotDetection = {
+          challenge_password_policy: "always",
+          challenge_passwordless_policy: "never",
+          challenge_password_reset_policy: "always",
+          allowlist: []
+        };
+        const mockCaptcha = {
+          active_provider_id: "recaptcha_v2"
         };
 
         axios.get = async function(url) {
-          expect(url).to.equal("https://test-domain/api/v2/anomaly/captchas");
-          return { data: mockSettings };
+          if (url === "https://test-domain/api/v2/attack-protection/bot-detection") {
+            return { data: mockBotDetection };
+          } else if (url === "https://test-domain/api/v2/attack-protection/captcha") {
+            return { data: mockCaptcha };
+          }
+          throw new Error(`Unexpected URL: ${url}`);
         };
 
         const result = await getBotDetectionSetting("test-domain", "test-token");
 
-        expect(result).to.deep.equal(mockSettings);
+        expect(result).to.deep.equal({ ...mockBotDetection, ...mockCaptcha });
       });
     });
 
@@ -626,7 +635,9 @@ describe("auth0.js", function() {
             return { data: mockBrute };
           } else if (url.includes("suspicious-ip-throttling")) {
             return { data: mockSuspicious };
-          } else if (url.includes("captchas")) {
+          } else if (url.includes("attack-protection/bot-detection")) {
+            return { data: mockBot };
+          } else if (url.includes("attack-protection/captcha")) {
             return { data: mockBot };
           }
         };
@@ -637,7 +648,7 @@ describe("auth0.js", function() {
         expect(result).to.have.property("bruteForceProtection");
         expect(result).to.have.property("suspiciousIpThrottling");
         expect(result).to.have.property("botDetection");
-        expect(callCount).to.equal(4);
+        expect(callCount).to.equal(5);
       });
 
       it("should return empty object on error", async function() {
