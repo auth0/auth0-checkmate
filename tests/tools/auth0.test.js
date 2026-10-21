@@ -161,6 +161,37 @@ describe("auth0.js", function() {
       expect(result.length).to.equal(102); // 100 from first page + 2 from second page
     });
 
+    it("should stop fetching once the application count exceeds MAX_APPLICATIONS", async function() {
+      let callCount = 0;
+      axios.get = async function() {
+        callCount++;
+        // Always return a full page, simulating a tenant with many more applications
+        return { data: new Array(100).fill().map((_, i) => ({ client_id: `app${callCount}-${i}` })) };
+      };
+
+      const result = await getApplications("test-domain", "test-token");
+
+      // 16 pages * 100 = 1600 is the first count above 1500
+      expect(constants.MAX_APPLICATIONS).to.equal(1500);
+      expect(callCount).to.equal(16);
+      expect(result.length).to.equal(1600);
+    });
+
+    it("should fetch all applications when the count is exactly MAX_APPLICATIONS", async function() {
+      let callCount = 0;
+      axios.get = async function() {
+        callCount++;
+        // 15 full pages (1500 apps), then an empty page
+        const size = callCount <= 15 ? 100 : 0;
+        return { data: new Array(size).fill().map((_, i) => ({ client_id: `app${callCount}-${i}` })) };
+      };
+
+      const result = await getApplications("test-domain", "test-token");
+
+      expect(callCount).to.equal(16);
+      expect(result.length).to.equal(1500);
+    });
+
     it("should return empty array on error", async function() {
       axios.get = async function() {
         throw new Error("Network error");

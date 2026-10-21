@@ -145,6 +145,15 @@ async function getApplications(domain, accessToken) {
       }
 
       allClients = allClients.concat(clients); // Add the current page's clients to the list
+
+      // Stop early once past the limit; client validations are skipped anyway
+      if (allClients.length > CONSTANTS.MAX_APPLICATIONS) {
+        logger.log(
+          "info",
+          `Stopped fetching applications: tenant has more than ${CONSTANTS.MAX_APPLICATIONS} applications`,
+        );
+        hasMore = false;
+      }
     }
 
     return allClients;

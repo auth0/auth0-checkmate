@@ -178,6 +178,8 @@ To use CheckMate for Auth0, you need a **dedicated Auth0 Application** to author
     RUN_VALIDATORS=checkCustomDomain,checkRules
    ```
 
+   > **Note:** Tenants with more than 1,500 applications skip application (client) checks; fetching stops once the limit is exceeded and all other checks still run.
+
 ---
 
 ## 🎯 Running a Subset of Validators

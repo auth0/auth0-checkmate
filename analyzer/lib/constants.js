@@ -10,6 +10,7 @@ module.exports = {
     "confidence-score": "Use Adaptive MFA",
   },
   MINIMUM_NODE_VERSION: 18,
+  MAX_APPLICATIONS: 1500,
   DEFAULT_IDLE_SESSION_LIFETIME: "72h",
   DEFAULT_SESSION_LIFETIME: "168h",
   DEFAULT_SESSION_COOKIE_MODE: "persistent",
