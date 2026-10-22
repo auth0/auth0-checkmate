@@ -16,7 +16,6 @@ const {
   getErrorPageTemplate,
   getTenantSettings,
   getPrompts,
-  getGlobalClient,
   getGuardianFactors,
   getGuardianPolicies,
   getRules,
@@ -205,10 +204,6 @@ async function generateReport(locale, tenantConfig, config) {
         config.auth0MgmtToken,
       );
       tenantConfig.prompts = await getPrompts(
-        config.auth0Domain,
-        config.auth0MgmtToken,
-      );
-      tenantConfig.globalClient = await getGlobalClient(
         config.auth0Domain,
         config.auth0MgmtToken,
       );
@@ -423,6 +418,12 @@ async function generateReport(locale, tenantConfig, config) {
                 c.value
               );
             });
+          });
+          break;
+        case "checkUniversalLogin":
+          report.disclaimer = i18n.__(`${report.name}.disclaimer`);
+          report.details.forEach((cd) => {
+            cd.message = i18n.__(`${report.name}.${cd.field}`, cd.value);
           });
           break;
         case "checkPasswordResetMFA":

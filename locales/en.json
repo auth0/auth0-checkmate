@@ -1196,35 +1196,30 @@
 		"title": "Universal Login",
 		"category": "Tenant Settings",
 		"advisory": {
-			"issue": "Tenant is not using Universal Login",
+			"issue": "Signups made directly against the Authentication API can bypass Universal Login",
 			"description": {
-				"what_it_is": "Universal Login is the login page hosted by Auth0 at the /authorize endpoint. This check reviews the tenant-wide Universal Login settings: whether the Universal Login Experience is enabled and whether the login page has been customized with your own HTML.",
+				"what_it_is": "The tenant uses New Universal Login. Database connections with sign ups enabled also accept signups made directly against the Authentication API (/dbconnections/signup), which do not go through Universal Login.",
 				"why_its_risky": [
-					"Classic Login and customized login pages do not receive the security features of Universal Login automatically, and many newer features such as passkeys and email OTP verification require Universal Login.",
-					"A customized login page is maintained by you, so it can fall behind on security updates and is easier to get wrong.",
-					"Applications that collect credentials themselves, through embedded login (cross-origin authentication) or the Password grant, bypass Universal Login and the controls applied to it."
+					"Attackers can call the signup endpoint directly to bypass controls applied to Universal Login, such as Bot Detection, CAPTCHA, and edge protections like a WAF or CDN rules.",
+					"Unprotected API signups can be abused for automated fake account creation."
 				]
 			},
 			"how_to_fix": [
-				"Switch the tenant to the Universal Login Experience under Branding > Universal Login.",
-				"Disable the customized login page and use the Universal Login customization options instead.",
-				"Have every application send users to Universal Login (/authorize) instead of embedded login or the Password grant.",
-				"Once all signups go through Universal Login, create a Pre-User Registration Action that denies signups without 'event.transaction' to block signups made directly against the Authentication API."
+				"Create a Pre-User Registration Action that denies signups without 'event.transaction' to block signups made directly against the Authentication API. Signups through Universal Login include 'event.transaction'; direct API signups do not.",
+				"Deploy the Action and add it to the Pre-User Registration trigger.",
+				"Keep 'Disable Sign Ups' turned off on the database connection, otherwise signups through Universal Login are blocked as well."
 			]
 		},
-		"description": "Checks that the tenant uses the Universal Login Experience without a customized login page.",
+		"description": "When the tenant uses New Universal Login, recommends blocking signups made directly against the Authentication API with a Pre-User Registration Action.",
 		"docsPath": [
-			"https://auth0.com/docs/authenticate/login/auth0-universal-login",
-			"https://auth0.com/docs/authenticate/login/auth0-universal-login/universal-login-vs-classic-login",
-			"https://support.auth0.com/center/s/article/block-signups-via-api-while-allowing-signups-via-auth0-universal-login"
+			"https://support.auth0.com/center/s/article/block-signups-via-api-while-allowing-signups-via-auth0-universal-login",
+			"https://auth0.com/docs/customize/actions/explore-triggers/signup-and-login-triggers/pre-user-registration-trigger"
 		],
-		"severity": "Low",
-		"status": "green",
-		"severity_message": "The tenant is not fully using Universal Login.",
-		"new_universal_login_enabled": "The tenant uses the Universal Login Experience.",
-		"classic_universal_login_enabled": "The tenant uses the Classic Login Experience. Switch to Universal Login.",
-		"custom_login_page_enabled": "The login page is customized with your own HTML. Use Universal Login customization instead.",
-		"custom_login_page_disabled": "The login page is not customized with your own HTML."
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Consider blocking signups via the Authentication API",
+		"block_signup_via_api": "The tenant uses New Universal Login. Create a Pre-User Registration Action that denies signups without 'event.transaction' to block signups made directly against the Authentication API.",
+		"disclaimer": "Only block signups via API if all signups go through Universal Login. If your applications call the signup endpoint directly, for example from a custom signup form, blocking API signups will break them."
 	},
 	"checkTenantLogoutUrl": {
 		"title": "Tenant Allowed Logout URLs",

@@ -15,7 +15,6 @@ const {
   getAttackProtection,
   getTenantSettings,
   getPrompts,
-  getGlobalClient,
   getGuardianFactors,
   getGuardianPolicies,
   getBotDetectionSetting,
@@ -474,44 +473,6 @@ describe("auth0.js", function() {
       };
 
       const result = await getPrompts("test-domain", "test-token");
-
-      expect(result).to.equal(null);
-    });
-  });
-
-  describe("getGlobalClient", function() {
-    it("should request only the global client and return it", async function() {
-      const mockGlobal = { client_id: "global_123", name: "All Applications", global: true, custom_login_page_on: true };
-
-      axios.get = async function(url, options) {
-        expect(url).to.equal("https://test-domain/api/v2/clients");
-        expect(options.params.is_global).to.equal(true);
-        expect(options.params.fields).to.not.include("client_secret");
-        expect(options.headers.Authorization).to.equal("Bearer test-token");
-        return { data: [mockGlobal] };
-      };
-
-      const result = await getGlobalClient("test-domain", "test-token");
-
-      expect(result).to.deep.equal(mockGlobal);
-    });
-
-    it("should return null when no global client is returned", async function() {
-      axios.get = async function() {
-        return { data: [] };
-      };
-
-      const result = await getGlobalClient("test-domain", "test-token");
-
-      expect(result).to.equal(null);
-    });
-
-    it("should return null on error", async function() {
-      axios.get = async function() {
-        throw new Error("Clients not accessible");
-      };
-
-      const result = await getGlobalClient("test-domain", "test-token");
 
       expect(result).to.equal(null);
     });

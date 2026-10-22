@@ -1,5 +1,4 @@
 const axios = require("axios");
-const _ = require("lodash");
 const CONSTANTS = require("../lib/constants");
 const logger = require("../lib/logger");
 const {
@@ -378,26 +377,6 @@ async function getPrompts(domain, accessToken) {
   }
 }
 
-// The global client holds tenant-wide settings such as the custom login page
-async function getGlobalClient(domain, accessToken) {
-  const url = `https://${domain}/api/v2/clients`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting global client`);
-  try {
-    const response = await axios.get(url, {
-      params: {
-        is_global: true,
-        fields: "client_id,name,global,custom_login_page_on",
-      },
-      headers,
-    });
-    return _.first(response.data) || null;
-  } catch (error) {
-    logger.log("error", `Failed to get global client ${error.message}`);
-    return null;
-  }
-}
-
 async function getGuardianFactors(domain, accessToken) {
   const url = `https://${domain}/api/v2/guardian/factors`;
   const headers = { Authorization: `Bearer ${accessToken}` };
@@ -528,7 +507,6 @@ module.exports = {
   getAttackProtection,
   getTenantSettings,
   getPrompts,
-  getGlobalClient,
   getGuardianFactors,
   getGuardianPolicies,
   getBotDetectionSetting,
