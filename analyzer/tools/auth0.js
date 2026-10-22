@@ -372,6 +372,20 @@ async function getTenantSettings(domain, accessToken) {
   }
 }
 
+// Returns null on failure so callers can tell "not set" from "unknown"
+async function getPrompts(domain, accessToken) {
+  const url = `https://${domain}/api/v2/prompts`;
+  const headers = { Authorization: `Bearer ${accessToken}` };
+  logger.log("info", `Getting prompts settings`);
+  try {
+    const response = await axios.get(url, { headers });
+    return response.data;
+  } catch (error) {
+    logger.log("error", `Failed to get prompts settings ${error.message}`);
+    return null;
+  }
+}
+
 async function getGuardianFactors(domain, accessToken) {
   const url = `https://${domain}/api/v2/guardian/factors`;
   const headers = { Authorization: `Bearer ${accessToken}` };
@@ -501,6 +515,7 @@ module.exports = {
   getLogStreams,
   getAttackProtection,
   getTenantSettings,
+  getPrompts,
   getGuardianFactors,
   getGuardianPolicies,
   getBotDetectionSetting,

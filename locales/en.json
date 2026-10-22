@@ -124,7 +124,8 @@
 				"Default Directory",
 				"Default Audience",
 				"Extensibility Run Time",
-				"Dynamic Client Registration"
+				"Dynamic Client Registration",
+				"Universal Login"
 			]
 		},
 		{
@@ -472,7 +473,7 @@
 					"name": "Enabling the Password Grant Type",
 					"what_it_is": "The Password grant type allows applications to collect user credentials (username and password) and exchange them for tokens.",
 					"why_its_risky": "Applications handle sensitive user credentials directly, increasing the risk of credential theft. This grant type bypasses the authorization server's login page, which may have additional security features (e.g., MFA, anomaly detection).",
-					"how_to_fix": "Avoid using the Password grant type unless absolutely necessary. Use the Authorization Code grant type, which redirects users to Auth0's secure login page."
+					"how_to_fix": "Avoid using the Password grant type unless absolutely necessary. Use the Authorization Code grant type, which redirects users to Universal Login, Auth0's secure login page. Once all logins and signups go through Universal Login, block signups made directly against the Authentication API with a Pre-User Registration Action that denies signups without 'event.transaction'."
 				},
 				{
 					"name": "Enabling the Client Credentials Grant Type for User Authentication",
@@ -696,7 +697,8 @@
 			},
 			"how_to_fix": [
 				"Disable cross-origin authentication unless specifically required for your application architecture.",
-				"Consider alternative architectures that don't require cross-origin authentication."
+				"Consider alternative architectures that don't require cross-origin authentication.",
+				"Use Universal Login instead of embedded login, so users authenticate on the Auth0-hosted login page. Once all logins and signups go through Universal Login, block signups made directly against the Authentication API with a Pre-User Registration Action that denies signups without 'event.transaction'."
 			]
 		},
 		"severity_message": "%s applications / clients require a review of cross origin authentication setting",
@@ -1189,6 +1191,35 @@
 		"severity": "Info",
 		"status": "blue",
 		"severity_message": "Review Tenant Settings"
+	},
+	"checkUniversalLogin": {
+		"title": "Universal Login",
+		"category": "Tenant Settings",
+		"advisory": {
+			"issue": "Signups made directly against the Authentication API can bypass Universal Login",
+			"description": {
+				"what_it_is": "The tenant uses New Universal Login. Database connections with sign ups enabled also accept signups made directly against the Authentication API (/dbconnections/signup), which do not go through Universal Login.",
+				"why_its_risky": [
+					"Attackers can call the signup endpoint directly to bypass controls applied to Universal Login, such as Bot Detection, CAPTCHA, and edge protections like a WAF or CDN rules.",
+					"Unprotected API signups can be abused for automated fake account creation."
+				]
+			},
+			"how_to_fix": [
+				"Create a Pre-User Registration Action that denies signups without 'event.transaction' to block signups made directly against the Authentication API. Signups through Universal Login include 'event.transaction'; direct API signups do not.",
+				"Deploy the Action and add it to the Pre-User Registration trigger.",
+				"Keep 'Disable Sign Ups' turned off on the database connection, otherwise signups through Universal Login are blocked as well."
+			]
+		},
+		"description": "When the tenant uses New Universal Login, recommends blocking signups made directly against the Authentication API with a Pre-User Registration Action.",
+		"docsPath": [
+			"https://support.auth0.com/center/s/article/block-signups-via-api-while-allowing-signups-via-auth0-universal-login",
+			"https://auth0.com/docs/customize/actions/explore-triggers/signup-and-login-triggers/pre-user-registration-trigger"
+		],
+		"severity": "Info",
+		"status": "blue",
+		"severity_message": "Consider blocking signups via the Authentication API",
+		"block_signup_via_api": "The tenant uses New Universal Login. Create a Pre-User Registration Action that denies signups without 'event.transaction' to block signups made directly against the Authentication API.",
+		"disclaimer": "Only block signups via API if all signups go through Universal Login. If your applications call the signup endpoint directly, for example from a custom signup form, blocking API signups will break them."
 	},
 	"checkTenantLogoutUrl": {
 		"title": "Tenant Allowed Logout URLs",
