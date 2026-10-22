@@ -1196,23 +1196,23 @@
 		"title": "Universal Login",
 		"category": "Tenant Settings",
 		"advisory": {
-			"issue": "Tenant is not using New Universal Login",
+			"issue": "Tenant is not using Universal Login",
 			"description": {
-				"what_it_is": "Universal Login is the login page hosted by Auth0 at the /authorize endpoint. This check reviews the tenant-wide Universal Login settings: whether the New Universal Login Experience is enabled and whether the login page has been customized with your own HTML.",
+				"what_it_is": "Universal Login is the login page hosted by Auth0 at the /authorize endpoint. This check reviews the tenant-wide Universal Login settings: whether the Universal Login Experience is enabled and whether the login page has been customized with your own HTML.",
 				"why_its_risky": [
-					"Classic Universal Login and customized login pages do not receive the security features of New Universal Login automatically, and many newer features such as passkeys and email OTP verification require New Universal Login.",
+					"Classic Login and customized login pages do not receive the security features of Universal Login automatically, and many newer features such as passkeys and email OTP verification require Universal Login.",
 					"A customized login page is maintained by you, so it can fall behind on security updates and is easier to get wrong.",
 					"Applications that collect credentials themselves, through embedded login (cross-origin authentication) or the Password grant, bypass Universal Login and the controls applied to it."
 				]
 			},
 			"how_to_fix": [
-				"Switch the tenant to the New Universal Login Experience under Branding > Universal Login.",
-				"Disable the customized login page and use the New Universal Login customization options instead.",
+				"Switch the tenant to the Universal Login Experience under Branding > Universal Login.",
+				"Disable the customized login page and use the Universal Login customization options instead.",
 				"Have every application send users to Universal Login (/authorize) instead of embedded login or the Password grant.",
 				"Once all signups go through Universal Login, create a Pre-User Registration Action that denies signups without 'event.transaction' to block signups made directly against the Authentication API."
 			]
 		},
-		"description": "Checks that the tenant uses the New Universal Login Experience without a customized login page.",
+		"description": "Checks that the tenant uses the Universal Login Experience without a customized login page.",
 		"docsPath": [
 			"https://auth0.com/docs/authenticate/login/auth0-universal-login",
 			"https://auth0.com/docs/authenticate/login/auth0-universal-login/universal-login-vs-classic-login",
@@ -1220,10 +1220,10 @@
 		],
 		"severity": "Low",
 		"status": "green",
-		"severity_message": "The tenant is not fully using New Universal Login.",
-		"new_universal_login_enabled": "The tenant uses the New Universal Login Experience.",
-		"classic_universal_login_enabled": "The tenant uses the Classic Universal Login Experience. Switch to New Universal Login.",
-		"custom_login_page_enabled": "The login page is customized with your own HTML. Use New Universal Login customization instead.",
+		"severity_message": "The tenant is not fully using Universal Login.",
+		"new_universal_login_enabled": "The tenant uses the Universal Login Experience.",
+		"classic_universal_login_enabled": "The tenant uses the Classic Login Experience. Switch to Universal Login.",
+		"custom_login_page_enabled": "The login page is customized with your own HTML. Use Universal Login customization instead.",
 		"custom_login_page_disabled": "The login page is not customized with your own HTML."
 	},
 	"checkTenantLogoutUrl": {
