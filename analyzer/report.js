@@ -15,6 +15,8 @@ const {
   getEmailTemplates,
   getErrorPageTemplate,
   getTenantSettings,
+  getPrompts,
+  getGlobalClient,
   getGuardianFactors,
   getGuardianPolicies,
   getRules,
@@ -199,6 +201,14 @@ async function generateReport(locale, tenantConfig, config) {
         config.auth0MgmtToken,
       );
       tenantConfig.tenant = await getTenantSettings(
+        config.auth0Domain,
+        config.auth0MgmtToken,
+      );
+      tenantConfig.prompts = await getPrompts(
+        config.auth0Domain,
+        config.auth0MgmtToken,
+      );
+      tenantConfig.globalClient = await getGlobalClient(
         config.auth0Domain,
         config.auth0MgmtToken,
       );

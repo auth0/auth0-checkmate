@@ -124,7 +124,8 @@
 				"Default Directory",
 				"Default Audience",
 				"Extensibility Run Time",
-				"Dynamic Client Registration"
+				"Dynamic Client Registration",
+				"Universal Login"
 			]
 		},
 		{
@@ -472,7 +473,7 @@
 					"name": "Enabling the Password Grant Type",
 					"what_it_is": "The Password grant type allows applications to collect user credentials (username and password) and exchange them for tokens.",
 					"why_its_risky": "Applications handle sensitive user credentials directly, increasing the risk of credential theft. This grant type bypasses the authorization server's login page, which may have additional security features (e.g., MFA, anomaly detection).",
-					"how_to_fix": "Avoid using the Password grant type unless absolutely necessary. Use the Authorization Code grant type, which redirects users to Auth0's secure login page."
+					"how_to_fix": "Avoid using the Password grant type unless absolutely necessary. Use the Authorization Code grant type, which redirects users to Universal Login, Auth0's secure login page. Once all logins and signups go through Universal Login, block signups made directly against the Authentication API with a Pre-User Registration Action that denies signups without 'event.transaction'."
 				},
 				{
 					"name": "Enabling the Client Credentials Grant Type for User Authentication",
@@ -696,7 +697,8 @@
 			},
 			"how_to_fix": [
 				"Disable cross-origin authentication unless specifically required for your application architecture.",
-				"Consider alternative architectures that don't require cross-origin authentication."
+				"Consider alternative architectures that don't require cross-origin authentication.",
+				"Use Universal Login instead of embedded login, so users authenticate on the Auth0-hosted login page. Once all logins and signups go through Universal Login, block signups made directly against the Authentication API with a Pre-User Registration Action that denies signups without 'event.transaction'."
 			]
 		},
 		"severity_message": "%s applications / clients require a review of cross origin authentication setting",
@@ -1189,6 +1191,40 @@
 		"severity": "Info",
 		"status": "blue",
 		"severity_message": "Review Tenant Settings"
+	},
+	"checkUniversalLogin": {
+		"title": "Universal Login",
+		"category": "Tenant Settings",
+		"advisory": {
+			"issue": "Tenant is not using New Universal Login",
+			"description": {
+				"what_it_is": "Universal Login is the login page hosted by Auth0 at the /authorize endpoint. This check reviews the tenant-wide Universal Login settings: whether the New Universal Login Experience is enabled and whether the login page has been customized with your own HTML.",
+				"why_its_risky": [
+					"Classic Universal Login and customized login pages do not receive the security features of New Universal Login automatically, and many newer features such as passkeys and email OTP verification require New Universal Login.",
+					"A customized login page is maintained by you, so it can fall behind on security updates and is easier to get wrong.",
+					"Applications that collect credentials themselves, through embedded login (cross-origin authentication) or the Password grant, bypass Universal Login and the controls applied to it."
+				]
+			},
+			"how_to_fix": [
+				"Switch the tenant to the New Universal Login Experience under Branding > Universal Login.",
+				"Disable the customized login page and use the New Universal Login customization options instead.",
+				"Have every application send users to Universal Login (/authorize) instead of embedded login or the Password grant.",
+				"Once all signups go through Universal Login, create a Pre-User Registration Action that denies signups without 'event.transaction' to block signups made directly against the Authentication API."
+			]
+		},
+		"description": "Checks that the tenant uses the New Universal Login Experience without a customized login page.",
+		"docsPath": [
+			"https://auth0.com/docs/authenticate/login/auth0-universal-login",
+			"https://auth0.com/docs/authenticate/login/auth0-universal-login/universal-login-vs-classic-login",
+			"https://support.auth0.com/center/s/article/block-signups-via-api-while-allowing-signups-via-auth0-universal-login"
+		],
+		"severity": "Low",
+		"status": "green",
+		"severity_message": "The tenant is not fully using New Universal Login.",
+		"new_universal_login_enabled": "The tenant uses the New Universal Login Experience.",
+		"classic_universal_login_enabled": "The tenant uses the Classic Universal Login Experience. Switch to New Universal Login.",
+		"custom_login_page_enabled": "The login page is customized with your own HTML. Use New Universal Login customization instead.",
+		"custom_login_page_disabled": "The login page is not customized with your own HTML."
 	},
 	"checkTenantLogoutUrl": {
 		"title": "Tenant Allowed Logout URLs",
