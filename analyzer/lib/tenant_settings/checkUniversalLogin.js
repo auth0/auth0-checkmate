@@ -8,7 +8,7 @@ prompts (GET /api/v2/prompts):
 
 globalClient (GET /api/v2/clients?is_global=true&fields=client_id,name,global,custom_login_page_on):
 {
-  "client_id": "ZmVkYzY0NjUtOTJmOS00YzE1LWEyNjMtNjk4YWQ0ZjQ5ZDBj",
+  "client_id": "ZmVkYxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
   "name": "All Applications",
   "global": true,
   "custom_login_page_on": false
