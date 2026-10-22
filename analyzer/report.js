@@ -27,6 +27,7 @@ const {
 } = require("./tools/auth0");
 
 const logger = require("./lib/logger");
+const CONSTANTS = require("./lib/constants");
 const { getSummaryReport } = require("./tools/summary");
 const { convertToTitleCase, tranformReport, getToday } = require("./tools/utils");
 const { version } = require("../package.json");
@@ -166,10 +167,10 @@ async function generateReport(locale, tenantConfig, config) {
           config.auth0Domain,
           config.auth0MgmtToken,
         );
-        if (tenantConfig.clients.length > 2000) {
+        if (tenantConfig.clients.length > CONSTANTS.MAX_APPLICATIONS) {
           logger.log(
             "info",
-            `Skipping client validations: tenant has ${tenantConfig.clients.length} applications (limit: 2000)`,
+            `Skipping client validations: tenant has more than ${CONSTANTS.MAX_APPLICATIONS} applications`,
           );
           tenantConfig.clients = [];
         }
