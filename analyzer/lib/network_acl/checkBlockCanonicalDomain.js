@@ -89,7 +89,12 @@ function checkBlockCanonicalDomain(options) {
 
       const { match, scope, action } = acl.rule;
 
-      const blocksAuth = scope === "authentication";
+      const blocksAuth = [
+        "authentication",
+        "tenant",
+        "management",
+        "dynamic_client_registration",
+      ].includes(scope);
 
       const isBlocking = action && action.block === true;
 

@@ -41,6 +41,45 @@ describe("checkBlockCanonicalDomain", function () {
     expect(result.details).to.have.lengthOf(0);
   });
 
+  it("should return empty array when canonical domain is blocked with any supported scope", async function () {
+    const scopes = ["authentication", "tenant", "management", "dynamic_client_registration"];
+
+    for (const scope of scopes) {
+      const input = {
+        customDomains: [
+          {
+            domain: customDomain,
+            primary: true,
+            status: "ready",
+            type: "auth0_managed_certs",
+          },
+        ],
+        networkAcl: [
+          {
+            description: "Block canonical domain",
+            active: true,
+            priority: 10,
+            rule: {
+              match: {
+                hostnames: [canonicalDomain],
+              },
+              scope: scope,
+              action: {
+                block: true,
+              },
+            },
+            id: "acl_12345",
+          },
+        ],
+        canonicalDomain: canonicalDomain,
+      };
+
+      const result = await checkBlockCanonicalDomain(input);
+      expect(result.details, `scope: ${scope}`).to.be.an("array");
+      expect(result.details, `scope: ${scope}`).to.have.lengthOf(0);
+    }
+  });
+
   it("should return warning when custom domain exists but canonical domain is not blocked", async function () {
     const input = {
       customDomains: [
@@ -174,8 +213,8 @@ describe("checkBlockCanonicalDomain", function () {
     expect(result.details[0].status).to.equal(CONSTANTS.WARN);
   });
 
-  // Edge case - ACL rule has wrong scope (management instead of authentication)
-  it("should return warning when ACL rule has management scope instead of authentication", async function () {
+  // Edge case - ACL rule has an unrecognized scope
+  it("should return warning when ACL rule has an unrecognized scope", async function () {
     const input = {
       customDomains: [
         {
@@ -194,7 +233,7 @@ describe("checkBlockCanonicalDomain", function () {
             match: {
               hostnames: [canonicalDomain],
             },
-            scope: "management", // Wrong scope!
+            scope: "unknown_scope",
             action: {
               block: true,
             },
