@@ -41,6 +41,41 @@ describe("checkBlockCanonicalDomain", function () {
     expect(result.details).to.have.lengthOf(0);
   });
 
+  it("should return empty array when canonical domain is blocked with tenant scope", async function () {
+    const input = {
+      customDomains: [
+        {
+          domain: customDomain,
+          primary: true,
+          status: "ready",
+          type: "auth0_managed_certs",
+        },
+      ],
+      networkAcl: [
+        {
+          description: "Block canonical domain",
+          active: true,
+          priority: 10,
+          rule: {
+            match: {
+              hostnames: [canonicalDomain],
+            },
+            scope: "tenant",
+            action: {
+              block: true,
+            },
+          },
+          id: "acl_12345",
+        },
+      ],
+      canonicalDomain: canonicalDomain,
+    };
+
+    const result = await checkBlockCanonicalDomain(input);
+    expect(result.details).to.be.an("array");
+    expect(result.details).to.have.lengthOf(0);
+  });
+
   it("should return warning when custom domain exists but canonical domain is not blocked", async function () {
     const input = {
       customDomains: [
@@ -436,5 +471,24 @@ describe("checkBlockCanonicalDomain", function () {
     const result = await checkBlockCanonicalDomain(input);
     expect(result.details).to.be.an("array");
     expect(result.details).to.have.lengthOf(0);
+  });
+
+  it("should not treat a self-managed custom domain edge hostname as canonical", async function () {
+    const result = await checkBlockCanonicalDomain({
+      customDomains: [{ domain: customDomain, primary: true, status: "ready", type: "self_managed_certs" }],
+      networkAcl: [
+        {
+          active: true,
+          rule: {
+            match: { hostnames: ["cd-t1abc.edge.tenants.us.auth0.com"] },
+            scope: "tenant",
+            action: { block: true },
+          },
+        },
+      ],
+      canonicalDomain: customDomain,
+    });
+    expect(result.details).to.have.lengthOf(1);
+    expect(result.details[0].status).to.equal(CONSTANTS.WARN);
   });
 });
