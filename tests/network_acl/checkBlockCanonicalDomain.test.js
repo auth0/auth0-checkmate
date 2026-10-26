@@ -41,8 +41,10 @@ describe("checkBlockCanonicalDomain", function () {
     expect(result.details).to.have.lengthOf(0);
   });
 
-  ["authentication", "tenant", "management", "dynamic_client_registration"].forEach((scope) => {
-    it(`should return empty array when canonical domain is blocked with ${scope} scope`, async function () {
+  it("should return empty array when canonical domain is blocked with any supported scope", async function () {
+    const scopes = ["authentication", "tenant", "management", "dynamic_client_registration"];
+
+    for (const scope of scopes) {
       const input = {
         customDomains: [
           {
@@ -73,9 +75,9 @@ describe("checkBlockCanonicalDomain", function () {
       };
 
       const result = await checkBlockCanonicalDomain(input);
-      expect(result.details).to.be.an("array");
-      expect(result.details).to.have.lengthOf(0);
-    });
+      expect(result.details, `scope: ${scope}`).to.be.an("array");
+      expect(result.details, `scope: ${scope}`).to.have.lengthOf(0);
+    }
   });
 
   it("should return warning when custom domain exists but canonical domain is not blocked", async function () {
