@@ -63,21 +63,6 @@ const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
 
-function normalizeHostname(hostname) {
-  return (hostname || "").trim().toLowerCase().replace(/\.$/, "");
-}
-
-// The canonical domain may not be known (e.g. checkmate was run against the
-// custom domain), so also treat any Auth0-hosted hostname as canonical.
-// Self-managed custom domain edge hostnames (*.edge.tenants.*.auth0.com) are excluded.
-function isAuth0CanonicalHostname(host) {
-  return (
-    /\.(auth0|auth0app)\.com$/.test(host) &&
-    !host.startsWith("*.") &&
-    !host.includes(".edge.tenants.")
-  );
-}
-
 function checkBlockCanonicalDomain(options) {
   const { customDomains, networkAcl, canonicalDomain } = options;
 
@@ -113,11 +98,9 @@ function checkBlockCanonicalDomain(options) {
         match &&
         match.hostnames &&
         _.some(match.hostnames, (hostname) => {
-          const host = normalizeHostname(hostname);
-          return host === normalizeHostname(canonicalDomain) ||
-                 host === `*.auth0.com` ||
-                 host === `*.auth0app.com` ||
-                 isAuth0CanonicalHostname(host);
+          return hostname === canonicalDomain ||
+                 hostname === `*.auth0.com` ||
+                 hostname === `*.auth0app.com`;
         });
 
       return blocksAuth && isBlocking && matchesCanonical;

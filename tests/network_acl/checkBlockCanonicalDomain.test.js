@@ -472,23 +472,4 @@ describe("checkBlockCanonicalDomain", function () {
     expect(result.details).to.be.an("array");
     expect(result.details).to.have.lengthOf(0);
   });
-
-  it("should not treat a self-managed custom domain edge hostname as canonical", async function () {
-    const result = await checkBlockCanonicalDomain({
-      customDomains: [{ domain: customDomain, primary: true, status: "ready", type: "self_managed_certs" }],
-      networkAcl: [
-        {
-          active: true,
-          rule: {
-            match: { hostnames: ["cd-t1abc.edge.tenants.us.auth0.com"] },
-            scope: "tenant",
-            action: { block: true },
-          },
-        },
-      ],
-      canonicalDomain: customDomain,
-    });
-    expect(result.details).to.have.lengthOf(1);
-    expect(result.details[0].status).to.equal(CONSTANTS.WARN);
-  });
 });
