@@ -31,7 +31,7 @@ describe("checkPromotedDBConnection", function () {
 
     checkPromotedDBConnection(options, (report) => {
       expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("NO_PRMOTED_DOMAIN_CONNECTION");
+      expect(report[0].field).to.equal("NO_PROMOTED_DOMAIN_CONNECTION");
       expect(report[0].status).to.equal(CONSTANTS.FAIL);
       expect(report[0].value).to.equal("no_database_connections_found");
     });
