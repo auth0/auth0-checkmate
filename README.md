@@ -4,7 +4,7 @@
 
 ---
 
-## 🚀 Features
+## 🚀 Features 
 
 - Validates your Auth0 tenant configuration
 - Generates comprehensive audit reports
