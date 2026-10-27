@@ -77,7 +77,7 @@ function checkPromotedDBConnection(options) {
         });
         if (promoted_domain_connection === null) {
             report.push({
-                name: "NO_PRMOTED_DOMAIN_CONNECTION",
+                name: "NO_PROMOTED_DOMAIN_CONNECTION",
                 status: CONSTANTS.FAIL,
                 field: "no_database_connections_found",
             });
