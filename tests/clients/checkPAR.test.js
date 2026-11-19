@@ -6,7 +6,7 @@ const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkPAR", function() {
 
-    it("should report failure if authorization_code grant is used and PAR is not required", function() {
+    it("should report failure if authorization_code grant is used and PAR is not required", async function () {
         const options = {
             clients: [{
                 name: "Web App",
@@ -18,21 +18,20 @@ describe("checkPAR", function() {
             }]
         };
 
-        checkPAR(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].name).to.equal("Web App (client_web)");
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                name: "Web App (client_web)",
-                client_id: "client_web",
-                field: "require_pushed_authorization_requests",
-                status: CONSTANTS.FAIL,
-                value: false,
-            });
-        });
+        const { details: result } = await checkPAR(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].name).to.equal("Web App (client_web)");
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              name: "Web App (client_web)",
+              client_id: "client_web",
+              field: "require_pushed_authorization_requests",
+              status: CONSTANTS.FAIL,
+              value: false,
+          });
     });
 
-    it("should report failure if require_pushed_authorization_requests field is absent", function() {
+    it("should report failure if require_pushed_authorization_requests field is absent", async function () {
         const options = {
             clients: [{
                 name: "HRI App",
@@ -43,17 +42,16 @@ describe("checkPAR", function() {
             }]
         };
 
-        checkPAR(options, (result) => {
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "require_pushed_authorization_requests",
-                status: CONSTANTS.FAIL,
-                value: false,
-            });
-        });
+        const { details: result } = await checkPAR(options);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "require_pushed_authorization_requests",
+              status: CONSTANTS.FAIL,
+              value: false,
+          });
     });
 
-    it("should return empty report if PAR is required", function() {
+    it("should return empty report if PAR is required", async function () {
         const options = {
             clients: [{
                 name: "Secure HRI App",
@@ -65,14 +63,13 @@ describe("checkPAR", function() {
             }]
         };
 
-        checkPAR(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].name).to.equal("Secure HRI App (client_secure)");
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkPAR(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].name).to.equal("Secure HRI App (client_secure)");
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should not flag SPA clients because public clients are not supported on the PAR endpoint", function() {
+    it("should not flag SPA clients because public clients are not supported on the PAR endpoint", async function () {
         const options = {
             clients: [{
                 name: "SPA App",
@@ -84,13 +81,12 @@ describe("checkPAR", function() {
             }]
         };
 
-        checkPAR(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkPAR(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should not flag native clients because public clients are not supported on the PAR endpoint", function() {
+    it("should not flag native clients because public clients are not supported on the PAR endpoint", async function () {
         const options = {
             clients: [{
                 name: "Mobile App",
@@ -102,12 +98,11 @@ describe("checkPAR", function() {
             }]
         };
 
-        checkPAR(options, (result) => {
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkPAR(options);
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should not flag clients with token_endpoint_auth_method of none (public client)", function() {
+    it("should not flag clients with token_endpoint_auth_method of none (public client)", async function () {
         const options = {
             clients: [{
                 name: "Public Client App",
@@ -120,12 +115,11 @@ describe("checkPAR", function() {
             }]
         };
 
-        checkPAR(options, (result) => {
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkPAR(options);
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should not flag clients using only client_credentials grant", function() {
+    it("should not flag clients using only client_credentials grant", async function () {
         const options = {
             clients: [{
                 name: "M2M App",
@@ -137,13 +131,12 @@ describe("checkPAR", function() {
             }]
         };
 
-        checkPAR(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkPAR(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should not flag clients using only refresh_token grant", function() {
+    it("should not flag clients using only refresh_token grant", async function () {
         const options = {
             clients: [{
                 name: "Refresh Only App",
@@ -155,15 +148,13 @@ describe("checkPAR", function() {
             }]
         };
 
-        checkPAR(options, (result) => {
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkPAR(options);
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should return empty result if no clients are provided", function() {
+    it("should return empty result if no clients are provided", async function () {
         const options = { clients: [] };
-        checkPAR(options, (result) => {
-            expect(result).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkPAR(options);
+          expect(result).to.be.an("array").that.is.empty;
     });
 });

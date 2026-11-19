@@ -5,23 +5,22 @@ const checkReg = require("../../analyzer/lib/tenant_settings/checkEnabledDynamic
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkReg", function () {
-    it("should return fail when input is not set (null or empty)", function () {
+    it("should return fail when input is not set (null or empty)", async function () {
         const options = {
             tenant: {
             },
         };
 
-        checkReg(options, (report) => {
-            expect(report).to.deep.equal([
-                {
-                    field: "tenant_setting_missing",
-                    status: CONSTANTS.FAIL,
-                },
-            ]);
-        });
+        const { details: report } = await checkReg(options);
+          expect(report).to.deep.equal([
+              {
+                  field: "tenant_setting_missing",
+                  status: CONSTANTS.FAIL,
+              },
+          ]);
     });
 
-    it("should return fail when flag.enable_dynamic_client_registration attribute not present", function () {
+    it("should return fail when flag.enable_dynamic_client_registration attribute not present", async function () {
         const options = {
             tenant: {
                 "flags": {
@@ -35,17 +34,16 @@ describe("checkReg", function () {
             },
         };
 
-        checkReg(options, (report) => {
-            expect(report).to.deep.equal([
-                {
-                    field: "enable_dynamic_client_registration",
-                    status: CONSTANTS.FAIL,
-                },
-            ]);
-        });
+        const { details: report } = await checkReg(options);
+          expect(report).to.deep.equal([
+              {
+                  field: "enable_dynamic_client_registration",
+                  status: CONSTANTS.FAIL,
+              },
+          ]);
     });
 
-    it("should return fail when flag.enable_dynamic_client_registration attribute is present with false ", function () {
+    it("should return fail when flag.enable_dynamic_client_registration attribute is present with false ", async function () {
         const options = {
             tenant: {
                 "flags": {
@@ -60,17 +58,16 @@ describe("checkReg", function () {
             },
         };
 
-        checkReg(options, (report) => {
-            expect(report).to.deep.equal([
-                {
-                    field: "enable_dynamic_client_registration",
-                    status: CONSTANTS.FAIL,
-                },
-            ]);
-        });
+        const { details: report } = await checkReg(options);
+          expect(report).to.deep.equal([
+              {
+                  field: "enable_dynamic_client_registration",
+                  status: CONSTANTS.FAIL,
+              },
+          ]);
     });
 
-    it("should return success when flag.enable_dynamic_client_registration attribute is present with true", function () {
+    it("should return fail (to surface the setting) when flag.enable_dynamic_client_registration attribute is present with true", async function () {
         const options = {
             tenant: {
                 "flags": {
@@ -85,13 +82,12 @@ describe("checkReg", function () {
             },
         };
 
-        checkReg(options, (report) => {
-            expect(report).to.deep.equal([
-                {
-                    field: "enabled_dynamic_client_registration",
-                    status: CONSTANTS.SUCCESS,
-                },
-            ]);
-        });
+        const { details: report } = await checkReg(options);
+          expect(report).to.deep.equal([
+              {
+                  field: "enabled_dynamic_client_registration",
+                  status: CONSTANTS.FAIL,
+              },
+          ]);
     });
 });

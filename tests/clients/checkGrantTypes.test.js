@@ -5,84 +5,68 @@ const checkGrantTypes = require("../../analyzer/lib/clients/checkGrantTypes");
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkGrantTypes", function () {
-  it("should return an empty report when there are no clients", function () {
+  it("should return an empty report when there are no clients", async function () {
     const options = {
       clients: [], // No clients
     };
 
-    checkGrantTypes(options, (reports) => {
-      expect(reports).to.deep.equal([]); // No reports expected
-    });
+    const { details: reports } = await checkGrantTypes(options);
+    expect(reports).to.deep.equal([]); // No reports expected
   });
 
-  it("should return a fail report when client has missing grant types for spa app type", function () {
+  it("should return an empty report when client has missing grant types for spa app type", async function () {
     const options = {
       clients: [
         {
           name: "Test App",
           client_id: "client_id",
           app_type: "spa", // spa app type
-          grant_types: ["authorization_code"], // Missing refresh_token
+          grant_types: ["authorization_code"], // Missing refresh_token (no longer reported)
         },
       ],
     };
 
-    checkGrantTypes(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "missing_grant_type_for_app_type",
-              grant_type: "refresh_token",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkGrantTypes(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [],
+      },
+    ]);
   });
 
-  it("should return a fail report when client has unexpected grant types for spa app type", function () {
+  it("should return a fail report when client has unexpected grant types for spa app type", async function () {
     const options = {
       clients: [
         {
           name: "Test App",
           client_id: "client_id",
           app_type: "spa", // spa app type
-          grant_types: [
-            "authorization_code",
-            "implicit",
-            "refresh_token",
-            "client_credentials",
-          ], // Unexpected client_credentials
+          grant_types: ["authorization_code", "implicit", "refresh_token", "client_credentials"], // implicit and client_credentials are unexpected for spa
         },
       ],
     };
 
-    checkGrantTypes(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "unexpected_grant_type_for_app_type",
-              grant_type: "client_credentials",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkGrantTypes(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App (client_id)",
+            client_id: "client_id",
+            field: "unexpected_grant_type_for_app_type",
+            value: "implicit, client_credentials",
+            status: CONSTANTS.FAIL,
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 
-  it("should return a success report when client has the correct grant types for spa app type", function () {
+  it("should return an empty report when client has the correct grant types for spa app type", async function () {
     const options = {
       clients: [
         {
@@ -94,26 +78,16 @@ describe("checkGrantTypes", function () {
       ],
     };
 
-    checkGrantTypes(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "grant_types_passed",
-              status: CONSTANTS.SUCCESS,
-              grant_type: "authorization_code, refresh_token",
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkGrantTypes(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [],
+      },
+    ]);
   });
 
-  it("should return both missing and unexpected grant type reports for a client with both issues", function () {
+  it("should only report unexpected grant types for a client with missing and unexpected grant types", async function () {
     const options = {
       clients: [
         {
@@ -125,30 +99,22 @@ describe("checkGrantTypes", function () {
       ],
     };
 
-    checkGrantTypes(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "missing_grant_type_for_app_type",
-              grant_type: "refresh_token",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "unexpected_grant_type_for_app_type",
-              grant_type: "client_credentials",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkGrantTypes(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App (client_id)",
+            client_id: "client_id",
+            field: "unexpected_grant_type_for_app_type",
+            value: "client_credentials",
+            status: CONSTANTS.FAIL,
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 });

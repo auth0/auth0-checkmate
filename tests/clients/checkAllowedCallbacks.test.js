@@ -5,17 +5,16 @@ const checkAllowedCallbacks = require("../../analyzer/lib/clients/checkAllowedCa
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkAllowedCallbacks", function () {
-  it("should return an empty report when there are no clients", function () {
+  it("should return an empty report when there are no clients", async function () {
     const options = {
       clients: [], // No clients
     };
 
-    checkAllowedCallbacks(options, (reports) => {
-      expect(reports).to.deep.equal([]); // No reports expected
-    });
+    const { details: reports } = await checkAllowedCallbacks(options);
+    expect(reports).to.deep.equal([]); // No reports expected
   });
 
-  it("should return a fail report when client has no callbacks and app_type is not non_interactive", function () {
+  it("should return a fail report when client has no callbacks and app_type is not non_interactive", async function () {
     const options = {
       clients: [
         {
@@ -27,26 +26,25 @@ describe("checkAllowedCallbacks", function () {
       ],
     };
 
-    checkAllowedCallbacks(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "missing_callbacks",
-              url: "",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkAllowedCallbacks(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App (client_id)",
+            client_id: "client_id",
+            field: "missing_callbacks",
+            url: "",
+            status: CONSTANTS.SUCCESS,
+            app_type: "spa",
+          },
+        ],
+      },
+    ]);
   });
 
-  it("should return a fail report when client has insecure callbacks (http://localhost)", function () {
+  it("should return a fail report when client has insecure callbacks (http://localhost)", async function () {
     const options = {
       clients: [
         {
@@ -58,26 +56,26 @@ describe("checkAllowedCallbacks", function () {
       ],
     };
 
-    checkAllowedCallbacks(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "insecure_callbacks",
-              url: "http://localhost:3000",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkAllowedCallbacks(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App (client_id)",
+            client_id: "client_id",
+            field: "insecure_callbacks",
+            value: "http://localhost:3000",
+            status: CONSTANTS.FAIL,
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 
-  it("should return a success report when client has secure callbacks (https://contoso.com)", function () {
+  it("should return a success report when client has secure callbacks (https://contoso.com)", async function () {
     const options = {
       clients: [
         {
@@ -89,26 +87,26 @@ describe("checkAllowedCallbacks", function () {
       ],
     };
 
-    checkAllowedCallbacks(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "secure_callbacks",
-              status: CONSTANTS.SUCCESS,
-              url: "https://contoso.com",
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkAllowedCallbacks(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App",
+            client_id: "client_id",
+            field: "secure_callbacks",
+            status: CONSTANTS.SUCCESS,
+            value: "https://contoso.com",
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 
-  it("should return both fail and success reports when client has both insecure and secure callbacks", function () {
+  it("should return both fail and success reports when client has both insecure and secure callbacks", async function () {
     const options = {
       clients: [
         {
@@ -120,30 +118,23 @@ describe("checkAllowedCallbacks", function () {
       ],
     };
 
-    checkAllowedCallbacks(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "insecure_callbacks",
-              url: "http://localhost:3000",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "secure_callbacks",
-              status: CONSTANTS.SUCCESS,
-              url: "https://contoso.com",
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkAllowedCallbacks(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App (client_id)",
+            client_id: "client_id",
+            field: "insecure_callbacks",
+            value: "http://localhost:3000",
+            status: CONSTANTS.FAIL,
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+          // No success entry: secure URLs are only reported when nothing failed
+        ],
+      },
+    ]);
   });
 });

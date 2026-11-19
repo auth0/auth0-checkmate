@@ -3,7 +3,7 @@ const checkBreachedPassword = require("../../analyzer/lib/attack_protection/chec
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkBreachedPassword", function () {
-  it("should return a success when breachedPasswordDetection is enabled and correctly configured", function () {
+  it("should return a success when breachedPasswordDetection is enabled and correctly configured", async function () {
     const options = {
       attackProtection: {
         breachedPasswordDetection: {
@@ -23,36 +23,32 @@ describe("checkBreachedPassword", function () {
       },
     };
 
-    checkBreachedPassword(options, (report) => {
-      // Check if the report contains the expected success statuses for all fields
-      expect(report).to.deep.include({
-        field: "enabled",
-        status: CONSTANTS.SUCCESS,
-      });
-      expect(report).to.deep.include({
-        field: "shields_values",
-        status: CONSTANTS.SUCCESS,
-      });
-      expect(report).to.deep.include({
-        field: "admin_frequency_values",
-        status: CONSTANTS.SUCCESS,
-      });
-      expect(report).to.deep.include({
-        field: "method_value",
-        status: CONSTANTS.SUCCESS,
-      });
-      expect(report).to.deep.include({
-        field: "stage_pre_user_shields",
-        status: CONSTANTS.SUCCESS,
-      });
-      expect(report).to.deep.include({
-        field: "stage_pre_change_password_shields",
-        status: CONSTANTS.SUCCESS,
-      });
+    const { details: report } = await checkBreachedPassword(options);
+    // Check if the report contains the expected success statuses for all fields
+    expect(report).to.deep.include({
+      field: "enabled",
+      status: CONSTANTS.SUCCESS,
     });
+    expect(report).to.deep.include({
+      field: "shields_values",
+      value: "user_notification, admin_notification, block",
+      status: CONSTANTS.SUCCESS,
+    });
+    expect(report).to.deep.include({
+      field: "admin_frequency_values",
+      value: "daily, weekly",
+      status: CONSTANTS.SUCCESS,
+    });
+    expect(report).to.deep.include({
+      field: "method_value",
+      value: "standard",
+      status: CONSTANTS.SUCCESS,
+    });
+    // Correctly configured stages produce no failures
+    expect(report.filter((r) => r.status === CONSTANTS.FAIL)).to.be.empty;
   });
 
-  it("should return failure when breachedPasswordDetection is disabled", function () {
+  it("should return failure when breachedPasswordDetection is disabled", async function () {
     const options = {
       attackProtection: {
         breachedPasswordDetection: {
@@ -72,15 +68,14 @@ describe("checkBreachedPassword", function () {
       },
     };
 
-    checkBreachedPassword(options, (report) => {
-      expect(report).to.deep.include({
-        field: "disabled",
-        status: CONSTANTS.FAIL,
-      });
+    const { details: report } = await checkBreachedPassword(options);
+    expect(report).to.deep.include({
+      field: "disabled",
+      status: CONSTANTS.FAIL,
     });
   });
 
-  it("should return failure when shields have invalid values", function () {
+  it("should return failure when shields have invalid values", async function () {
     const options = {
       attackProtection: {
         breachedPasswordDetection: {
@@ -97,15 +92,14 @@ describe("checkBreachedPassword", function () {
       },
     };
 
-    checkBreachedPassword(options, (report) => {
-      expect(report).to.deep.include({
-        field: "shields_invalid_values",
-        status: CONSTANTS.FAIL,
-      });
+    const { details: report } = await checkBreachedPassword(options);
+    expect(report).to.deep.include({
+      field: "shields_invalid_values",
+      status: CONSTANTS.FAIL,
     });
   });
 
-  it("should return failure when admin_notification_frequency has invalid values", function () {
+  it("should return failure when admin_notification_frequency has invalid values", async function () {
     const options = {
       attackProtection: {
         breachedPasswordDetection: {
@@ -122,15 +116,15 @@ describe("checkBreachedPassword", function () {
       },
     };
 
-    checkBreachedPassword(options, (report) => {
-      expect(report).to.deep.include({
-        field: "admin_frequency_invalid_values",
-        status: CONSTANTS.FAIL,
-      });
+    const { details: report } = await checkBreachedPassword(options);
+    expect(report).to.deep.include({
+      field: "admin_frequency_invalid_values",
+      value: "invalid_frequency",
+      status: CONSTANTS.FAIL,
     });
   });
 
-  it("should return failure when method is invalid", function () {
+  it("should return failure when method is invalid", async function () {
     const options = {
       attackProtection: {
         breachedPasswordDetection: {
@@ -147,15 +141,14 @@ describe("checkBreachedPassword", function () {
       },
     };
 
-    checkBreachedPassword(options, (report) => {
-      expect(report).to.deep.include({
-        field: "method_invalid_value",
-        status: CONSTANTS.FAIL,
-      });
+    const { details: report } = await checkBreachedPassword(options);
+    expect(report).to.deep.include({
+      field: "method_invalid_value",
+      status: CONSTANTS.FAIL,
     });
   });
 
-  it("should return failure when pre-user-registration stage is missing or incorrectly configured", function () {
+  it("should not report pre-user-registration failures when the stage is missing", async function () {
     const options = {
       attackProtection: {
         breachedPasswordDetection: {
@@ -168,15 +161,14 @@ describe("checkBreachedPassword", function () {
       },
     };
 
-    checkBreachedPassword(options, (report) => {
-      expect(report).to.deep.include({
-        field: "stage_pre_user_missing",
-        status: CONSTANTS.FAIL,
-      });
-    });
+    const { details: report } = await checkBreachedPassword(options);
+    expect(report.map((r) => r.field)).to.not.include.members([
+      "stage_pre_user_missing",
+      "stage_pre_user_shields_block_not_configured",
+    ]);
   });
 
-  it("should return failure when pre-user-registration shields are not configured", function () {
+  it("should return failure when pre-user-registration shields do not include block", async function () {
     const options = {
       attackProtection: {
         breachedPasswordDetection: {
@@ -193,15 +185,14 @@ describe("checkBreachedPassword", function () {
       },
     };
 
-    checkBreachedPassword(options, (report) => {
-      expect(report).to.deep.include({
-        field: "stage_pre_user_shields_not_configured",
-        status: CONSTANTS.FAIL,
-      });
+    const { details: report } = await checkBreachedPassword(options);
+    expect(report).to.deep.include({
+      field: "stage_pre_user_shields_block_not_configured",
+      status: CONSTANTS.FAIL,
     });
   });
 
-  it("should return failure when pre-change-password shields are not configured", function () {
+  it("should return failure when pre-change-password shields do not include block", async function () {
     const options = {
       attackProtection: {
         breachedPasswordDetection: {
@@ -218,15 +209,14 @@ describe("checkBreachedPassword", function () {
       },
     };
 
-    checkBreachedPassword(options, (report) => {
-      expect(report).to.deep.include({
-        field: "stage_pre_change_password_shields_not_configured",
-        status: CONSTANTS.FAIL,
-      });
+    const { details: report } = await checkBreachedPassword(options);
+    expect(report).to.deep.include({
+      field: "stage_pre_change_password_shields_block_not_configured",
+      status: CONSTANTS.FAIL,
     });
   });
 
-  it("should return failure if shields are empty but monitoring mode is enabled", function () {
+  it("should return failure if shields are empty but monitoring mode is enabled", async function () {
     const options = {
       attackProtection: {
         breachedPasswordDetection: {
@@ -243,11 +233,10 @@ describe("checkBreachedPassword", function () {
       },
     };
 
-    checkBreachedPassword(options, (report) => {
-      expect(report).to.deep.include({
-        field: "monitoring_mode",
-        status: CONSTANTS.FAIL,
-      });
+    const { details: report } = await checkBreachedPassword(options);
+    expect(report).to.deep.include({
+      field: "monitoring_mode",
+      status: CONSTANTS.FAIL,
     });
   });
 });

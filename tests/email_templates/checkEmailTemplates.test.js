@@ -5,20 +5,19 @@ const checkEmailTemplates = require("../../analyzer/lib/email_templates/checkEma
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkEmailTemplates", function () {
-  it("should return fail when no email templates are provided", function () {
+  it("should return fail when no email templates are provided", async function () {
     const options = {};
 
-    checkEmailTemplates(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "email_templates_not_configured",
-          status: CONSTANTS.FAIL,
-        },
-      ]);
-    });
+    const { details: report } = await checkEmailTemplates(options);
+    expect(report).to.deep.equal([
+      {
+        field: "email_templates_not_configured",
+        status: CONSTANTS.FAIL,
+      },
+    ]);
   });
 
-  it("should return fail for email templates without configuration", function () {
+  it("should return fail for email templates without configuration", async function () {
     const options = {
       emailTemplates: [
         {
@@ -30,31 +29,30 @@ describe("checkEmailTemplates", function () {
       ],
     };
 
-    checkEmailTemplates(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "email_template_enabled",
-          status: CONSTANTS.SUCCESS,
-          attr: "verify_email",
-          value: "verify_email",
-        },
-        {
-          field: "email_template_not_configured",
-          status: CONSTANTS.FAIL,
-          attr: "Verification Email (Code)",
-          value: "Verification Email (Code)",
-        },
-        {
-          field: "email_template_not_configured",
-          status: CONSTANTS.FAIL,
-          attr: "Welcome Email",
-          value: "Welcome Email",
-        },
-      ]);
-    });
+    const { details: report } = await checkEmailTemplates(options);
+    expect(report).to.deep.equal([
+      {
+        field: "email_template_enabled",
+        status: CONSTANTS.SUCCESS,
+        attr: "verify_email",
+        value: "verify_email",
+      },
+      {
+        field: "email_template_not_configured",
+        status: CONSTANTS.FAIL,
+        attr: "Verification Email (Code)",
+        value: "Verification Email (Code)",
+      },
+      {
+        field: "email_template_not_configured",
+        status: CONSTANTS.FAIL,
+        attr: "Welcome Email",
+        value: "Welcome Email",
+      },
+    ]);
   });
 
-  it("should return success for enabled email templates", function () {
+  it("should return success for enabled email templates", async function () {
     const options = {
       emailTemplates: [
         {
@@ -68,25 +66,24 @@ describe("checkEmailTemplates", function () {
       ],
     };
 
-    checkEmailTemplates(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "email_template_enabled",
-          status: CONSTANTS.SUCCESS,
-          attr: "verify_email",
-          value: "verify_email",
-        },
-        {
-          field: "email_template_enabled",
-          status: CONSTANTS.SUCCESS,
-          attr: "verify_code",
-          value: "verify_code",
-        },
-      ]);
-    });
+    const { details: report } = await checkEmailTemplates(options);
+    expect(report).to.deep.equal([
+      {
+        field: "email_template_enabled",
+        status: CONSTANTS.SUCCESS,
+        attr: "verify_email",
+        value: "verify_email",
+      },
+      {
+        field: "email_template_enabled",
+        status: CONSTANTS.SUCCESS,
+        attr: "verify_code",
+        value: "verify_code",
+      },
+    ]);
   });
 
-  it("should return fail for disabled email templates", function () {
+  it("should return fail for disabled email templates", async function () {
     const options = {
       emailTemplates: [
         {
@@ -100,21 +97,20 @@ describe("checkEmailTemplates", function () {
       ],
     };
 
-    checkEmailTemplates(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "email_template_not_enabled",
-          status: CONSTANTS.FAIL,
-          attr: "Verification Email (Link)",
-          value: "Verification Email (Link)",
-        },
-        {
-          field: "email_template_not_enabled",
-          status: CONSTANTS.FAIL,
-          attr: "Verification Email (Code)",
-          value: "Verification Email (Code)",
-        },
-      ]);
-    });
+    const { details: report } = await checkEmailTemplates(options);
+    expect(report).to.deep.equal([
+      {
+        field: "email_template_not_enabled",
+        status: CONSTANTS.FAIL,
+        attr: "Verification Email (Link)",
+        value: "Verification Email (Link)",
+      },
+      {
+        field: "email_template_not_enabled",
+        status: CONSTANTS.FAIL,
+        attr: "Verification Email (Code)",
+        value: "Verification Email (Code)",
+      },
+    ]);
   });
 });

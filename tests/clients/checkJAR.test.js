@@ -6,7 +6,7 @@ const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkJAR", function() {
 
-    it("should report failure if authorization_code grant is used and JAR is not required", function() {
+    it("should report failure if authorization_code grant is used and JAR is not required", async function () {
         const options = {
             clients: [{
                 name: "Web App",
@@ -20,21 +20,20 @@ describe("checkJAR", function() {
             }]
         };
 
-        checkJAR(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].name).to.equal("Web App (client_web)");
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                name: "Web App (client_web)",
-                client_id: "client_web",
-                field: "signed_request_object.required",
-                status: CONSTANTS.FAIL,
-                value: false,
-            });
-        });
+        const { details: result } = await checkJAR(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].name).to.equal("Web App (client_web)");
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              name: "Web App (client_web)",
+              client_id: "client_web",
+              field: "signed_request_object.required",
+              status: CONSTANTS.FAIL,
+              value: false,
+          });
     });
 
-    it("should skip public SPA clients (app_type spa)", function() {
+    it("should skip public SPA clients (app_type spa)", async function () {
         const options = {
             clients: [{
                 name: "Legacy SPA",
@@ -45,13 +44,12 @@ describe("checkJAR", function() {
             }]
         };
 
-        checkJAR(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkJAR(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should skip public native clients (app_type native)", function() {
+    it("should skip public native clients (app_type native)", async function () {
         const options = {
             clients: [{
                 name: "Native App",
@@ -62,13 +60,12 @@ describe("checkJAR", function() {
             }]
         };
 
-        checkJAR(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkJAR(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should skip clients with token_endpoint_auth_method none", function() {
+    it("should skip clients with token_endpoint_auth_method none", async function () {
         const options = {
             clients: [{
                 name: "Public Web App",
@@ -80,13 +77,12 @@ describe("checkJAR", function() {
             }]
         };
 
-        checkJAR(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkJAR(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should report failure if signed_request_object field is absent", function() {
+    it("should report failure if signed_request_object field is absent", async function () {
         const options = {
             clients: [{
                 name: "HRI App",
@@ -97,17 +93,16 @@ describe("checkJAR", function() {
             }]
         };
 
-        checkJAR(options, (result) => {
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "signed_request_object.required",
-                status: CONSTANTS.FAIL,
-                value: false,
-            });
-        });
+        const { details: result } = await checkJAR(options);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "signed_request_object.required",
+              status: CONSTANTS.FAIL,
+              value: false,
+          });
     });
 
-    it("should report failure if JAR is required but no credentials are configured", function() {
+    it("should report failure if JAR is required but no credentials are configured", async function () {
         const options = {
             clients: [{
                 name: "Misconfigured HRI App",
@@ -122,18 +117,17 @@ describe("checkJAR", function() {
             }]
         };
 
-        checkJAR(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "signed_request_object.credentials",
-                status: CONSTANTS.FAIL,
-                value: "not_configured",
-            });
-        });
+        const { details: result } = await checkJAR(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "signed_request_object.credentials",
+              status: CONSTANTS.FAIL,
+              value: "not_configured",
+          });
     });
 
-    it("should return empty report if JAR is required and credentials are configured", function() {
+    it("should return empty report if JAR is required and credentials are configured", async function () {
         const options = {
             clients: [{
                 name: "Secure HRI App",
@@ -150,14 +144,13 @@ describe("checkJAR", function() {
             }]
         };
 
-        checkJAR(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].name).to.equal("Secure HRI App (client_secure)");
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkJAR(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].name).to.equal("Secure HRI App (client_secure)");
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should not flag clients using only client_credentials grant", function() {
+    it("should not flag clients using only client_credentials grant", async function () {
         const options = {
             clients: [{
                 name: "M2M App",
@@ -168,13 +161,12 @@ describe("checkJAR", function() {
             }]
         };
 
-        checkJAR(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkJAR(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should report failure if credentials are present but required is not set to true", function() {
+    it("should report failure if credentials are present but required is not set to true", async function () {
         const options = {
             clients: [{
                 name: "HRI Demo - CIC Bank",
@@ -190,19 +182,17 @@ describe("checkJAR", function() {
             }]
         };
 
-        checkJAR(options, (result) => {
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "signed_request_object.required",
-                status: CONSTANTS.FAIL,
-            });
-        });
+        const { details: result } = await checkJAR(options);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "signed_request_object.required",
+              status: CONSTANTS.FAIL,
+          });
     });
 
-    it("should return empty result if no clients are provided", function() {
+    it("should return empty result if no clients are provided", async function () {
         const options = { clients: [] };
-        checkJAR(options, (result) => {
-            expect(result).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkJAR(options);
+          expect(result).to.be.an("array").that.is.empty;
     });
 });

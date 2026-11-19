@@ -5,17 +5,16 @@ const checkApplicationLoginUri = require("../../analyzer/lib/clients/checkApplic
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkApplicationLoginUri", function () {
-  it("should return an empty report when there are no clients", function () {
+  it("should return an empty report when there are no clients", async function () {
     const options = {
       clients: [], // No clients
     };
 
-    checkApplicationLoginUri(options, (reports) => {
-      expect(reports).to.deep.equal([]); // No reports expected
-    });
+    const { details: reports } = await checkApplicationLoginUri(options);
+    expect(reports).to.deep.equal([]); // No reports expected
   });
 
-  it("should return a fail report when client has missing initiate_login_uri for spa app type", function () {
+  it("should return a fail report when client has missing initiate_login_uri for spa app type", async function () {
     const options = {
       clients: [
         {
@@ -27,26 +26,26 @@ describe("checkApplicationLoginUri", function () {
       ],
     };
 
-    checkApplicationLoginUri(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "missing_initiate_login_uri",
-              url: "missing_initiate_login_uri",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkApplicationLoginUri(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App (client_id)",
+            client_id: "client_id",
+            field: "missing_initiate_login_uri",
+            value: "missing_initiate_login_uri",
+            status: CONSTANTS.FAIL,
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 
-  it("should return a fail report when client has insecure initiate_login_uri containing localhost", function () {
+  it("should return a fail report when client has insecure initiate_login_uri containing localhost", async function () {
     const options = {
       clients: [
         {
@@ -58,26 +57,26 @@ describe("checkApplicationLoginUri", function () {
       ],
     };
 
-    checkApplicationLoginUri(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "insecure_initiate_login_uri",
-              url: "http://localhost:3000",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkApplicationLoginUri(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App (client_id)",
+            client_id: "client_id",
+            field: "insecure_initiate_login_uri",
+            value: "http://localhost:3000",
+            status: CONSTANTS.FAIL,
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 
-  it("should return a fail report when client has insecure initiate_login_uri containing http://", function () {
+  it("should return a fail report when client has insecure initiate_login_uri containing http://", async function () {
     const options = {
       clients: [
         {
@@ -89,26 +88,26 @@ describe("checkApplicationLoginUri", function () {
       ],
     };
 
-    checkApplicationLoginUri(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "insecure_initiate_login_uri",
-              url: "http://example.com",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkApplicationLoginUri(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App (client_id)",
+            client_id: "client_id",
+            field: "insecure_initiate_login_uri",
+            value: "http://example.com",
+            status: CONSTANTS.FAIL,
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 
-  it("should return a success report when client has a secure initiate_login_uri", function () {
+  it("should return a success report when client has a secure initiate_login_uri", async function () {
     const options = {
       clients: [
         {
@@ -120,26 +119,26 @@ describe("checkApplicationLoginUri", function () {
       ],
     };
 
-    checkApplicationLoginUri(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "secure_initiate_login_uri",
-              status: CONSTANTS.SUCCESS,
-              url: "https://secure-example.com",
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkApplicationLoginUri(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App",
+            client_id: "client_id",
+            field: "secure_initiate_login_uri",
+            status: CONSTANTS.SUCCESS,
+            value: "https://secure-example.com",
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 
-  it("should return both missing and insecure initiate_login_uri reports for a client with both issues", function () {
+  it("should return both missing and insecure initiate_login_uri reports for a client with both issues", async function () {
     const options = {
       clients: [
         {
@@ -151,30 +150,23 @@ describe("checkApplicationLoginUri", function () {
       ],
     };
 
-    checkApplicationLoginUri(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "missing_initiate_login_uri",
-              url: "missing_initiate_login_uri",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "insecure_initiate_login_uri",
-              url: "http://localhost:3000",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkApplicationLoginUri(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          // A non-empty URI cannot also be "missing", so only the insecure issue is reported
+          {
+            name: "Test App (client_id)",
+            client_id: "client_id",
+            field: "insecure_initiate_login_uri",
+            value: "http://localhost:3000",
+            status: CONSTANTS.FAIL,
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 });

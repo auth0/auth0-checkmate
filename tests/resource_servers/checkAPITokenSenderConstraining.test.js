@@ -6,7 +6,7 @@ const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkTokenConstrainingResourceServer", function() {
 
-    it("should report failure when proof_of_possession is absent (not configured)", function() {
+    it("should report failure when proof_of_possession is absent (not configured)", async function () {
         const options = {
             resourceServers: [{
                 id: "rs1",
@@ -16,19 +16,18 @@ describe("checkTokenConstrainingResourceServer", function() {
             }]
         };
 
-        checkTokenConstrainingResourceServer(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].name).to.equal("Legacy API (https://legacy-api.example.com)");
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "proof_of_possession",
-                status: CONSTANTS.FAIL,
-                value: "not_configured",
-            });
-        });
+        const { details: result } = await checkTokenConstrainingResourceServer(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].name).to.equal("Legacy API (https://legacy-api.example.com)");
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "proof_of_possession",
+              status: CONSTANTS.FAIL,
+              value: "not_configured",
+          });
     });
 
-    it("should report failure when proof_of_possession mechanism is invalid", function() {
+    it("should report failure when proof_of_possession mechanism is invalid", async function () {
         const options = {
             resourceServers: [{
                 id: "rs2",
@@ -43,17 +42,16 @@ describe("checkTokenConstrainingResourceServer", function() {
             }]
         };
 
-        checkTokenConstrainingResourceServer(options, (result) => {
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "proof_of_possession.mechanism",
-                status: CONSTANTS.FAIL,
-                value: "unknown",
-            });
-        });
+        const { details: result } = await checkTokenConstrainingResourceServer(options);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "proof_of_possession.mechanism",
+              status: CONSTANTS.FAIL,
+              value: "unknown",
+          });
     });
 
-    it("should report failure when proof_of_possession mechanism is missing", function() {
+    it("should report failure when proof_of_possession mechanism is missing", async function () {
         const options = {
             resourceServers: [{
                 id: "rs3",
@@ -67,17 +65,16 @@ describe("checkTokenConstrainingResourceServer", function() {
             }]
         };
 
-        checkTokenConstrainingResourceServer(options, (result) => {
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "proof_of_possession.mechanism",
-                status: CONSTANTS.FAIL,
-                value: "not_set",
-            });
-        });
+        const { details: result } = await checkTokenConstrainingResourceServer(options);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "proof_of_possession.mechanism",
+              status: CONSTANTS.FAIL,
+              value: "not_set",
+          });
     });
 
-    it("should return empty report when mechanism is dpop, required true, required_for all_clients", function() {
+    it("should return empty report when mechanism is dpop, required true, required_for all_clients", async function () {
         const options = {
             resourceServers: [{
                 id: "rs4",
@@ -92,14 +89,13 @@ describe("checkTokenConstrainingResourceServer", function() {
             }]
         };
 
-        checkTokenConstrainingResourceServer(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].name).to.equal("DPOP (https://dpop)");
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkTokenConstrainingResourceServer(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].name).to.equal("DPOP (https://dpop)");
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should return empty report when mechanism is mtls, required true, required_for all_clients", function() {
+    it("should return empty report when mechanism is mtls, required true, required_for all_clients", async function () {
         const options = {
             resourceServers: [{
                 id: "rs5",
@@ -114,12 +110,11 @@ describe("checkTokenConstrainingResourceServer", function() {
             }]
         };
 
-        checkTokenConstrainingResourceServer(options, (result) => {
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkTokenConstrainingResourceServer(options);
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should return empty report when mechanism is dpop, required false, required_for public_clients", function() {
+    it("should return empty report when mechanism is dpop, required false, required_for public_clients", async function () {
         const options = {
             resourceServers: [{
                 id: "rs6",
@@ -134,12 +129,11 @@ describe("checkTokenConstrainingResourceServer", function() {
             }]
         };
 
-        checkTokenConstrainingResourceServer(options, (result) => {
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkTokenConstrainingResourceServer(options);
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should skip system resource servers entirely", function() {
+    it("should skip system resource servers entirely", async function () {
         const options = {
             resourceServers: [{
                 id: "rs_system",
@@ -149,12 +143,11 @@ describe("checkTokenConstrainingResourceServer", function() {
             }]
         };
 
-        checkTokenConstrainingResourceServer(options, (result) => {
-            expect(result).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkTokenConstrainingResourceServer(options);
+          expect(result).to.be.an("array").that.is.empty;
     });
 
-    it("should process multiple resource servers and report failures only for unconfigured ones", function() {
+    it("should process multiple resource servers and report failures only for unconfigured ones", async function () {
         const options = {
             resourceServers: [
                 {
@@ -183,27 +176,25 @@ describe("checkTokenConstrainingResourceServer", function() {
             ]
         };
 
-        checkTokenConstrainingResourceServer(options, (result) => {
-            // system RS is skipped; 2 non-system RSes are included
-            expect(result).to.be.an("array").with.lengthOf(2);
+        const { details: result } = await checkTokenConstrainingResourceServer(options);
+          // system RS is skipped; 2 non-system RSes are included
+          expect(result).to.be.an("array").with.lengthOf(2);
 
-            const dpopEntry = result.find(r => r.name === "DPOP (https://dpop)");
-            expect(dpopEntry.report).to.be.an("array").that.is.empty;
+          const dpopEntry = result.find(r => r.name === "DPOP (https://dpop)");
+          expect(dpopEntry.report).to.be.an("array").that.is.empty;
 
-            const bareEntry = result.find(r => r.name === "api (https://api)");
-            expect(bareEntry.report).to.be.an("array").with.lengthOf(1);
-            expect(bareEntry.report[0]).to.include({
-                field: "proof_of_possession",
-                status: CONSTANTS.FAIL,
-                value: "not_configured",
-            });
-        });
+          const bareEntry = result.find(r => r.name === "api (https://api)");
+          expect(bareEntry.report).to.be.an("array").with.lengthOf(1);
+          expect(bareEntry.report[0]).to.include({
+              field: "proof_of_possession",
+              status: CONSTANTS.FAIL,
+              value: "not_configured",
+          });
     });
 
-    it("should return empty result if no resource servers are provided", function() {
+    it("should return empty result if no resource servers are provided", async function () {
         const options = { resourceServers: [] };
-        checkTokenConstrainingResourceServer(options, (result) => {
-            expect(result).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkTokenConstrainingResourceServer(options);
+          expect(result).to.be.an("array").that.is.empty;
     });
 });

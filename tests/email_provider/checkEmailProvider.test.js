@@ -5,20 +5,19 @@ const checkEmailProvider = require("../../analyzer/lib/email_provider/checkEmail
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkEmailProvider", function () {
-  it("should return fail when no email provider is provided", function () {
+  it("should return fail when no email provider is provided", async function () {
     const options = {};
 
-    checkEmailProvider(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "email_provider_not_configured",
-          status: CONSTANTS.FAIL,
-        },
-      ]);
-    });
+    const { details: report } = await checkEmailProvider(options);
+    expect(report).to.deep.equal([
+      {
+        field: "email_provider_not_configured",
+        status: CONSTANTS.FAIL,
+      },
+    ]);
   });
 
-  it("should return success for an enabled email provider", function () {
+  it("should return success for an enabled email provider", async function () {
     const options = {
       emailProvider: {
         name: "sendgrid",
@@ -26,18 +25,17 @@ describe("checkEmailProvider", function () {
       },
     };
 
-    checkEmailProvider(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "email_provider_enabled",
-          status: CONSTANTS.SUCCESS,
-          value: "sendgrid",
-        },
-      ]);
-    });
+    const { details: report } = await checkEmailProvider(options);
+    expect(report).to.deep.equal([
+      {
+        field: "email_provider_enabled",
+        status: CONSTANTS.SUCCESS,
+        value: "sendgrid",
+      },
+    ]);
   });
 
-  it("should return fail for a disabled email provider", function () {
+  it("should return fail for a disabled email provider", async function () {
     const options = {
       emailProvider: {
         name: "sendgrid",
@@ -45,14 +43,13 @@ describe("checkEmailProvider", function () {
       },
     };
 
-    checkEmailProvider(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "email_provider_disabled",
-          status: CONSTANTS.FAIL,
-          value: "sendgrid",
-        },
-      ]);
-    });
+    const { details: report } = await checkEmailProvider(options);
+    expect(report).to.deep.equal([
+      {
+        field: "email_provider_disabled",
+        status: CONSTANTS.FAIL,
+        value: "sendgrid",
+      },
+    ]);
   });
 });
