@@ -1,18 +1,5 @@
 const { expect } = require("chai");
-const Handlebars = require("handlebars");
 const fs = require("fs");
-
-// Register the same helpers that report.js registers
-Handlebars.registerHelper("chooseFont", function (locale) {
-  if (locale === "ja") return "Noto Sans JP, sans-serif";
-  if (locale === "ko") return "Noto Sans KR, sans-serif";
-  return "DM Sans, sans-serif";
-});
-Handlebars.registerHelper("replace", function (str, search, replace) {
-  return str.replace(search, replace);
-});
-Handlebars.registerHelper("and", (a, b) => a && b);
-Handlebars.registerHelper("inc", (a) => parseInt(a) + 1);
 
 // A tenant configuration that satisfies every validator, so tests exercise
 // validator selection rather than missing-data handling.
@@ -49,101 +36,6 @@ function buildTenantConfig() {
 }
 
 describe("report.js", function () {
-  describe("Handlebars helpers", function () {
-    describe("chooseFont", function () {
-      it("should return default font for en locale", function () {
-        const result = Handlebars.helpers.chooseFont("en");
-        expect(result).to.equal("DM Sans, sans-serif");
-      });
-
-      it("should return default font for unknown locale", function () {
-        const result = Handlebars.helpers.chooseFont("fr");
-        expect(result).to.equal("DM Sans, sans-serif");
-      });
-
-      it("should return default font for undefined locale", function () {
-        const result = Handlebars.helpers.chooseFont(undefined);
-        expect(result).to.equal("DM Sans, sans-serif");
-      });
-    });
-
-    describe("replace", function () {
-      it("should replace a substring", function () {
-        const result = Handlebars.helpers.replace("hello world", "world", "test");
-        expect(result).to.equal("hello test");
-      });
-
-      it("should replace first occurrence only", function () {
-        const result = Handlebars.helpers.replace("foo foo foo", "foo", "bar");
-        expect(result).to.equal("bar foo foo");
-      });
-
-      it("should return original string if search not found", function () {
-        const result = Handlebars.helpers.replace("hello world", "xyz", "test");
-        expect(result).to.equal("hello world");
-      });
-
-      it("should handle empty replacement", function () {
-        const result = Handlebars.helpers.replace("hello world", "world", "");
-        expect(result).to.equal("hello ");
-      });
-    });
-
-    describe("and", function () {
-      it("should return true when both are true", function () {
-        const result = Handlebars.helpers.and(true, true);
-        expect(result).to.equal(true);
-      });
-
-      it("should return false when first is false", function () {
-        const result = Handlebars.helpers.and(false, true);
-        expect(result).to.equal(false);
-      });
-
-      it("should return false when second is false", function () {
-        const result = Handlebars.helpers.and(true, false);
-        expect(result).to.equal(false);
-      });
-
-      it("should return false when both are false", function () {
-        const result = Handlebars.helpers.and(false, false);
-        expect(result).to.equal(false);
-      });
-
-      it("should handle truthy values", function () {
-        const result = Handlebars.helpers.and("truthy", 1);
-        expect(result).to.equal(1);
-      });
-
-      it("should handle falsy values", function () {
-        const result = Handlebars.helpers.and("truthy", 0);
-        expect(result).to.equal(0);
-      });
-    });
-
-    describe("inc", function () {
-      it("should increment a number", function () {
-        const result = Handlebars.helpers.inc(5);
-        expect(result).to.equal(6);
-      });
-
-      it("should increment zero", function () {
-        const result = Handlebars.helpers.inc(0);
-        expect(result).to.equal(1);
-      });
-
-      it("should increment a string number", function () {
-        const result = Handlebars.helpers.inc("10");
-        expect(result).to.equal(11);
-      });
-
-      it("should handle negative numbers", function () {
-        const result = Handlebars.helpers.inc(-1);
-        expect(result).to.equal(0);
-      });
-    });
-  });
-
   describe("generateHtml", function () {
     let originalReadFileSync;
 

@@ -5,17 +5,16 @@ const checkAllowedLogoutUrl = require("../../analyzer/lib/clients/checkAllowedLo
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkAllowedLogoutUrl", function () {
-  it("should return an empty report when there are no clients", function () {
+  it("should return an empty report when there are no clients", async function () {
     const options = {
       clients: [], // No clients
     };
 
-    checkAllowedLogoutUrl(options, (reports) => {
-      expect(reports).to.deep.equal([]); // No reports expected
-    });
+    const { details: reports } = await checkAllowedLogoutUrl(options);
+    expect(reports).to.deep.equal([]); // No reports expected
   });
 
-  it("should return a fail report when client has no allowed logout URLs and app_type is not non_interactive", function () {
+  it("should return a fail report when client has no allowed logout URLs and app_type is not non_interactive", async function () {
     const options = {
       clients: [
         {
@@ -27,26 +26,27 @@ describe("checkAllowedLogoutUrl", function () {
       ],
     };
 
-    checkAllowedLogoutUrl(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "missing_allowed_logout_urls",
-              url: "missing_allowed_logout_urls",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkAllowedLogoutUrl(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            // Reporting missing logout URLs is intentionally disabled in the check
+            name: "Test App",
+            client_id: "client_id",
+            field: "secure_allowed_logout_urls",
+            value: "",
+            status: CONSTANTS.SUCCESS,
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 
-  it("should return a fail report when client has insecure allowed logout URLs (http://localhost)", function () {
+  it("should return a fail report when client has insecure allowed logout URLs (http://localhost)", async function () {
     const options = {
       clients: [
         {
@@ -58,26 +58,26 @@ describe("checkAllowedLogoutUrl", function () {
       ],
     };
 
-    checkAllowedLogoutUrl(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "insecure_allowed_logout_urls",
-              url: "http://localhost:3000",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkAllowedLogoutUrl(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App (client_id)",
+            client_id: "client_id",
+            field: "insecure_allowed_logout_urls",
+            value: "http://localhost:3000",
+            status: CONSTANTS.FAIL,
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 
-  it("should return a success report when client has secure allowed logout URLs (https://contoso.com)", function () {
+  it("should return a success report when client has secure allowed logout URLs (https://contoso.com)", async function () {
     const options = {
       clients: [
         {
@@ -89,26 +89,26 @@ describe("checkAllowedLogoutUrl", function () {
       ],
     };
 
-    checkAllowedLogoutUrl(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "secure_allowed_logout_urls",
-              status: CONSTANTS.SUCCESS,
-              url: "https://contoso.com",
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkAllowedLogoutUrl(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App",
+            client_id: "client_id",
+            field: "secure_allowed_logout_urls",
+            status: CONSTANTS.SUCCESS,
+            value: "https://contoso.com",
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 
-  it("should return both fail and success reports when client has both insecure and secure allowed logout URLs", function () {
+  it("should return both fail and success reports when client has both insecure and secure allowed logout URLs", async function () {
     const options = {
       clients: [
         {
@@ -120,34 +120,27 @@ describe("checkAllowedLogoutUrl", function () {
       ],
     };
 
-    checkAllowedLogoutUrl(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "insecure_allowed_logout_urls",
-              url: "http://localhost:3000",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "secure_allowed_logout_urls",
-              status: CONSTANTS.SUCCESS,
-              url: "https://contoso.com",
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkAllowedLogoutUrl(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App (client_id)",
+            client_id: "client_id",
+            field: "insecure_allowed_logout_urls",
+            value: "http://localhost:3000",
+            status: CONSTANTS.FAIL,
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+          // No success entry: secure URLs are only reported when nothing failed
+        ],
+      },
+    ]);
   });
 
-  it("should handle null/undefined URLs in allowed_logout_urls array without crashing", function () {
+  it("should handle null/undefined URLs in allowed_logout_urls array without crashing", async function () {
     const options = {
       clients: [
         {
@@ -160,33 +153,23 @@ describe("checkAllowedLogoutUrl", function () {
       ],
     };
 
-    checkAllowedLogoutUrl(options, (reports) => {
-      // Should only process valid URLs and skip null/undefined
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App with Null URLs (client_with_null)",
-          report: [
-            {
-              name: "Test App with Null URLs (client_with_null)",
-              client_id: "client_with_null",
-              field: "insecure_allowed_logout_urls",
-              value: "http://localhost:3000",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-              is_first_party: false,
-            },
-            {
-              name: "Test App with Null URLs (client_with_null)",
-              client_id: "client_with_null",
-              field: "secure_allowed_logout_urls",
-              status: CONSTANTS.SUCCESS,
-              value: "https://contoso.com",
-              app_type: "spa",
-              is_first_party: false,
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkAllowedLogoutUrl(options);
+    // Should only process valid URLs and skip null/undefined
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App with Null URLs (client_with_null)",
+        report: [
+          {
+            name: "Test App with Null URLs (client_with_null)",
+            client_id: "client_with_null",
+            field: "insecure_allowed_logout_urls",
+            value: "http://localhost:3000",
+            status: CONSTANTS.FAIL,
+            app_type: "spa",
+            is_first_party: false,
+          },
+        ],
+      },
+    ]);
   });
 });

@@ -5,58 +5,55 @@ const checkDefaultAudience = require("../../analyzer/lib/tenant_settings/checkDe
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkDefaultAudience", function () {
-  it("should return an info report when default_audience is not set (null or empty)", function () {
+  it("should return an info report when default_audience is not set (null or empty)", async function () {
     const options = {
       tenant: {
         default_audience: null, // default_audience is null
       },
     };
 
-    checkDefaultAudience(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "no_default_audience",
-          attr: "default_audience",
-          status: CONSTANTS.INFO,
-        },
-      ]);
-    });
+    const { details: report } = await checkDefaultAudience(options);
+    expect(report).to.deep.equal([
+      {
+        field: "no_default_audience",
+        attr: "default_audience",
+        status: CONSTANTS.INFO,
+      },
+    ]);
   });
 
-  it("should return an info report when default_audience is an empty string", function () {
+  it("should return an info report when default_audience is an empty string", async function () {
     const options = {
       tenant: {
         default_audience: "", // default_audience is an empty string
       },
     };
 
-    checkDefaultAudience(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "no_default_audience",
-          attr: "default_audience",
-          status: CONSTANTS.INFO,
-        },
-      ]);
-    });
+    const { details: report } = await checkDefaultAudience(options);
+    expect(report).to.deep.equal([
+      {
+        field: "no_default_audience",
+        attr: "default_audience",
+        status: CONSTANTS.INFO,
+      },
+    ]);
   });
 
-  it("should return a fail report when default_audience is set to a non-empty value", function () {
+  it("should return a fail report when default_audience is set to a non-empty value", async function () {
     const options = {
       tenant: {
         default_audience: "audience1", // default_audience is set to a non-empty string
       },
     };
 
-    checkDefaultAudience(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "default_audience",
-          attr: "default_audience",
-          value: "audience1",
-          status: CONSTANTS.FAIL,
-        },
-      ]);
-    });
+    const { details: report } = await checkDefaultAudience(options);
+    expect(report).to.deep.equal([
+      {
+        field: "default_audience",
+        attr: "default_audience",
+        value: "audience1",
+        status: CONSTANTS.FAIL,
+      },
+    ]);
   });
 });

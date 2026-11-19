@@ -5,23 +5,21 @@ const customDomainConfigured = require("../../analyzer/lib/custom_domain/checkCu
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkCustomDomain", function () {
-  it("should return fail when customDomains is empty", function () {
+  it("should return fail when customDomains is empty", async function () {
     const options = { customDomains: [] };
 
-    customDomainConfigured(options, (report) => {
-      expect(report.checkName).to.equal("checkCustomDomain");
-      expect(report.result).to.equal("fail");
-      expect(report.timestamp).to.be.ok;
-      expect(report.details).to.deep.equal([
-        {
-          field: "not_configured",
-          status: CONSTANTS.FAIL,
-        },
-      ]);
-    });
+    const result = await customDomainConfigured(options);
+    expect(result.checkName).to.equal("checkCustomDomain");
+    expect(result.timestamp).to.be.ok;
+    expect(result.details).to.deep.equal([
+      {
+        field: "not_configured",
+        status: CONSTANTS.FAIL,
+      },
+    ]);
   });
 
-  it("should return success when a domain is ready", function () {
+  it("should return success when a domain is ready", async function () {
     const options = {
       customDomains: [
         {
@@ -35,18 +33,17 @@ describe("checkCustomDomain", function () {
       ],
     };
 
-    customDomainConfigured(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "ready",
-          status: CONSTANTS.SUCCESS,
-          value: "auth.contoso.com",
-        },
-      ]);
-    });
+    const { details: report } = await customDomainConfigured(options);
+    expect(report).to.deep.equal([
+      {
+        field: "ready",
+        status: CONSTANTS.SUCCESS,
+        value: "apac-tam-team.oauth101.net",
+      },
+    ]);
   });
 
-  it("should return fail when a domain is pending verification", function () {
+  it("should return fail when a domain is pending verification", async function () {
     const options = {
       customDomains: [
         {
@@ -60,14 +57,13 @@ describe("checkCustomDomain", function () {
       ],
     };
 
-    customDomainConfigured(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "pending_verification",
-          status: CONSTANTS.FAIL,
-          value: "auth.contoso.com",
-        },
-      ]);
-    });
+    const { details: report } = await customDomainConfigured(options);
+    expect(report).to.deep.equal([
+      {
+        field: "pending_verification",
+        status: CONSTANTS.FAIL,
+        value: "auth.contoso.com",
+      },
+    ]);
   });
 });

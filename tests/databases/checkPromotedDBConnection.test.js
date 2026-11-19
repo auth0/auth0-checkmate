@@ -3,19 +3,18 @@ const checkPromotedDBConnection = require("../../analyzer/lib/databases/checkPro
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkPromotedDBConnection", function () {
-  it("should return failure if no databases are provided", function () {
+  it("should return failure if no databases are provided", async function () {
     const options = {
       databases: [], // Empty databases array
     };
 
-    checkPromotedDBConnection(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("no_database_connections_found");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-    });
+    const { details: report } = await checkPromotedDBConnection(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("no_database_connections_found");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
   });
 
-  it('should return no_connection if no any prmoted domain connection', function () {
+  it('should return no_connection if no any prmoted domain connection', async function () {
     const options = {
       databases: [
         {
@@ -29,15 +28,14 @@ describe("checkPromotedDBConnection", function () {
       ],
     };
 
-    checkPromotedDBConnection(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("NO_PROMOTED_DOMAIN_CONNECTION");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-      expect(report[0].value).to.equal("no_database_connections_found");
-    });
+    const { details: report } = await checkPromotedDBConnection(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].name).to.equal("NO_PROMOTED_DOMAIN_CONNECTION");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
+    expect(report[0].field).to.equal("no_database_connections_found");
   });
 
-  it('should return promoted_domain_connection name if is_domain_connection is true', function () {
+  it('should return promoted_domain_connection name if is_domain_connection is true', async function () {
     const options = {
       databases: [
         {
@@ -51,12 +49,11 @@ describe("checkPromotedDBConnection", function () {
       ],
     };
 
-    checkPromotedDBConnection(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("DB 2");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-      expect(report[0].value).to.equal("with_promoted_database_connections");
-    });
+    const { details: report } = await checkPromotedDBConnection(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].name).to.equal("DB 2");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
+    expect(report[0].field).to.equal("with_promoted_database_connections");
   });
 
 });

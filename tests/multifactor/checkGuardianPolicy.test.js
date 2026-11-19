@@ -5,45 +5,42 @@ const checkGuardianPolicy = require("../../analyzer/lib/multifactor/checkGuardia
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkGuardianPolicy", function () {
-  it("should return fail when guardianPolicies.policies is empty", function () {
+  it("should return fail when guardianPolicies.policies is empty", async function () {
     const options = { guardianPolicies: [] };
 
-    checkGuardianPolicy(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "mfa_policy_set_to_never",
-          value: "never",
-          status: CONSTANTS.FAIL,
-        },
-      ]);
-    });
+    const { details: report } = await checkGuardianPolicy(options);
+    expect(report).to.deep.equal([
+      {
+        field: "mfa_policy_set_to_never",
+        value: "Never",
+        status: CONSTANTS.FAIL,
+      },
+    ]);
   });
 
-  it("should return success when guardianPolicies.policies has a value", function () {
+  it("should return success when guardianPolicies.policies has a value", async function () {
     const options = { guardianPolicies: ["all-applications"] };
 
-    checkGuardianPolicy(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "mfa_policy_set",
-          value: "enabled",
-          status: CONSTANTS.SUCCESS,
-        },
-      ]);
-    });
+    const { details: report } = await checkGuardianPolicy(options);
+    expect(report).to.deep.equal([
+      {
+        field: "mfa_policy_set",
+        value: "Always",
+        status: CONSTANTS.SUCCESS,
+      },
+    ]);
   });
 
-  it("should return fail when guardianPolicies is not provided", function () {
+  it("should return fail when guardianPolicies is not provided", async function () {
     const options = {};
 
-    checkGuardianPolicy(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "mfa_policy_set_to_never",
-          value: "never",
-          status: CONSTANTS.FAIL,
-        },
-      ]);
-    });
+    const { details: report } = await checkGuardianPolicy(options);
+    expect(report).to.deep.equal([
+      {
+        field: "mfa_policy_set_to_never",
+        value: "Never",
+        status: CONSTANTS.FAIL,
+      },
+    ]);
   });
 });

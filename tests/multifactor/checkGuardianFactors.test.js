@@ -5,7 +5,7 @@ const checkGuardianFactors = require("../../analyzer/lib/multifactor/checkGuardi
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkGuardianFactors", function () {
-  it("should return fail when no MFA factors are enabled", function () {
+  it("should return fail when no MFA factors are enabled", async function () {
     const options = {
       guardianFactors: [
         { name: "sms", enabled: false, trial_expired: false },
@@ -19,17 +19,16 @@ describe("checkGuardianFactors", function () {
       ],
     };
 
-    checkGuardianFactors(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "mfa_factors_not_enabled",
-          status: CONSTANTS.FAIL,
-        },
-      ]);
-    });
+    const { details: report } = await checkGuardianFactors(options);
+    expect(report).to.deep.equal([
+      {
+        field: "mfa_factors_not_enabled",
+        status: CONSTANTS.FAIL,
+      },
+    ]);
   });
 
-  it("should return success when one MFA factor is enabled", function () {
+  it("should return success when one MFA factor is enabled", async function () {
     const options = {
       guardianFactors: [
         { name: "sms", enabled: false, trial_expired: false },
@@ -43,18 +42,17 @@ describe("checkGuardianFactors", function () {
       ],
     };
 
-    checkGuardianFactors(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "mfa_factors_enabled",
-          value: "otp",
-          status: CONSTANTS.SUCCESS,
-        },
-      ]);
-    });
+    const { details: report } = await checkGuardianFactors(options);
+    expect(report).to.deep.equal([
+      {
+        field: "mfa_factors_enabled",
+        value: "otp",
+        status: CONSTANTS.SUCCESS,
+      },
+    ]);
   });
 
-  it("should return success when multiple MFA factors are enabled", function () {
+  it("should return success when multiple MFA factors are enabled", async function () {
     const options = {
       guardianFactors: [
         { name: "sms", enabled: true, trial_expired: false },
@@ -68,27 +66,25 @@ describe("checkGuardianFactors", function () {
       ],
     };
 
-    checkGuardianFactors(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "mfa_factors_enabled",
-          value: "smsotp", // concatenated list of enabled factors
-          status: CONSTANTS.SUCCESS,
-        },
-      ]);
-    });
+    const { details: report } = await checkGuardianFactors(options);
+    expect(report).to.deep.equal([
+      {
+        field: "mfa_factors_enabled",
+        value: "smsotp", // concatenated list of enabled factors
+        status: CONSTANTS.SUCCESS,
+      },
+    ]);
   });
 
-  it("should return fail when no guardianFactors are provided", function () {
+  it("should return fail when no guardianFactors are provided", async function () {
     const options = {};
 
-    checkGuardianFactors(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "mfa_factors_not_enabled",
-          status: CONSTANTS.FAIL,
-        },
-      ]);
-    });
+    const { details: report } = await checkGuardianFactors(options);
+    expect(report).to.deep.equal([
+      {
+        field: "mfa_factors_not_enabled",
+        status: CONSTANTS.FAIL,
+      },
+    ]);
   });
 });

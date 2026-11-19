@@ -5,17 +5,16 @@ const checkWebOrigins = require("../../analyzer/lib/clients/checkWebOrigins");
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkWebOrigins", function () {
-  it("should return an empty report when there are no clients", function () {
+  it("should return an empty report when there are no clients", async function () {
     const options = {
       clients: [], // No clients
     };
 
-    checkWebOrigins(options, (reports) => {
-      expect(reports).to.deep.equal([]); // No reports expected
-    });
+    const { details: reports } = await checkWebOrigins(options);
+    expect(reports).to.deep.equal([]); // No reports expected
   });
 
-  it("should return a empty report when client has no web origins URLs and app_type is not non_interactive and native", function () {
+  it("should return a empty report when client has no web origins URLs and app_type is not non_interactive and native", async function () {
     const options = {
       clients: [
         {
@@ -27,17 +26,26 @@ describe("checkWebOrigins", function () {
       ],
     };
 
-    checkWebOrigins(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [],
-        },
-      ]);
-    });
+    const { details: reports } = await checkWebOrigins(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App",
+            client_id: "client_id",
+            field: "secure_web_origins",
+            status: CONSTANTS.SUCCESS,
+            value: "",
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 
-  it("should return a fail report when client has insecure web origin URLs (http://localhost)", function () {
+  it("should return a fail report when client has insecure web origin URLs (http://localhost)", async function () {
     const options = {
       clients: [
         {
@@ -49,26 +57,26 @@ describe("checkWebOrigins", function () {
       ],
     };
 
-    checkWebOrigins(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "insecure_web_origins_urls",
-              url: "http://localhost:3000",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkWebOrigins(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App (client_id)",
+            client_id: "client_id",
+            field: "insecure_web_origins_urls",
+            value: "http://localhost:3000",
+            status: CONSTANTS.FAIL,
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 
-  it("should return a success report when client has secure aweb origin URLs (https://contoso.com)", function () {
+  it("should return a success report when client has secure aweb origin URLs (https://contoso.com)", async function () {
     const options = {
       clients: [
         {
@@ -80,26 +88,26 @@ describe("checkWebOrigins", function () {
       ],
     };
 
-    checkWebOrigins(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "secure_web_origins_urls",
-              status: CONSTANTS.SUCCESS,
-              url: "https://contoso.com",
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkWebOrigins(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App",
+            client_id: "client_id",
+            field: "secure_web_origins",
+            status: CONSTANTS.SUCCESS,
+            value: "https://contoso.com",
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 
-  it("should return both fail and success reports when client has both insecure and secure allowed logout URLs", function () {
+  it("should return both fail and success reports when client has both insecure and secure allowed logout URLs", async function () {
     const options = {
       clients: [
         {
@@ -111,30 +119,22 @@ describe("checkWebOrigins", function () {
       ],
     };
 
-    checkWebOrigins(options, (reports) => {
-      expect(reports).to.deep.equal([
-        {
-          name: "Test App",
-          report: [
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "insecure_web_originst_urls",
-              url: "http://localhost:3000",
-              status: CONSTANTS.FAIL,
-              app_type: "spa",
-            },
-            {
-              name: "Test App",
-              client_id: "client_id",
-              field: "secure_web_originst_urls",
-              status: CONSTANTS.SUCCESS,
-              url: "https://contoso.com",
-              app_type: "spa",
-            },
-          ],
-        },
-      ]);
-    });
+    const { details: reports } = await checkWebOrigins(options);
+    expect(reports).to.deep.equal([
+      {
+        name: "Test App (client_id)",
+        report: [
+          {
+            name: "Test App (client_id)",
+            client_id: "client_id",
+            field: "insecure_web_origins_urls",
+            value: "http://localhost:3000",
+            status: CONSTANTS.FAIL,
+            app_type: "spa",
+            is_first_party: undefined,
+          },
+        ],
+      },
+    ]);
   });
 });

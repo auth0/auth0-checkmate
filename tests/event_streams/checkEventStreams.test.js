@@ -6,20 +6,19 @@ const CONSTANTS = require("../../analyzer/lib/constants");
 
 
 describe("checkEventStreams", function () {
-    it("should return fail when eventStreams is empty", function () {
+    it("should return fail when eventStreams is empty", async function () {
         const options = { eventStreams: [] };
 
-        checkEventStreams(options, (report) => {
-            expect(report).to.deep.equal([
-                {
-                    field: "event_stream_not_configured",
-                    status: CONSTANTS.FAIL,
-                },
-            ]);
-        });
+        const { details: report } = await checkEventStreams(options);
+          expect(report).to.deep.equal([
+              {
+                  field: "event_stream_not_configured",
+                  status: CONSTANTS.FAIL,
+              },
+          ]);
     });
 
-    it("should return empty when a event stream is enabled", function () {
+    it("should return empty when a event stream is enabled", async function () {
         const options = {
             eventStreams: [
                 {
@@ -33,12 +32,11 @@ describe("checkEventStreams", function () {
             ],
         };
 
-        checkEventStreams(options, (report) => {
-            expect(report).to.deep.equal([]);
-        });
+        const { details: report } = await checkEventStreams(options);
+          expect(report).to.deep.equal([]);
     });
 
-    it("should return fail when a event stream is disabled", function () {
+    it("should return fail when a event stream is disabled", async function () {
         const options = {
             eventStreams: [
                 {
@@ -52,20 +50,19 @@ describe("checkEventStreams", function () {
             ],
         };
 
-        checkEventStreams(options, (report) => {
-            expect(report).to.deep.equal([
-                {
-                    field: "event_stream_disabled",
-                    name: "Auth0 Eventstream",
-                    type: "http",
-                    stream_status: "disabled",
-                    status: CONSTANTS.FAIL,
-                },
-            ]);
-        });
+        const { details: report } = await checkEventStreams(options);
+          expect(report).to.deep.equal([
+              {
+                  field: "event_stream_disabled",
+                  name: "Auth0 Eventstream",
+                  type: "webhook",
+                  stream_status: "disabled",
+                  status: CONSTANTS.FAIL,
+              },
+          ]);
     });
 
-    it('should return an empty report if errorCode "insufficient_scope" is present', function () {
+    it('should return an empty report if errorCode "insufficient_scope" is present', async function () {
         const options = {
             eventStreams: [
                 {
@@ -76,12 +73,11 @@ describe("checkEventStreams", function () {
             ],
         };
 
-        checkEventStreams(options, (report) => {
-            expect(report).to.deep.equal([]); // The report should be empty for insufficient scope
-        });
+        const { details: report } = await checkEventStreams(options);
+          expect(report).to.deep.equal([]); // The report should be empty for insufficient scope
     });
 
-    it("should handle multiple log streams with mixed statuses", function () {
+    it("should handle multiple log streams with mixed statuses", async function () {
         const options = {
             eventStreams: [
                 {
@@ -103,16 +99,15 @@ describe("checkEventStreams", function () {
             ],
         };
 
-        checkEventStreams(options, (report) => {
-            expect(report).to.deep.equal([
-                {
-                    field: "event_stream_disabled",
-                    name: "Another Eventstream",
-                    type: "aws",
-                    stream_status: "disabled",
-                    status: CONSTANTS.FAIL,
-                },
-            ]);
-        });
+        const { details: report } = await checkEventStreams(options);
+          expect(report).to.deep.equal([
+              {
+                  field: "event_stream_disabled",
+                  name: "Another Eventstream",
+                  type: "aws",
+                  stream_status: "disabled",
+                  status: CONSTANTS.FAIL,
+              },
+          ]);
     });
 });

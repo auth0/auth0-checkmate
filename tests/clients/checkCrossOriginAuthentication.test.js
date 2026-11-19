@@ -5,17 +5,16 @@ const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe('checkCrossOriginAuthentication', function() {
 
-  it('should return an empty report when clients array is empty', function() {
+  it('should return an empty report when clients array is empty', async function () {
     const options = {
       clients: []
     };
 
-    checkCrossOriginAuthentication(options, (report) => {
-      expect(report).to.be.an('array').that.is.empty;
-    });
+    const { details: report } = await checkCrossOriginAuthentication(options);
+    expect(report).to.be.an('array').that.is.empty;
   });
 
-  it('should return a report when cross_origin_authentication is enabled', function() {
+  it('should return a report when cross_origin_authentication is enabled', async function () {
     const options = {
       clients: [
         {
@@ -27,19 +26,20 @@ describe('checkCrossOriginAuthentication', function() {
       ]
     };
 
-    checkCrossOriginAuthentication(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0]).to.include({
-        client_id: 'client_id_1',
-        field: 'cross_origin_authentication_enabled',
-        status: CONSTANTS.FAIL,
-        app_type: 'spa'
-      });
-      expect(report[0].name).to.equal('Client 1 (client_id_1)');
+    const { details: report } = await checkCrossOriginAuthentication(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].name).to.equal('Client 1 (client_id_1)');
+    expect(report[0].report).to.have.lengthOf(1);
+    expect(report[0].report[0]).to.include({
+      name: 'Client 1 (client_id_1)',
+      client_id: 'client_id_1',
+      field: 'cross_origin_authentication_enabled',
+      status: CONSTANTS.FAIL,
+      app_type: 'spa'
     });
   });
 
-  it('should not return a report when cross_origin_authentication is disabled', function() {
+  it('should return a success report when cross_origin_authentication is disabled', async function () {
     const options = {
       clients: [
         {
@@ -51,12 +51,17 @@ describe('checkCrossOriginAuthentication', function() {
       ]
     };
 
-    checkCrossOriginAuthentication(options, (report) => {
-      expect(report).to.be.an('array').that.is.empty;
+    const { details: report } = await checkCrossOriginAuthentication(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].report).to.have.lengthOf(1);
+    expect(report[0].report[0]).to.include({
+      client_id: 'client_id_2',
+      field: 'cross_origin_authentication_disabled',
+      status: CONSTANTS.SUCCESS
     });
   });
 
-  it('should handle cases where client_id is missing', function() {
+  it('should handle cases where client_id is missing', async function () {
     const options = {
       clients: [
         {
@@ -67,19 +72,19 @@ describe('checkCrossOriginAuthentication', function() {
       ]
     };
 
-    checkCrossOriginAuthentication(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0]).to.include({
-        client_id: 'Client 3',
-        field: 'cross_origin_authentication_enabled',
-        status: CONSTANTS.FAIL,
-        app_type: 'spa'
-      });
-      expect(report[0].name).to.equal('Client 3');
+    const { details: report } = await checkCrossOriginAuthentication(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].report).to.have.lengthOf(1);
+    expect(report[0].report[0]).to.include({
+      name: 'Client 3',
+      client_id: 'Client 3',
+      field: 'cross_origin_authentication_enabled',
+      status: CONSTANTS.FAIL,
+      app_type: 'spa'
     });
   });
 
-  it('should return an empty report if cross_origin_authentication is false and other properties exist', function() {
+  it('should return a success report if cross_origin_authentication is false and other properties exist', async function () {
     const options = {
       clients: [
         {
@@ -92,8 +97,13 @@ describe('checkCrossOriginAuthentication', function() {
       ]
     };
 
-    checkCrossOriginAuthentication(options, (report) => {
-      expect(report).to.be.an('array').that.is.empty;
+    const { details: report } = await checkCrossOriginAuthentication(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].report).to.have.lengthOf(1);
+    expect(report[0].report[0]).to.include({
+      client_id: 'client_id_4',
+      field: 'cross_origin_authentication_disabled',
+      status: CONSTANTS.SUCCESS
     });
   });
 });

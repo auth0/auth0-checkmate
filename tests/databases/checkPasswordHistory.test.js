@@ -3,19 +3,18 @@ const checkPasswordHistory = require("../../analyzer/lib/databases/checkPassword
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkPasswordHistory", function () {
-  it("should return failure if no databases are provided", function () {
+  it("should return failure if no databases are provided", async function () {
     const options = {
       databases: [], // Empty databases array
     };
 
-    checkPasswordHistory(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("no_database_connections_found");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-    });
+    const { details: report } = await checkPasswordHistory(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("no_database_connections_found");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
   });
 
-  it("should return failure if password history is disabled", function () {
+  it("should return failure if password history is disabled", async function () {
     const options = {
       databases: [
         {
@@ -30,14 +29,13 @@ describe("checkPasswordHistory", function () {
       ],
     };
 
-    checkPasswordHistory(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("password_history_disabled");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-    });
+    const { details: report } = await checkPasswordHistory(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("password_history_disabled");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
   });
 
-  it("should return success if password history is enabled", function () {
+  it("should return success if password history is enabled", async function () {
     const options = {
       databases: [
         {
@@ -52,15 +50,14 @@ describe("checkPasswordHistory", function () {
       ],
     };
 
-    checkPasswordHistory(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("password_history_enabled");
-      expect(report[0].status).to.equal(CONSTANTS.SUCCESS);
-      expect(report[0].value).to.equal(5);
-    });
+    const { details: report } = await checkPasswordHistory(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("password_history_enabled");
+    expect(report[0].status).to.equal(CONSTANTS.SUCCESS);
+    expect(report[0].value).to.equal(5);
   });
 
-  it("should handle multiple databases with different password history configurations", function () {
+  it("should handle multiple databases with different password history configurations", async function () {
     const options = {
       databases: [
         {
@@ -84,17 +81,16 @@ describe("checkPasswordHistory", function () {
       ],
     };
 
-    checkPasswordHistory(options, (report) => {
-      expect(report).to.have.lengthOf(2);
+    const { details: report } = await checkPasswordHistory(options);
+    expect(report).to.have.lengthOf(2);
 
-      // DB 1: Password history disabled, should fail
-      expect(report[0].field).to.equal("password_history_disabled");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
+    // DB 1: Password history disabled, should fail
+    expect(report[0].field).to.equal("password_history_disabled");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
 
-      // DB 2: Password history enabled, should succeed
-      expect(report[1].field).to.equal("password_history_enabled");
-      expect(report[1].status).to.equal(CONSTANTS.SUCCESS);
-      expect(report[1].value).to.equal(10);
-    });
+    // DB 2: Password history enabled, should succeed
+    expect(report[1].field).to.equal("password_history_enabled");
+    expect(report[1].status).to.equal(CONSTANTS.SUCCESS);
+    expect(report[1].value).to.equal(10);
   });
 });

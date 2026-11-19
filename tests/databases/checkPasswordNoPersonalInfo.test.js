@@ -3,19 +3,18 @@ const checkPasswordNoPersonalInfo = require("../../analyzer/lib/databases/checkP
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkPasswordNoPersonalInfo", function () {
-  it("should return failure if no databases are provided", function () {
+  it("should return failure if no databases are provided", async function () {
     const options = {
       databases: [], // Empty databases array
     };
 
-    checkPasswordNoPersonalInfo(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("no_database_connections_found");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-    });
+    const { details: report } = await checkPasswordNoPersonalInfo(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("no_database_connections_found");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
   });
 
-  it("should return failure if password_no_personal_info is disabled", function () {
+  it("should return failure if password_no_personal_info is disabled", async function () {
     const options = {
       databases: [
         {
@@ -29,14 +28,13 @@ describe("checkPasswordNoPersonalInfo", function () {
       ],
     };
 
-    checkPasswordNoPersonalInfo(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("password_no_personal_info_disabled");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-    });
+    const { details: report } = await checkPasswordNoPersonalInfo(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("password_no_personal_info_disabled");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
   });
 
-  it("should return success if password_no_personal_info is enabled", function () {
+  it("should return success if password_no_personal_info is enabled", async function () {
     const options = {
       databases: [
         {
@@ -50,14 +48,13 @@ describe("checkPasswordNoPersonalInfo", function () {
       ],
     };
 
-    checkPasswordNoPersonalInfo(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("password_no_personal_info_enable");
-      expect(report[0].status).to.equal(CONSTANTS.SUCCESS);
-    });
+    const { details: report } = await checkPasswordNoPersonalInfo(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("password_no_personal_info_enable");
+    expect(report[0].status).to.equal(CONSTANTS.SUCCESS);
   });
 
-  it("should handle multiple databases with different personal info configurations", function () {
+  it("should handle multiple databases with different personal info configurations", async function () {
     const options = {
       databases: [
         {
@@ -79,16 +76,15 @@ describe("checkPasswordNoPersonalInfo", function () {
       ],
     };
 
-    checkPasswordNoPersonalInfo(options, (report) => {
-      expect(report).to.have.lengthOf(2);
+    const { details: report } = await checkPasswordNoPersonalInfo(options);
+    expect(report).to.have.lengthOf(2);
 
-      // DB 1: Personal info disallowed is disabled, should fail
-      expect(report[0].field).to.equal("password_no_personal_info_disabled");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
+    // DB 1: Personal info disallowed is disabled, should fail
+    expect(report[0].field).to.equal("password_no_personal_info_disabled");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
 
-      // DB 2: Personal info disallowed is enabled, should succeed
-      expect(report[1].field).to.equal("password_no_personal_info_enable");
-      expect(report[1].status).to.equal(CONSTANTS.SUCCESS);
-    });
+    // DB 2: Personal info disallowed is enabled, should succeed
+    expect(report[1].field).to.equal("password_no_personal_info_enable");
+    expect(report[1].status).to.equal(CONSTANTS.SUCCESS);
   });
 });

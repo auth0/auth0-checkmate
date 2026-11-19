@@ -5,15 +5,14 @@ const checkActionsRuntime = require("../../analyzer/lib/actions/checkActionsRunt
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkActionsRuntime", function () {
-  it("should not return a report when no actions are provided", function () {
+  it("should not return a report when no actions are provided", async function () {
     const options = {};
 
-    checkActionsRuntime(options, (report) => {
-      expect(report).to.deep.equal([]);
-    });
+    const { details: report } = await checkActionsRuntime(options);
+    expect(report).to.deep.equal([]);
   });
 
-  it("should return a failure report for actions with outdated Node.js versions", function () {
+  it("should return a failure report for actions with outdated Node.js versions", async function () {
     const options = {
       actions: {
         actions: [
@@ -35,19 +34,18 @@ describe("checkActionsRuntime", function () {
       },
     };
 
-    checkActionsRuntime(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          name: "Custom Phone Provider (custom-phone-provider)",
-          field: "old_node_version",
-          status: CONSTANTS.FAIL,
-          value: 16,
-        },
-      ]);
-    });
+    const { details: report } = await checkActionsRuntime(options);
+    expect(report).to.deep.equal([
+      {
+        name: "Custom Phone Provider (custom-phone-provider)",
+        field: "old_node_version",
+        status: CONSTANTS.FAIL,
+        value: 16,
+      },
+    ]);
   });
 
-  it("should not return a report for actions with valid Node.js versions", function () {
+  it("should not return a report for actions with valid Node.js versions", async function () {
     const options = {
       actions: {
         actions: [
@@ -69,12 +67,11 @@ describe("checkActionsRuntime", function () {
       },
     };
 
-    checkActionsRuntime(options, (report) => {
-      expect(report).to.deep.equal([]);
-    });
+    const { details: report } = await checkActionsRuntime(options);
+    expect(report).to.deep.equal([]);
   });
 
-  it("should return a failure report for actions with outdated Node.js versions and correct trigger names", function () {
+  it("should return a failure report for actions with outdated Node.js versions and correct trigger names", async function () {
     const options = {
       actions: {
         actions: [
@@ -88,15 +85,14 @@ describe("checkActionsRuntime", function () {
       },
     };
 
-    checkActionsRuntime(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          name: "action example 1 (post-login)",
-          field: "old_node_version",
-          status: CONSTANTS.FAIL,
-          value: 17,
-        },
-      ]);
-    });
+    const { details: report } = await checkActionsRuntime(options);
+    expect(report).to.deep.equal([
+      {
+        name: "action example 1 (post-login)",
+        field: "old_node_version",
+        status: CONSTANTS.FAIL,
+        value: 17,
+      },
+    ]);
   });
 });

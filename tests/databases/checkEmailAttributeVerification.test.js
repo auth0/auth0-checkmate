@@ -4,18 +4,17 @@ const checkEmailAttributeVerification = require("../../analyzer/lib/databases/ch
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkEmailAttributeVerification", function () {
-    it("should return a failure report when no database connections are found", function () {
+    it("should return a failure report when no database connections are found", async function () {
         const options = { databases: [] }; // No databases provided
-        checkEmailAttributeVerification(options, (report) => {
-            expect(report).to.be.an("array").that.has.lengthOf(1);
-            expect(report[0]).to.deep.equal({
-                field: "no_database_connections_found",
-                status: CONSTANTS.FAIL,
-            });
-        });
+        const { details: report } = await checkEmailAttributeVerification(options);
+          expect(report).to.be.an("array").that.has.lengthOf(1);
+          expect(report[0]).to.deep.equal({
+              field: "no_database_connections_found",
+              status: CONSTANTS.FAIL,
+          });
     });
 
-    it("should return a failure report when attributes are missing", function () {
+    it("should return a failure report when attributes are missing", async function () {
         const options = {
             databases: [
                 {
@@ -26,17 +25,16 @@ describe("checkEmailAttributeVerification", function () {
                 },
             ],
         };
-        checkEmailAttributeVerification(options, (report) => {
-            expect(report).to.be.an("array").that.has.lengthOf(1);
-            expect(report[0]).to.deep.equal({
-                name: "Username-Password-Authentication",
-                status: CONSTANTS.FAIL,
-                field: "flexible_identifiers_disabled",
-            });
-        });
+        const { details: report } = await checkEmailAttributeVerification(options);
+          expect(report).to.be.an("array").that.has.lengthOf(1);
+          expect(report[0]).to.deep.equal({
+              name: "Username-Password-Authentication",
+              status: CONSTANTS.FAIL,
+              field: "flexible_identifiers_disabled",
+          });
     });
 
-    it("should return a failure report when verification_method is not otp", function () {
+    it("should return a failure report when verification_method is not otp", async function () {
         const options = {
             databases: [
                 {
@@ -49,17 +47,16 @@ describe("checkEmailAttributeVerification", function () {
                 },
             ],
         };
-        checkEmailAttributeVerification(options, (report) => {
-            expect(report).to.be.an("array").that.has.lengthOf(1);
-            expect(report[0]).to.deep.equal({
-                name: "Username-Password-Authentication",
-                status: CONSTANTS.FAIL,
-                field: "verification_by_link_method",
-            });
-        });
+        const { details: report } = await checkEmailAttributeVerification(options);
+          expect(report).to.be.an("array").that.has.lengthOf(1);
+          expect(report[0]).to.deep.equal({
+              name: "Username-Password-Authentication",
+              status: CONSTANTS.FAIL,
+              field: "verification_by_link_method",
+          });
     });
 
-    it("should return a success report when verification_method is otp", function () {
+    it("should return a success report when verification_method is otp", async function () {
         const options = {
             databases: [
                 {
@@ -72,8 +69,7 @@ describe("checkEmailAttributeVerification", function () {
                 },
             ],
         };
-        checkEmailAttributeVerification(options, (report) => {
-            expect(report).to.be.an("array").that.has.lengthOf(0);
-        });
+        const { details: report } = await checkEmailAttributeVerification(options);
+          expect(report).to.be.an("array").that.has.lengthOf(0);
     });
 });

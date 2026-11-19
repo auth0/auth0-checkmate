@@ -5,20 +5,19 @@ const checkHooks = require("../../analyzer/lib/hooks/checkHooks");
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkHooks", function () {
-  it("should return success when no hooks are provided", function () {
+  it("should return success when no hooks are provided", async function () {
     const options = {};
 
-    checkHooks(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "no_enabled_hooks",
-          status: CONSTANTS.SUCCESS,
-        },
-      ]);
-    });
+    const { details: report } = await checkHooks(options);
+    expect(report).to.deep.equal([
+      {
+        field: "no_enabled_hooks",
+        status: CONSTANTS.SUCCESS,
+      },
+    ]);
   });
 
-  it("should return fail for an enabled hook", function () {
+  it("should return fail for an enabled hook", async function () {
     const options = {
       hooks: [
         {
@@ -32,19 +31,18 @@ describe("checkHooks", function () {
       ],
     };
 
-    checkHooks(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          name: "test",
-          value: "post-user-registration",
-          field: "enabled_hooks",
-          status: CONSTANTS.FAIL,
-        },
-      ]);
-    });
+    const { details: report } = await checkHooks(options);
+    expect(report).to.deep.equal([
+      {
+        name: "test",
+        value: "post-user-registration",
+        field: "enabled_hooks",
+        status: CONSTANTS.FAIL,
+      },
+    ]);
   });
 
-  it("should return success for a disabled hook", function () {
+  it("should return success for a disabled hook", async function () {
     const options = {
       hooks: [
         {
@@ -58,19 +56,18 @@ describe("checkHooks", function () {
       ],
     };
 
-    checkHooks(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          name: "test",
-          value: "post-user-registration",
-          field: "enabled_hooks",
-          status: CONSTANTS.SUCCESS,
-        },
-      ]);
-    });
+    const { details: report } = await checkHooks(options);
+    expect(report).to.deep.equal([
+      {
+        name: "test",
+        value: "post-user-registration",
+        field: "enabled_hooks",
+        status: CONSTANTS.SUCCESS,
+      },
+    ]);
   });
 
-  it("should handle multiple hooks with mixed enabled/disabled states", function () {
+  it("should handle multiple hooks with mixed enabled/disabled states", async function () {
     const options = {
       hooks: [
         {
@@ -92,21 +89,20 @@ describe("checkHooks", function () {
       ],
     };
 
-    checkHooks(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          name: "test1",
-          value: "post-user-registration",
-          field: "enabled_hooks",
-          status: CONSTANTS.FAIL,
-        },
-        {
-          name: "test2",
-          value: "pre-user-registration",
-          field: "enabled_hooks",
-          status: CONSTANTS.SUCCESS,
-        },
-      ]);
-    });
+    const { details: report } = await checkHooks(options);
+    expect(report).to.deep.equal([
+      {
+        name: "test1",
+        value: "post-user-registration",
+        field: "enabled_hooks",
+        status: CONSTANTS.FAIL,
+      },
+      {
+        name: "test2",
+        value: "pre-user-registration",
+        field: "enabled_hooks",
+        status: CONSTANTS.SUCCESS,
+      },
+    ]);
   });
 });

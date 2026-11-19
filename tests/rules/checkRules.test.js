@@ -5,20 +5,19 @@ const checkRules = require("../../analyzer/lib/rules/checkRules");
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkRules", function () {
-  it("should return success when no rules are provided", function () {
+  it("should return success when no rules are provided", async function () {
     const options = {};
 
-    checkRules(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          field: "no_enabled_rules",
-          status: CONSTANTS.SUCCESS,
-        },
-      ]);
-    });
+    const { details: report } = await checkRules(options);
+    expect(report).to.deep.equal([
+      {
+        field: "no_enabled_rules",
+        status: CONSTANTS.SUCCESS,
+      },
+    ]);
   });
 
-  it("should return fail for an enabled rule", function () {
+  it("should return fail for an enabled rule", async function () {
     const options = {
       rules: [
         {
@@ -31,19 +30,18 @@ describe("checkRules", function () {
       ],
     };
 
-    checkRules(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          name: "Override SAML Certificate",
-          value: "rul_YFDdYGJSIwMPzsZR",
-          field: "enabled_rules",
-          status: CONSTANTS.FAIL,
-        },
-      ]);
-    });
+    const { details: report } = await checkRules(options);
+    expect(report).to.deep.equal([
+      {
+        name: "Override SAML Certificate",
+        value: "rul_YFDdYGJSIwMPzsZR",
+        field: "enabled_rules",
+        status: CONSTANTS.FAIL,
+      },
+    ]);
   });
 
-  it("should return empty for disabled rules", function () {
+  it("should return empty for disabled rules", async function () {
     const options = {
       rules: [
         {
@@ -63,12 +61,11 @@ describe("checkRules", function () {
       ],
     };
 
-    checkRules(options, (report) => {
-      expect(report).to.deep.equal([]);
-    });
+    const { details: report } = await checkRules(options);
+    expect(report).to.deep.equal([]);
   });
 
-  it("should return fail for only rules with enabled state", function () {
+  it("should return fail for only rules with enabled state", async function () {
     const options = {
       rules: [
         {
@@ -88,15 +85,14 @@ describe("checkRules", function () {
       ],
     };
 
-    checkRules(options, (report) => {
-      expect(report).to.deep.equal([
-        {
-          name: "Override SAML Certificate",
-          value: "rul_YFDdYGJSIwMPzsZR",
-          field: "enabled_rules",
-          status: CONSTANTS.FAIL,
-        },
-      ]);
-    });
+    const { details: report } = await checkRules(options);
+    expect(report).to.deep.equal([
+      {
+        name: "Override SAML Certificate",
+        value: "rul_YFDdYGJSIwMPzsZR",
+        field: "enabled_rules",
+        status: CONSTANTS.FAIL,
+      },
+    ]);
   });
 });

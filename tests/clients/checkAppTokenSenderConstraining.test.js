@@ -6,7 +6,7 @@ const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkAppTokenSenderConstraining", function() {
 
-    it("should report failure if authorization_code grant is used and Token Sender-Constraining is not enabled", function() {
+    it("should report failure if authorization_code grant is used and Token Sender-Constraining is not enabled", async function () {
         const options = {
             clients: [{
                 name: "Web App",
@@ -18,21 +18,20 @@ describe("checkAppTokenSenderConstraining", function() {
             }]
         };
 
-        checkAppTokenSenderConstraining(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].name).to.equal("Web App (client_web)");
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                name: "Web App (client_web)",
-                client_id: "client_web",
-                field: "require_proof_of_possession",
-                status: CONSTANTS.FAIL,
-                value: false,
-            });
-        });
+        const { details: result } = await checkAppTokenSenderConstraining(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].name).to.equal("Web App (client_web)");
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              name: "Web App (client_web)",
+              client_id: "client_web",
+              field: "require_proof_of_possession",
+              status: CONSTANTS.FAIL,
+              value: false,
+          });
     });
 
-    it("should report failure if refresh_token grant is used and Token Sender-Constraining is not enabled", function() {
+    it("should report failure if refresh_token grant is used and Token Sender-Constraining is not enabled", async function () {
         const options = {
             clients: [{
                 name: "SPA App",
@@ -44,17 +43,16 @@ describe("checkAppTokenSenderConstraining", function() {
             }]
         };
 
-        checkAppTokenSenderConstraining(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "require_proof_of_possession",
-                status: CONSTANTS.FAIL,
-            });
-        });
+        const { details: result } = await checkAppTokenSenderConstraining(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "require_proof_of_possession",
+              status: CONSTANTS.FAIL,
+          });
     });
 
-    it("should report failure if Token Sender-Constraining is absent", function() {
+    it("should report failure if Token Sender-Constraining is absent", async function () {
         const options = {
             clients: [{
                 name: "Legacy App",
@@ -65,17 +63,16 @@ describe("checkAppTokenSenderConstraining", function() {
             }]
         };
 
-        checkAppTokenSenderConstraining(options, (result) => {
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "require_proof_of_possession",
-                status: CONSTANTS.FAIL,
-                value: false,
-            });
-        });
+        const { details: result } = await checkAppTokenSenderConstraining(options);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "require_proof_of_possession",
+              status: CONSTANTS.FAIL,
+              value: false,
+          });
     });
 
-    it("should return empty report if Token Sender-Constraining is enabled", function() {
+    it("should return empty report if Token Sender-Constraining is enabled", async function () {
         const options = {
             clients: [{
                 name: "Secure App",
@@ -87,14 +84,13 @@ describe("checkAppTokenSenderConstraining", function() {
             }]
         };
 
-        checkAppTokenSenderConstraining(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].name).to.equal("Secure App (client_secure)");
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkAppTokenSenderConstraining(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].name).to.equal("Secure App (client_secure)");
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should report failure if client_credentials grant is used and Token Sender-Constraining is not enabled", function() {
+    it("should report failure if client_credentials grant is used and Token Sender-Constraining is not enabled", async function () {
         const options = {
             clients: [{
                 name: "M2M App",
@@ -106,18 +102,17 @@ describe("checkAppTokenSenderConstraining", function() {
             }]
         };
 
-        checkAppTokenSenderConstraining(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "require_proof_of_possession",
-                status: CONSTANTS.FAIL,
-                value: false,
-            });
-        });
+        const { details: result } = await checkAppTokenSenderConstraining(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "require_proof_of_possession",
+              status: CONSTANTS.FAIL,
+              value: false,
+          });
     });
 
-    it("should report failure if password grant is used and Token Sender-Constraining is not enabled", function() {
+    it("should report failure if password grant is used and Token Sender-Constraining is not enabled", async function () {
         const options = {
             clients: [{
                 name: "ROPC App",
@@ -129,18 +124,17 @@ describe("checkAppTokenSenderConstraining", function() {
             }]
         };
 
-        checkAppTokenSenderConstraining(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "require_proof_of_possession",
-                status: CONSTANTS.FAIL,
-                value: false,
-            });
-        });
+        const { details: result } = await checkAppTokenSenderConstraining(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "require_proof_of_possession",
+              status: CONSTANTS.FAIL,
+              value: false,
+          });
     });
 
-    it("should report failure if device_code grant is used and Token Sender-Constraining is not enabled", function() {
+    it("should report failure if device_code grant is used and Token Sender-Constraining is not enabled", async function () {
         const options = {
             clients: [{
                 name: "Device App",
@@ -152,18 +146,17 @@ describe("checkAppTokenSenderConstraining", function() {
             }]
         };
 
-        checkAppTokenSenderConstraining(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "require_proof_of_possession",
-                status: CONSTANTS.FAIL,
-                value: false,
-            });
-        });
+        const { details: result } = await checkAppTokenSenderConstraining(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "require_proof_of_possession",
+              status: CONSTANTS.FAIL,
+              value: false,
+          });
     });
 
-    it("should not flag clients with only implicit grant type", function() {
+    it("should not flag clients with only implicit grant type", async function () {
         const options = {
             clients: [{
                 name: "Legacy SPA",
@@ -175,16 +168,14 @@ describe("checkAppTokenSenderConstraining", function() {
             }]
         };
 
-        checkAppTokenSenderConstraining(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkAppTokenSenderConstraining(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should return empty result if no clients are provided", function() {
+    it("should return empty result if no clients are provided", async function () {
         const options = { clients: [] };
-        checkAppTokenSenderConstraining(options, (result) => {
-            expect(result).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkAppTokenSenderConstraining(options);
+          expect(result).to.be.an("array").that.is.empty;
     });
 });

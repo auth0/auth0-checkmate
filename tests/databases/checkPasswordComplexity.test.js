@@ -3,19 +3,18 @@ const checkPasswordComplexity = require("../../analyzer/lib/databases/checkPassw
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkPasswordComplexity", function () {
-  it("should return failure if no databases are provided", function () {
+  it("should return failure if no databases are provided", async function () {
     const options = {
       databases: [], // Empty databases array
     };
 
-    checkPasswordComplexity(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("no_database_connections_found");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-    });
+    const { details: report } = await checkPasswordComplexity(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("no_database_connections_found");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
   });
 
-  it("should return failure if password complexity is not configured", function () {
+  it("should return failure if password complexity is not configured", async function () {
     const options = {
       databases: [
         {
@@ -27,14 +26,13 @@ describe("checkPasswordComplexity", function () {
       ],
     };
 
-    checkPasswordComplexity(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("password_complexity_not_configured");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-    });
+    const { details: report } = await checkPasswordComplexity(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("password_complexity_not_configured");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
   });
 
-  it("should return failure if password minimum length is less than 12", function () {
+  it("should return failure if password minimum length is less than 12", async function () {
     const options = {
       databases: [
         {
@@ -48,15 +46,14 @@ describe("checkPasswordComplexity", function () {
       ],
     };
 
-    checkPasswordComplexity(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("password_min_length_fail");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-      expect(report[0].value).to.equal(8);
-    });
+    const { details: report } = await checkPasswordComplexity(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("password_min_length_fail");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
+    expect(report[0].value).to.equal(8);
   });
 
-  it("should return success if password minimum length is 12 or greater", function () {
+  it("should return success if password minimum length is 12 or greater", async function () {
     const options = {
       databases: [
         {
@@ -70,15 +67,14 @@ describe("checkPasswordComplexity", function () {
       ],
     };
 
-    checkPasswordComplexity(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("password_min_length_success");
-      expect(report[0].status).to.equal(CONSTANTS.SUCCESS);
-      expect(report[0].value).to.equal(12);
-    });
+    const { details: report } = await checkPasswordComplexity(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("password_min_length_success");
+    expect(report[0].status).to.equal(CONSTANTS.SUCCESS);
+    expect(report[0].value).to.equal(12);
   });
 
-  it("should handle multiple databases with different password complexity configurations", function () {
+  it("should handle multiple databases with different password complexity configurations", async function () {
     const options = {
       databases: [
         {
@@ -106,22 +102,21 @@ describe("checkPasswordComplexity", function () {
       ],
     };
 
-    checkPasswordComplexity(options, (report) => {
-      expect(report).to.have.lengthOf(3);
+    const { details: report } = await checkPasswordComplexity(options);
+    expect(report).to.have.lengthOf(3);
 
-      // DB 1: Password min length is less than 12, should fail
-      expect(report[0].field).to.equal("password_min_length_fail");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-      expect(report[0].value).to.equal(8);
+    // DB 1: Password min length is less than 12, should fail
+    expect(report[0].field).to.equal("password_min_length_fail");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
+    expect(report[0].value).to.equal(8);
 
-      // DB 2: Password min length is 14, should succeed
-      expect(report[1].field).to.equal("password_min_length_success");
-      expect(report[1].status).to.equal(CONSTANTS.SUCCESS);
-      expect(report[1].value).to.equal(14);
+    // DB 2: Password min length is 14, should succeed
+    expect(report[1].field).to.equal("password_min_length_success");
+    expect(report[1].status).to.equal(CONSTANTS.SUCCESS);
+    expect(report[1].value).to.equal(14);
 
-      // DB 3: Password complexity not configured, should fail
-      expect(report[2].field).to.equal("password_complexity_not_configured");
-      expect(report[2].status).to.equal(CONSTANTS.FAIL);
-    });
+    // DB 3: Password complexity not configured, should fail
+    expect(report[2].field).to.equal("password_complexity_not_configured");
+    expect(report[2].status).to.equal(CONSTANTS.FAIL);
   });
 });

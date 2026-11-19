@@ -6,7 +6,7 @@ const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkJWEResourceServer", function() {
 
-    it("should emit advisory finding when token_encryption is not present in the API response", function() {
+    it("should emit advisory finding when token_encryption is not present in the API response", async function () {
         const options = {
             resourceServers: [{
                 id: "rs1",
@@ -16,17 +16,16 @@ describe("checkJWEResourceServer", function() {
             }]
         };
 
-        checkJWEResourceServer(options, (result) => {
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "token_encryption",
-                status: CONSTANTS.FAIL,
-                value: "not_verifiable",
-            });
-        });
+        const { details: result } = await checkJWEResourceServer(options);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "token_encryption",
+              status: CONSTANTS.FAIL,
+              value: "not_verifiable",
+          });
     });
 
-    it("should report failure if token_encryption.format is invalid", function() {
+    it("should report failure if token_encryption.format is invalid", async function () {
         const options = {
             resourceServers: [{
                 id: "rs2",
@@ -43,17 +42,16 @@ describe("checkJWEResourceServer", function() {
             }]
         };
 
-        checkJWEResourceServer(options, (result) => {
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "token_encryption.format",
-                status: CONSTANTS.FAIL,
-                value: "unknown-format",
-            });
-        });
+        const { details: result } = await checkJWEResourceServer(options);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "token_encryption.format",
+              status: CONSTANTS.FAIL,
+              value: "unknown-format",
+          });
     });
 
-    it("should report failure if token_encryption.format is not set", function() {
+    it("should report failure if token_encryption.format is not set", async function () {
         const options = {
             resourceServers: [{
                 id: "rs3",
@@ -69,17 +67,16 @@ describe("checkJWEResourceServer", function() {
             }]
         };
 
-        checkJWEResourceServer(options, (result) => {
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "token_encryption.format",
-                status: CONSTANTS.FAIL,
-                value: "not_set",
-            });
-        });
+        const { details: result } = await checkJWEResourceServer(options);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "token_encryption.format",
+              status: CONSTANTS.FAIL,
+              value: "not_set",
+          });
     });
 
-    it("should report failure if token_encryption.encryption_key is missing", function() {
+    it("should report failure if token_encryption.encryption_key is missing", async function () {
         const options = {
             resourceServers: [{
                 id: "rs4",
@@ -92,17 +89,16 @@ describe("checkJWEResourceServer", function() {
             }]
         };
 
-        checkJWEResourceServer(options, (result) => {
-            expect(result[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result[0].report[0]).to.include({
-                field: "token_encryption.encryption_key",
-                status: CONSTANTS.FAIL,
-                value: "not_configured",
-            });
-        });
+        const { details: result } = await checkJWEResourceServer(options);
+          expect(result[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result[0].report[0]).to.include({
+              field: "token_encryption.encryption_key",
+              status: CONSTANTS.FAIL,
+              value: "not_configured",
+          });
     });
 
-    it("should return empty report if token_encryption is fully configured with RSA-OAEP-256", function() {
+    it("should return empty report if token_encryption is fully configured with RSA-OAEP-256", async function () {
         const options = {
             resourceServers: [{
                 id: "rs5",
@@ -120,14 +116,13 @@ describe("checkJWEResourceServer", function() {
             }]
         };
 
-        checkJWEResourceServer(options, (result) => {
-            expect(result).to.be.an("array").with.lengthOf(1);
-            expect(result[0].name).to.equal("Secure Banking API (https://secure.bank.ciam.rocks)");
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkJWEResourceServer(options);
+          expect(result).to.be.an("array").with.lengthOf(1);
+          expect(result[0].name).to.equal("Secure Banking API (https://secure.bank.ciam.rocks)");
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should return empty report if token_encryption is fully configured with RSA-OAEP-512", function() {
+    it("should return empty report if token_encryption is fully configured with RSA-OAEP-512", async function () {
         const options = {
             resourceServers: [{
                 id: "rs6",
@@ -146,12 +141,11 @@ describe("checkJWEResourceServer", function() {
             }]
         };
 
-        checkJWEResourceServer(options, (result) => {
-            expect(result[0].report).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkJWEResourceServer(options);
+          expect(result[0].report).to.be.an("array").that.is.empty;
     });
 
-    it("should skip system resource servers entirely", function() {
+    it("should skip system resource servers entirely", async function () {
         const options = {
             resourceServers: [{
                 id: "rs_system",
@@ -161,15 +155,13 @@ describe("checkJWEResourceServer", function() {
             }]
         };
 
-        checkJWEResourceServer(options, (result) => {
-            expect(result).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkJWEResourceServer(options);
+          expect(result).to.be.an("array").that.is.empty;
     });
 
-    it("should return empty result if no resource servers are provided", function() {
+    it("should return empty result if no resource servers are provided", async function () {
         const options = { resourceServers: [] };
-        checkJWEResourceServer(options, (result) => {
-            expect(result).to.be.an("array").that.is.empty;
-        });
+        const { details: result } = await checkJWEResourceServer(options);
+          expect(result).to.be.an("array").that.is.empty;
     });
 });

@@ -6,14 +6,13 @@ const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkBackchannelLogout", function () {
 
-    it("should return an empty report when no clients are provided", function () {
+    it("should return an empty report when no clients are provided", async function () {
         const options = { clients: [] };
-        checkBackchannelLogout(options).then((result) => {
-            expect(result.details).to.be.an("array").that.is.empty;
-        });
+        const result = await checkBackchannelLogout(options);
+          expect(result.details).to.be.an("array").that.is.empty;
     });
 
-    it("should skip global clients", function () {
+    it("should skip global clients", async function () {
         const options = {
             clients: [{
                 name: "All Applications",
@@ -24,12 +23,11 @@ describe("checkBackchannelLogout", function () {
             }],
         };
 
-        checkBackchannelLogout(options).then((result) => {
-            expect(result.details).to.be.an("array").that.is.empty;
-        });
+        const result = await checkBackchannelLogout(options);
+          expect(result.details).to.be.an("array").that.is.empty;
     });
 
-    it("should skip SPA clients", function () {
+    it("should skip SPA clients", async function () {
         const options = {
             clients: [{
                 name: "SPA App",
@@ -41,12 +39,11 @@ describe("checkBackchannelLogout", function () {
             }],
         };
 
-        checkBackchannelLogout(options).then((result) => {
-            expect(result.details).to.be.an("array").that.is.empty;
-        });
+        const result = await checkBackchannelLogout(options);
+          expect(result.details).to.be.an("array").that.is.empty;
     });
 
-    it("should skip native clients", function () {
+    it("should skip native clients", async function () {
         const options = {
             clients: [{
                 name: "Mobile App",
@@ -58,12 +55,11 @@ describe("checkBackchannelLogout", function () {
             }],
         };
 
-        checkBackchannelLogout(options).then((result) => {
-            expect(result.details).to.be.an("array").that.is.empty;
-        });
+        const result = await checkBackchannelLogout(options);
+          expect(result.details).to.be.an("array").that.is.empty;
     });
 
-    it("should skip non_interactive (M2M) clients", function () {
+    it("should skip non_interactive (M2M) clients", async function () {
         const options = {
             clients: [{
                 name: "M2M App",
@@ -75,12 +71,11 @@ describe("checkBackchannelLogout", function () {
             }],
         };
 
-        checkBackchannelLogout(options).then((result) => {
-            expect(result.details).to.be.an("array").that.is.empty;
-        });
+        const result = await checkBackchannelLogout(options);
+          expect(result.details).to.be.an("array").that.is.empty;
     });
 
-    it("should report failure for a regular_web app without back-channel logout configured", function () {
+    it("should report failure for a regular_web app without back-channel logout configured", async function () {
         const options = {
             clients: [{
                 name: "Web App",
@@ -92,19 +87,18 @@ describe("checkBackchannelLogout", function () {
             }],
         };
 
-        checkBackchannelLogout(options).then((result) => {
-            expect(result.details).to.be.an("array").with.lengthOf(1);
-            expect(result.details[0].name).to.equal("Web App (client_web)");
-            expect(result.details[0].report).to.be.an("array").with.lengthOf(1);
-            expect(result.details[0].report[0]).to.include({
-                field: "oidc_backchannel_logout.backchannel_logout_urls",
-                status: CONSTANTS.FAIL,
-                value: "not_configured",
-            });
-        });
+        const result = await checkBackchannelLogout(options);
+          expect(result.details).to.be.an("array").with.lengthOf(1);
+          expect(result.details[0].name).to.equal("Web App (client_web)");
+          expect(result.details[0].report).to.be.an("array").with.lengthOf(1);
+          expect(result.details[0].report[0]).to.include({
+              field: "oidc_backchannel_logout.backchannel_logout_urls",
+              status: CONSTANTS.FAIL,
+              value: "not_configured",
+          });
     });
 
-    it("should report success for a regular_web app with oidc_backchannel_logout configured", function () {
+    it("should report success for a regular_web app with oidc_backchannel_logout configured", async function () {
         const options = {
             clients: [{
                 name: "backchannellogout",
@@ -120,17 +114,16 @@ describe("checkBackchannelLogout", function () {
             }],
         };
 
-        checkBackchannelLogout(options).then((result) => {
-            expect(result.details).to.be.an("array").with.lengthOf(1);
-            expect(result.details[0].name).to.equal("backchannellogout (client_bcl)");
-            expect(result.details[0].report[0]).to.include({
-                field: "oidc_backchannel_logout.backchannel_logout_urls",
-                status: CONSTANTS.SUCCESS,
-            });
-        });
+        const result = await checkBackchannelLogout(options);
+          expect(result.details).to.be.an("array").with.lengthOf(1);
+          expect(result.details[0].name).to.equal("backchannellogout (client_bcl)");
+          expect(result.details[0].report[0]).to.include({
+              field: "oidc_backchannel_logout.backchannel_logout_urls",
+              status: CONSTANTS.SUCCESS,
+          });
     });
 
-    it("should report success for a regular_web app with oidc_logout configured", function () {
+    it("should report success for a regular_web app with oidc_logout configured", async function () {
         const options = {
             clients: [{
                 name: "Web App OIDC Logout",
@@ -146,16 +139,15 @@ describe("checkBackchannelLogout", function () {
             }],
         };
 
-        checkBackchannelLogout(options).then((result) => {
-            expect(result.details).to.be.an("array").with.lengthOf(1);
-            expect(result.details[0].report[0]).to.include({
-                field: "oidc_backchannel_logout.backchannel_logout_urls",
-                status: CONSTANTS.SUCCESS,
-            });
-        });
+        const result = await checkBackchannelLogout(options);
+          expect(result.details).to.be.an("array").with.lengthOf(1);
+          expect(result.details[0].report[0]).to.include({
+              field: "oidc_backchannel_logout.backchannel_logout_urls",
+              status: CONSTANTS.SUCCESS,
+          });
     });
 
-    it("should report failure when oidc_backchannel_logout has empty backchannel_logout_urls", function () {
+    it("should report failure when oidc_backchannel_logout has empty backchannel_logout_urls", async function () {
         const options = {
             clients: [{
                 name: "Partial Config App",
@@ -171,17 +163,16 @@ describe("checkBackchannelLogout", function () {
             }],
         };
 
-        checkBackchannelLogout(options).then((result) => {
-            expect(result.details).to.be.an("array").with.lengthOf(1);
-            expect(result.details[0].report[0]).to.include({
-                field: "oidc_backchannel_logout.backchannel_logout_urls",
-                status: CONSTANTS.FAIL,
-                value: "not_configured",
-            });
-        });
+        const result = await checkBackchannelLogout(options);
+          expect(result.details).to.be.an("array").with.lengthOf(1);
+          expect(result.details[0].report[0]).to.include({
+              field: "oidc_backchannel_logout.backchannel_logout_urls",
+              status: CONSTANTS.FAIL,
+              value: "not_configured",
+          });
     });
 
-    it("should handle a mix of regular_web and non-eligible clients correctly", function () {
+    it("should handle a mix of regular_web and non-eligible clients correctly", async function () {
         const options = {
             clients: [
                 {
@@ -207,13 +198,12 @@ describe("checkBackchannelLogout", function () {
             ],
         };
 
-        checkBackchannelLogout(options).then((result) => {
-            // Only the regular_web client should appear
-            expect(result.details).to.be.an("array").with.lengthOf(1);
-            expect(result.details[0].name).to.equal("Web App (client_web)");
-            expect(result.details[0].report[0]).to.include({
-                status: CONSTANTS.SUCCESS,
-            });
-        });
+        const result = await checkBackchannelLogout(options);
+          // Only the regular_web client should appear
+          expect(result.details).to.be.an("array").with.lengthOf(1);
+          expect(result.details[0].name).to.equal("Web App (client_web)");
+          expect(result.details[0].report[0]).to.include({
+              status: CONSTANTS.SUCCESS,
+          });
     });
 });

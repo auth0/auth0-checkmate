@@ -3,19 +3,18 @@ const checkPasswordPolicy = require("../../analyzer/lib/databases/checkPasswordP
 const CONSTANTS = require("../../analyzer/lib/constants");
 
 describe("checkPasswordPolicy", function () {
-  it("should return failure if no databases are provided", function () {
+  it("should return failure if no databases are provided", async function () {
     const options = {
       databases: [], // Empty databases array
     };
 
-    checkPasswordPolicy(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("no_database_connections_found");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-    });
+    const { details: report } = await checkPasswordPolicy(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("no_database_connections_found");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
   });
 
-  it('should return failure if passwordPolicy is "none"', function () {
+  it('should return failure if passwordPolicy is "none"', async function () {
     const options = {
       databases: [
         {
@@ -27,15 +26,14 @@ describe("checkPasswordPolicy", function () {
       ],
     };
 
-    checkPasswordPolicy(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("password_policy");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-      expect(report[0].value).to.equal("none");
-    });
+    const { details: report } = await checkPasswordPolicy(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("password_policy");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
+    expect(report[0].value).to.equal("none");
   });
 
-  it('should return failure if passwordPolicy is "low"', function () {
+  it('should return failure if passwordPolicy is "low"', async function () {
     const options = {
       databases: [
         {
@@ -47,15 +45,14 @@ describe("checkPasswordPolicy", function () {
       ],
     };
 
-    checkPasswordPolicy(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("password_policy");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-      expect(report[0].value).to.equal("low");
-    });
+    const { details: report } = await checkPasswordPolicy(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("password_policy");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
+    expect(report[0].value).to.equal("low");
   });
 
-  it('should return failure if passwordPolicy is "fair"', function () {
+  it('should return failure if passwordPolicy is "fair"', async function () {
     const options = {
       databases: [
         {
@@ -67,15 +64,14 @@ describe("checkPasswordPolicy", function () {
       ],
     };
 
-    checkPasswordPolicy(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("password_policy");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-      expect(report[0].value).to.equal("fair");
-    });
+    const { details: report } = await checkPasswordPolicy(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("password_policy");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
+    expect(report[0].value).to.equal("fair");
   });
 
-  it('should return success if passwordPolicy is "good"', function () {
+  it('should return success if passwordPolicy is "good"', async function () {
     const options = {
       databases: [
         {
@@ -87,15 +83,14 @@ describe("checkPasswordPolicy", function () {
       ],
     };
 
-    checkPasswordPolicy(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("password_policy");
-      expect(report[0].status).to.equal(CONSTANTS.SUCCESS);
-      expect(report[0].value).to.equal("good");
-    });
+    const { details: report } = await checkPasswordPolicy(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("password_policy");
+    expect(report[0].status).to.equal(CONSTANTS.SUCCESS);
+    expect(report[0].value).to.equal("good");
   });
 
-  it('should return success if passwordPolicy is "excellent"', function () {
+  it('should return success if passwordPolicy is "excellent"', async function () {
     const options = {
       databases: [
         {
@@ -107,15 +102,14 @@ describe("checkPasswordPolicy", function () {
       ],
     };
 
-    checkPasswordPolicy(options, (report) => {
-      expect(report).to.have.lengthOf(1);
-      expect(report[0].field).to.equal("password_policy");
-      expect(report[0].status).to.equal(CONSTANTS.SUCCESS);
-      expect(report[0].value).to.equal("excellent");
-    });
+    const { details: report } = await checkPasswordPolicy(options);
+    expect(report).to.have.lengthOf(1);
+    expect(report[0].field).to.equal("password_policy");
+    expect(report[0].status).to.equal(CONSTANTS.SUCCESS);
+    expect(report[0].value).to.equal("excellent");
   });
 
-  it("should handle multiple databases with different password policies", function () {
+  it("should handle multiple databases with different password policies", async function () {
     const options = {
       databases: [
         {
@@ -139,23 +133,22 @@ describe("checkPasswordPolicy", function () {
       ],
     };
 
-    checkPasswordPolicy(options, (report) => {
-      expect(report).to.have.lengthOf(3);
+    const { details: report } = await checkPasswordPolicy(options);
+    expect(report).to.have.lengthOf(3);
 
-      // DB 1: Password policy "none", should fail
-      expect(report[0].field).to.equal("password_policy");
-      expect(report[0].status).to.equal(CONSTANTS.FAIL);
-      expect(report[0].value).to.equal("none");
+    // DB 1: Password policy "none", should fail
+    expect(report[0].field).to.equal("password_policy");
+    expect(report[0].status).to.equal(CONSTANTS.FAIL);
+    expect(report[0].value).to.equal("none");
 
-      // DB 2: Password policy "low", should fail
-      expect(report[1].field).to.equal("password_policy");
-      expect(report[1].status).to.equal(CONSTANTS.FAIL);
-      expect(report[1].value).to.equal("low");
+    // DB 2: Password policy "low", should fail
+    expect(report[1].field).to.equal("password_policy");
+    expect(report[1].status).to.equal(CONSTANTS.FAIL);
+    expect(report[1].value).to.equal("low");
 
-      // DB 3: Password policy "good", should succeed
-      expect(report[2].field).to.equal("password_policy");
-      expect(report[2].status).to.equal(CONSTANTS.SUCCESS);
-      expect(report[2].value).to.equal("good");
-    });
+    // DB 3: Password policy "good", should succeed
+    expect(report[2].field).to.equal("password_policy");
+    expect(report[2].status).to.equal(CONSTANTS.SUCCESS);
+    expect(report[2].value).to.equal("good");
   });
 });
