@@ -1,0 +1,4 @@
+# Start in log mode to discover outbound hosts, then add them to `allow` and switch to `enforce`.
+mode: log
+allow:
+  - registry.npmjs.org
