@@ -26,6 +26,7 @@
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
+const { formatClientName } = require("../../tools/clients");
 
 function validatePrivateKeyJWTForApp(app) {
     const report = [];
@@ -35,7 +36,7 @@ function validatePrivateKeyJWTForApp(app) {
 
     if (credentials.length === 0) {
         report.push({
-            name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+            name: formatClientName(app),
             client_id: app.client_id,
             field: "client_authentication_methods.private_key_jwt",
             status: CONSTANTS.FAIL,
@@ -44,7 +45,7 @@ function validatePrivateKeyJWTForApp(app) {
         });
     } else {
         report.push({
-            name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+            name: formatClientName(app),
             client_id: app.client_id,
             field: "client_authentication_methods.private_key_jwt",
             status: CONSTANTS.SUCCESS,
@@ -58,7 +59,7 @@ function validatePrivateKeyJWTForApp(app) {
 
 function checkPrivateKeyJWT(options) {
     return executeCheck("checkPrivateKeyJWT", (callback) => {
-        const { clients } = options || [];
+        const { clients } = options || {};
         const reports = [];
 
         if (_.isEmpty(clients)) {

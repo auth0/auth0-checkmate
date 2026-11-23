@@ -23,18 +23,11 @@ public when token_endpoint_auth_method is "none" or app_type is "spa" or "native
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
+const { formatClientName, isPublicClient } = require("../../tools/clients");
 
 const PAR_RELEVANT_GRANT_TYPES = [
     "authorization_code",
 ];
-
-const PUBLIC_CLIENT_APP_TYPES = ["spa", "native"];
-
-function isPublicClient(app) {
-    if (app.token_endpoint_auth_method === "none") return true;
-    if (PUBLIC_CLIENT_APP_TYPES.includes(app.app_type)) return true;
-    return false;
-}
 
 function validatePARForApp(app) {
     const enabledGrantTypes = app.grant_types || [];
@@ -50,7 +43,7 @@ function validatePARForApp(app) {
 
     if (hasPARRelevantGrant && app.require_pushed_authorization_requests !== true) {
         report.push({
-            name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+            name: formatClientName(app),
             client_id: app.client_id,
             field: "require_pushed_authorization_requests",
             status: CONSTANTS.FAIL,
@@ -64,7 +57,7 @@ function validatePARForApp(app) {
 
 function checkPAR(options) {
     return executeCheck("checkPAR", (callback) => {
-        const { clients } = options || [];
+        const { clients } = options || {};
         const reports = [];
         if (_.isEmpty(clients)) {
             return callback(reports);

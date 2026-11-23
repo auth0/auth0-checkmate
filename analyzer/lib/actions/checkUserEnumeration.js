@@ -1,8 +1,9 @@
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
-const acorn = require("acorn");
 const walk = require("estree-walker").walk;
+const { parseScript } = require("../../tools/ast");
+const logger = require("../logger");
 
 /**
  * Scans the Action code for calls to api.access.deny()
@@ -11,18 +12,9 @@ const walk = require("estree-walker").walk;
 function detectAccessDeny(code, scriptName) {
   const findings = [];
 
-  let ast;
-  try {
-    ast = acorn.parse(code || "", {
-      ecmaVersion: "latest",
-      locations: true,
-    });
-  } catch (e) {
-    if (e instanceof SyntaxError) {
-      console.error(`[ACORN PARSE ERROR] Skipping script "${scriptName}" due to malformed code`);
-      return [];
-    }
-    throw e;
+  const ast = parseScript(code, scriptName);
+  if (!ast) {
+    return [];
   }
 
     walk(ast, {
@@ -66,7 +58,7 @@ function detectAccessDeny(code, scriptName) {
  * Main validator for Actions targeting the pre-user-registration trigger.
  */
 function checkPreRegistrationUserEnumeration(options) {
-  const { actions } = options || [];
+  const { actions } = options || {};
   
   return executeCheck("checkPreRegistrationUserEnumeration", (callback) => {
     const actionsList = _.isArray(actions) ? actions : actions.actions;
@@ -91,7 +83,7 @@ function checkPreRegistrationUserEnumeration(options) {
           reports.push({ name: actionName, report: findings });
         }
       } catch (e) {
-        console.error(`[CHECK ERROR] Skipping Actions "${actionName}" due to error: ${e.message}`);
+        logger.log("error", `[CHECK ERROR] Skipping Actions "${actionName}" due to error: ${e.message}`);
         continue;
       }
     }

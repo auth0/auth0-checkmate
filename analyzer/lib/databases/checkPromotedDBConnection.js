@@ -57,7 +57,7 @@ const CONSTANTS = require("../constants");
 
 function checkPromotedDBConnection(options) {
 
-    const { databases } = options || [];
+    const { databases } = options || {};
     return executeCheck("checkPromotedDBConnection", (callback) => {
         const report = [];
         if (_.isEmpty(databases)) {
@@ -69,7 +69,6 @@ function checkPromotedDBConnection(options) {
         }
         let promoted_domain_connection = null;
         databases.forEach((connection) => {
-            connection.is_domain_connection;
             if (connection.is_domain_connection === true) {
                 promoted_domain_connection = connection.name;
                 return;

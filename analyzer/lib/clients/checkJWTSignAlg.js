@@ -60,6 +60,7 @@
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
+const { formatClientName } = require("../../tools/clients");
 
 function checkJWTSignAlg(options) {
   return executeCheck("checkJWTSignAlg", (callback) => {
@@ -74,9 +75,7 @@ function checkJWTSignAlg(options) {
       var report = [];
       if (!client.jwt_configuration) {
         report.push({
-          name: client.client_id
-            ? client.name.concat(` (${client.client_id})`)
-            : client.name,
+          name: formatClientName(client),
           client_id: client.client_id || client.name,
           field: "missing_jwt_alg",
           status: CONSTANTS.SUCCESS,
@@ -88,9 +87,7 @@ function checkJWTSignAlg(options) {
       }
       if (client.jwt_configuration.alg !== "HS256") {
         report.push({
-          name: client.client_id
-            ? client.name.concat(` (${client.client_id})`)
-            : client.name,
+          name: formatClientName(client),
           client_id: client.client_id || client.name,
           field: "using_asymmetric_alg",
           status: CONSTANTS.SUCCESS,
@@ -99,9 +96,7 @@ function checkJWTSignAlg(options) {
         });
       } else {
         report.push({
-          name: client.client_id
-            ? client.name.concat(` (${client.client_id})`)
-            : client.name,
+          name: formatClientName(client),
           client_id: client.client_id || client.name,
           field: "not_using_asymmetric_alg",
           status: CONSTANTS.FAIL,

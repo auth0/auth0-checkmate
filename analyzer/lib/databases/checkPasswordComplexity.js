@@ -56,7 +56,7 @@ const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
 
 function checkPasswordComplexity(options) {
-  const { databases } = options || [];
+  const { databases } = options || {};
   return executeCheck("checkPasswordComplexity", (callback) => {
     const report = [];
     if (_.isEmpty(databases)) {

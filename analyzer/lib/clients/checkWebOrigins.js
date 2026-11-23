@@ -1,10 +1,11 @@
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
+const { formatClientName } = require("../../tools/clients");
 // Function to check web origin URLs for insecure patterns (localhost, http, 127.0.0.1)
 function checkURLsForApp(app) {
   const web_origins = app.web_origins || [];
   const report = [];
-  const insecurePatterns = ["localhost", "http://", "127.0.0.1"];
+  const insecurePatterns = CONSTANTS.INSECURE_URL_PATTERN;
   if (
     web_origins.length === 0 &&
     (app.app_type !== "non_interactive" || app.app_type !== "native")
@@ -15,7 +16,7 @@ function checkURLsForApp(app) {
     const subArr = insecurePatterns.filter((str) => url.includes(str));
     if (subArr.length > 0) {
       report.push({
-        name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+        name: formatClientName(app),
         client_id: app.client_id || app.name,
         field: "insecure_web_origins_urls",
         value: url,

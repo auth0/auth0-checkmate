@@ -1,7 +1,9 @@
-const moment = require("moment");
 const _ = require('lodash');
 function getFormattedDateTime() {
-    return moment().format("YYYY-MM-DD_HH:mm:ss").replace(/:/g, "_");
+    // YYYY-MM-DD_HH_mm_ss in local time, safe for use in file names
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}_${pad(d.getMinutes())}_${pad(d.getSeconds())}`;
 }
 
 async function getToday(locale) {

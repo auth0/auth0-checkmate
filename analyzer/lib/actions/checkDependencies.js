@@ -70,7 +70,7 @@ const { getActionDependencies } = require("../../tools/helpers");
 const CONSTANTS = require("../constants");
 
 async function checkDependencies(options) {
-  const { actions } = options || [];
+  const { actions } = options || {};
   return executeCheck("checkDependencies", async (callback) => {
     const report = [];
     if (_.isEmpty(actions)) {

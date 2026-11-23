@@ -61,6 +61,7 @@
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
+const { formatClientName } = require("../../tools/clients");
 
 function checkCrossOriginAuthentication(options) {
   return executeCheck("checkCrossOriginAuthentication", (callback) => {
@@ -73,9 +74,7 @@ function checkCrossOriginAuthentication(options) {
     clients.forEach((client) => {
       var report = [];
       report.push({
-        name: client.client_id
-          ? client.name.concat(` (${client.client_id})`)
-          : client.name,
+        name: formatClientName(client),
         client_id: client.client_id || client.name,
         field: client.cross_origin_authentication ? "cross_origin_authentication_enabled" : "cross_origin_authentication_disabled",
         status: client.cross_origin_authentication ? CONSTANTS.FAIL : CONSTANTS.SUCCESS,

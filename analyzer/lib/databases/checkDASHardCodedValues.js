@@ -63,26 +63,14 @@
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
-const acorn = require("acorn");
 const walk = require("estree-walker").walk;
+const { parseScript, maskPrivateNames, isCommonException } = require("../../tools/ast");
 
 function detectHardcodedValues(code, scriptName) {
-  let processedCode = String(code || '').replace(/(?!\w+#)\b#(\w+)/g, "_$1");
-
-  let ast;
-    try {
-      ast = acorn.parse(processedCode, {
-        ecmaVersion: "latest",
-        locations: true,
-      });
-    } catch (e) {
-      if (e instanceof SyntaxError) {
-        console.error(`[ACORN PARSE ERROR] Skipping script "${scriptName}" due to malformed code`);
-        // Return an empty array so the main loop can continue
-        return []; 
-      }
-      throw e; // Re-throw other unexpected errors
-    }
+  const ast = parseScript(maskPrivateNames(code), scriptName);
+  if (!ast) {
+    return [];
+  }
 
   const hardcodedValues = [];
 
@@ -133,20 +121,8 @@ function detectHardcodedValues(code, scriptName) {
   return hardcodedValues;
 }
 
-// Helper functions
-function isCommonException(value) {
-    const exceptions = [
-        /^[0-1]$/, // Allow 0 and 1
-        /^[a-z]$/i, // Single letters
-        /^\s*$/, // Whitespace-only
-        /^[{}()[]<>]+$/, // Common brackets
-    ];
-    return exceptions.some((regex) => regex.test(String(value)));
-}
-
-
 function checkDASHardCodedValues(options) {
-    const { databases } = options || [];
+    const { databases } = options || {};
     return executeCheck("checkDASHardCodedValues", (callback) => {
         const reports = [];
         if (_.isEmpty(databases)) {

@@ -93,7 +93,7 @@ function validateRules(config) {
   return report;
 }
 function checkRules(options) {
-  const { rules } = options || [];
+  const { rules } = options || {};
   return executeCheck("checkRules", (callback) => {
     const report = validateRules(rules);
     return callback(report);

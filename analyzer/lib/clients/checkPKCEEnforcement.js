@@ -36,11 +36,13 @@ Reference: https://support.auth0.com/center/s/article/Enforce-PKCE-with-Actions
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
-const acorn = require("acorn");
 const walk = require("estree-walker").walk;
+const { parseScript } = require("../../tools/ast");
+const { PUBLIC_CLIENT_APP_TYPES } = require("../../tools/clients");
+const logger = require("../logger");
 
 const PKCE_APPLICABLE_GRANT_TYPES = ["authorization_code"];
-const PKCE_APPLICABLE_APP_TYPES = ["spa", "native"];
+const PKCE_APPLICABLE_APP_TYPES = PUBLIC_CLIENT_APP_TYPES;
 
 function isPKCEApplicableClient(client) {
   const grantTypes = client.grant_types || [];
@@ -69,20 +71,9 @@ function hasPKCEEnforcement(code, scriptName) {
   let hasCodeChallenge = false;
   let hasAccessDeny = false;
 
-  let ast;
-  try {
-    ast = acorn.parse(code || "", {
-      ecmaVersion: "latest",
-      locations: true,
-    });
-  } catch (e) {
-    if (e instanceof SyntaxError) {
-      console.error(
-        `[ACORN PARSE ERROR] Skipping script "${scriptName}" due to malformed code`
-      );
-      return false;
-    }
-    throw e;
+  const ast = parseScript(code, scriptName);
+  if (!ast) {
+    return false;
   }
 
   walk(ast, {
@@ -135,7 +126,8 @@ function checkPKCEEnforcement(options) {
       try {
         return hasPKCEEnforcement(action.code, action.name);
       } catch (e) {
-        console.error(
+        logger.log(
+          "error",
           `[CHECK ERROR] Skipping Action "${action.name}" due to error: ${e.message}`
         );
         return false;

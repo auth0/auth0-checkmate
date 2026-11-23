@@ -163,7 +163,7 @@
 		},
 		{
 			"title": "Event Streams (Early Access Capability)",
-			"required_scope": "read:event_streamss",
+			"required_scope": "read:event_streams",
 			"items": []
 		},
 		{
@@ -182,7 +182,6 @@
 	"validator_summary": "Checked <b>%s</b> validators against tenant <b>%s</b> in total.",
 	"checkCustomDomain": {
 		"title": "Custom Domains",
-		"category": "Custom Domains",
 		"advisory": {
 			"issue": "Security and User Experience Risks of Not Using Custom Domains",
 			"description": {
@@ -217,7 +216,6 @@
 	},
 	"checkPasswordPolicy": {
 		"title": "Databases - Password Policy",
-		"category": "Databases",
 		"advisory": {
 			"issue": "Weak Password Policy Configuration",
 			"description": {
@@ -250,7 +248,6 @@
 	},
 	"checkPasswordHistory": {
 		"title": "Databases - Password History",
-		"category": "Databases",
 		"advisory": {
 			"issue": "Weak Password History Configuration",
 			"description": {
@@ -282,7 +279,6 @@
 	},
 	"checkPasswordNoPersonalInfo": {
 		"title": "Databases - Personal Information in Passwords",
-		"category": "Databases",
 		"advisory": {},
 		"description": "Securely store and manage your customer's authorization credentials in an Auth0 Database or in your own store.",
 		"docsPath": [
@@ -297,7 +293,6 @@
 	},
 	"checkEnabledDatabaseCustomization": {
 		"title": "Databases - External User Stores Without Import",
-		"category": "Databases",
 		"advisory": {},
 		"description": "In Auth0, \"non-import mode\" for database connections refers to a scenario where Auth0 does not store or migrate user profiles into its own internal user store. Instead, Auth0 acts as a proxy or gateway to an external, \"legacy\" database where your user credentials and profiles are primarily managed.",
 		"docsPath": [
@@ -311,7 +306,6 @@
 	},
 	"checkPromotedDBConnection": {
 		"title": "Databases - Promoted Database Connection Configuration",
-		"category": "Databases",
 		"advisory": {},
 		"description": "If your tenant has Dynamic Client Registration enabled, you can let third party applications use a connection by promoting it to a domain level connection. Domain level connections are enabled or disabled for all applications in a tenant.",
 		"docsPath": [
@@ -325,7 +319,6 @@
 	},
 	"checkPasswordComplexity": {
 		"title": "Databases - Password Complexity",
-		"category": "Databases",
 		"advisory": {},
 		"description": "Securely store and manage your customer's authorization credentials in an Auth0 Database or in your own store.",
 		"docsPath": [
@@ -341,7 +334,6 @@
 	},
 	"checkAuthenticationMethods": {
 		"title": "Databases - Authentication Methods",
-		"category": "Databases",
 		"advisory": {},
 		"description": "Auth0 supports passkeys as an authentication method for database connections. We highly recommend enabling passkeys are a phishing-resistant alternative to traditional authentication factors (such as identifier/password) that offer an easier and more secure login experience to users.",
 		"docsPath": [
@@ -368,7 +360,6 @@
 	},
 	"checkEmailAttributeVerification": {
 		"title": "Databases - Email Attribute Verification Methods",
-		"category": "Databases",
 		"advisory": {},
 		"description": "Auth0 supports email verification via OTP before signup for database connections. We highly recommend enabling this method to avoid creating identities without verification.",
 		"docsPath": [
@@ -396,7 +387,6 @@
 	},
 	"checkDASHardCodedValues": {
 		"title": "Databases - Action Scripts Hardcoded Artifacts",
-		"category": "Databases",
 		"advisory": {},
 		"description": "Review your Database Action Scripts for hardcoded secrets",
 		"disclaimer": "Please note that while every effort has been made to ensure the accuracy of this validation, not all results may be fully expected or accurate. There is a possibility of false positives, and the results should be interpreted with caution. It is recommended to perform additional checks or manual verification before making any decisions based on the validation outcomes.",
@@ -411,7 +401,6 @@
 	},
 	"checkJWTSignAlg": {
 		"title": "Use RS256 or PS256 for the JSON Web Token (JWT) Signature Algorithm for all Applications",
-		"category": "Applications",
 		"description": "We recommend configuring the JSON Web Token (JWT) Signature Algorithm for all applications to use RS256 to secure private keys and allow for easier key rotation.",
 		"docsPath": [
 			"https://auth0.com/docs/get-started/applications/signing-algorithms"
@@ -442,7 +431,6 @@
 	},
 	"checkGrantTypes": {
 		"title": "Application Grant Types",
-		"category": "Applications",
 		"description": "We recommend a periodic review of enabled Grant Types for applications protected by Auth0.",
 		"docsPath": [
 			"https://auth0.com/docs/get-started/applications/application-grant-types",
@@ -513,15 +501,10 @@
 			}
 		},
 		"severity_message": "%s applications / clients require a review of enabled grant types",
-		"unexpected_grant_type_for_app_type": "Unexpected grant type \"%s\" enabled for application \"%s\"  with app_type: %s",
-		"missing_grant_type_for_app_type": "Grant type \"%s\" is missing for application \"%s\"   with app_type: %s",
-		"missing_app_type": "Grant type \"%s\"  enabled for application \"%s\"   with missing app_type: %s",
-		"grant_types_passed": "Grant Types configured %s, for application \"%s\" with  with app_type: %s",
-		"unknown_app_type": "Application is missing app_type"
+		"unexpected_grant_type_for_app_type": "Unexpected grant type \"%s\" enabled for application \"%s\"  with app_type: %s"
 	},
 	"checkAllowedCallbacks": {
 		"title": "Application Allowed Callbacks",
-		"category": "Applications",
 		"description": "Ensure that all Allowed Callback URLs use secure connections (https://) and do not include local or non-production addresses such as http:// or localhost.",
 		"docsPath": [
 			"https://auth0.com/docs/authenticate/login/redirect-users-after-login"
@@ -550,7 +533,6 @@
 	},
 	"checkWebOrigins": {
 		"title": "Application Web Origins",
-		"category": "Applications",
 		"description": "CORS configuration should not include origins with localhost or insecure http; use a secure, fully qualified domain (https://example.com) instead.",
 		"docsPath": [
 			"https://auth0.com/docs/get-started/applications/application-settings",
@@ -578,13 +560,11 @@
 			]
 		},
 		"severity_message": "%s applications / clients require a review of web origins",
-		"missing_web_origins_urls": "No callback URL %s configured for application %s .",
 		"secure_web_origins": "The following web origin URL \"%s\" was observed in application %s .",
 		"insecure_web_origins_urls": "Insecure web origin (CORS) URL \"%s\"."
 	},
 	"checkAllowedLogoutUrl": {
 		"title": "Application Allowed Logout URLs",
-		"category": "Applications",
 		"description": "Ensure that all Allowed Logout URLs are secure; do not use http://, localhost, or any other non-production URLs.",
 		"docsPath": [
 			"https://auth0.com/docs/authenticate/login/logout/redirect-users-after-logout"
@@ -610,13 +590,11 @@
 			]
 		},
 		"severity_message": "%s applications / clients require a review of allowed logout URLs",
-		"missing_allowed_logout_urls": "No allowed logout URLs are configured for application.",
 		"secure_allowed_logout_urls": "The following allowed logout URLs were observed \"%s\".",
 		"insecure_allowed_logout_urls": "Insecure allowed logout URLs \"%s\"."
 	},
 	"checkRefreshToken": {
 		"title": "Refresh Tokens",
-		"category": "Applications",
 		"description": "Refresh tokens are used to request a new access token and/or ID token for a user without requiring them to re-authenticate.",
 		"docsPath": [
 			"https://auth0.com/docs/get-started/applications/application-settings",
@@ -646,7 +624,6 @@
 	},
 	"checkApplicationLoginUri": {
 		"title": "Application Login URI",
-		"category": "Applications",
 		"description": "Application Login URI should be configured when using the Universal Login experience and should not include insecure URLs eg: http://, localhost etc",
 		"docsPath": [
 			"https://auth0.com/docs/authenticate/login/auth0-universal-login/configure-default-login-routes"
@@ -678,7 +655,6 @@
 	},
 	"checkCrossOriginAuthentication": {
 		"title": "Cross Origin Authentication",
-		"category": "Applications",
 		"description": "We recommend a periodic review of enabling cross origin authentication for applications protected by Auth0.",
 		"docsPath": [
 			"https://auth0.com/docs/authenticate/login/cross-origin-authentication"
@@ -714,7 +690,6 @@
 		"allowlistPresent": "Allowlist contains IPs: %s",
 		"enableAccountLockout": "Enable Account Lockout to trigger blocks irrespective of IP address to avoid attackers rotating IP addresses and attempting to perform password spray attacks.",
 		"title": "Brute Force Protection",
-		"category": "Attack Protection",
 		"description": "Brute-force protection safeguards against a single IP address attacking a single user account. When a given IP address tries and fails multiple times to log in as the same user, brute-force protection results in future requests from the IP to temporarily be blocked:",
 		"docsPath": [
 			"https://auth0.com/docs/secure/attack-protection/brute-force-protection",
@@ -755,7 +730,6 @@
 		"stageRate": "Stage '%s': rate is set to %s seconds (%s minutes).",
 		"stageRateInvalid": "Stage '%s': rate must be greater than 0.",
 		"title": "Suspicious IP Throttling",
-		"category": "Attack Protection",
 		"description": "Suspicious IP Throttling blocks traffic from any IP address that rapidly attempts too many logins or signups. This helps protect your applications from high-velocity attacks that target multiple accounts. Suspicious IP throttling is enabled by default when you create your Auth0 tenant. When Auth0 detects a high number of signup attempts or failed login attempts from an IP address, it responds to subsequent attempts with the HTTP 429 Too Many Requests status code until that IP address is no longer throttled.",
 		"docsPath": [
 			"https://auth0.com/docs/secure/attack-protection/suspicious-ip-throttling"
@@ -812,7 +786,6 @@
 		"stage_pre_change_password_shields_block_not_configured": "Enable the Block compromised credentials use for password reset to block users from using compromised credentials upon password reset.",
 		"monitoring_mode": "The tenant has Breached Password Detection enabled, which is currently running in monitoring mode",
 		"title": "Breached Password Detection",
-		"category": "Attack Protection",
 		"description": "Breached password detection protects your applications from threat actors signing up or logging in with stolen credentials. Auth0 can both notify users and block at-risk accounts.",
 		"docsPath": [
 			"https://auth0.com/docs/secure/attack-protection/breached-password-detection",
@@ -844,7 +817,6 @@
 	},
 	"checkEmailProvider": {
 		"title": "Email Providers",
-		"category": "Email Providers",
 		"advisory": {
 			"issue": "Security and Deliverability Risks of Default Email Configuration",
 			"description": {
@@ -884,7 +856,6 @@
 		"status": "yellow",
 		"severity_message": "Enable Log Streaming",
 		"title": "Log Streams",
-		"category": "Log Streams",
 		"advisory": {
 			"issue": "Security Monitoring and Compliance Risks Without Log Streaming",
 			"description": {
@@ -939,7 +910,6 @@
 		},
 		"severity_message": "Configure custom Email Templates",
 		"title": "Email Templates",
-		"category": "Email Templates",
 		"description": "You must configure your own email provider using a third-party service (such as Amazon SES, Mandrill, SendGrid, SparkPost, Mailgun, or a custom SMTP provider) to be able to customize your emails. ",
 		"docsPath": [
 			"https://auth0.com/docs/customize/email/email-templates"
@@ -947,12 +917,8 @@
 	},
 	"checkErrorPageTemplate": {
 		"liquidjs_no_templates_to_analyze": "No templates found to analyze for XSS vulnerabilities",
-		"liquidjs_no_liquid_templates": "No LiquidJS templates found to analyze",
 		"liquidjs_unescaped_output": "Unescaped variable output detected: %s",
 		"liquidjs_raw_filter_usage": "Raw/unescaped filter usage detected in LiquidJS template",
-		"liquidjs_user_variable_unescaped": "User-controlled variable without proper escaping",
-		"liquidjs_template_secure": "LiquidJS template appears secure",
-		"liquidjs_analysis_summary": "LiquidJS XSS analysis completed: %s",
 		"severity": "High",
 		"status": "red",
 		"advisory": {
@@ -961,7 +927,6 @@
 		},
 		"severity_message": "Prevent XSS vulnerabilities in LiquidJS error page templates",
 		"title": "LiquidJS XSS Prevention",
-		"category": "Liquid Templates",
 		"description": "Analyzes LiquidJS error page templates for potential Cross-Site Scripting (XSS) vulnerabilities. Checks for unescaped variables, dangerous filter usage, and variables in dangerous contexts like script tags or event handlers.",
 		"docsPath": [
 			"https://auth0.com/docs/customize/login-pages/custom-error-pages",
@@ -971,7 +936,6 @@
 	},
 	"checkDefaultAudience": {
 		"title": "Default Audience",
-		"category": "Tenant Settings",
 		"advisory": {
 			"issue": "Security and Architectural Implications of Default Audience Configuration",
 			"description": {
@@ -1006,7 +970,6 @@
 	},
 	"checkDefaultDirectory": {
 		"title": "Default Directory",
-		"category": "Tenant Settings",
 		"advisory": {
 			"issue": "Security Considerations for Default Directory Configuration",
 			"description": {
@@ -1041,7 +1004,6 @@
 	},
 	"checkEnabledDynamicClientRegistration": {
 		"title": "Dynamic Client Registration",
-		"category": "Tenant Settings",
 		"advisory": {
 			"issue": "Security Considerations for Dynamic Client Registration",
 			"description": {
@@ -1075,7 +1037,6 @@
 	},
 	"checkSessionLifetime": {
 		"title": "Session Management",
-		"category": "Tenant Settings",
 		"advisory": {
 			"issue": "Security Risks of Improper Session Lifetime Configuration",
 			"description": {
@@ -1114,7 +1075,6 @@
 	},
 	"checkSupportEmail": {
 		"title": "Support Email",
-		"category": "Tenant Settings",
 		"advisory": {
 			"issue": "Security Communication Risks Without Configured Support Contact",
 			"description": {
@@ -1146,7 +1106,6 @@
 	},
 	"checkSupportUrl": {
 		"title": "Support URL",
-		"category": "Tenant Settings",
 		"advisory": {
 			"issue": "User Support and Security Risks Without Configured Support Resources",
 			"description": {
@@ -1179,7 +1138,6 @@
 	},
 	"checkTenantLoginUrl": {
 		"title": "Tenant Login URI",
-		"category": "Tenant Settings",
 		"advisory": {},
 		"description": "URI that points to a route in your application that starts the OIDC login flow by redirecting to the /authorize endpoint; it should take the form of https://mytenant.org/login. This will only be used in scenarios where Auth0 needs your tenant to start the OIDC login flow. ",
 		"docsPath": [
@@ -1194,7 +1152,6 @@
 	},
 	"checkUniversalLogin": {
 		"title": "Universal Login",
-		"category": "Tenant Settings",
 		"advisory": {
 			"issue": "Signups made directly against the Authentication API can bypass Universal Login",
 			"description": {
@@ -1223,7 +1180,6 @@
 	},
 	"checkTenantLogoutUrl": {
 		"title": "Tenant Allowed Logout URLs",
-		"category": "Tenant Settings",
 		"advisory": {},
 		"description": "URLs that Auth0 can redirect to after logout when no client_id is specified on the Logout endpoint invocation. Useful as a global list when Single Sign-on (SSO) is enabled.",
 		"docsPath": [
@@ -1237,7 +1193,6 @@
 	},
 	"checkSandboxVersion": {
 		"title": "Extensibility Run Time",
-		"category": "Tenant Settings",
 		"advisory": {
 			"issue": "Security Risks of Outdated Node.js Runtime Versions",
 			"description": {
@@ -1271,7 +1226,6 @@
 	},
 	"checkGuardianFactors": {
 		"title": "Multifactors",
-		"category": "Multifactors",
 		"advisory": {
 			"issue": "Account Security Risks Without Multi-Factor Authentication",
 			"description": {
@@ -1304,7 +1258,6 @@
 	},
 	"checkGuardianPolicy": {
 		"title": "Multifactor Policy",
-		"category": "Multifactor Policy",
 		"advisory": {},
 		"description": "Multi-factor determines when the user is challenged for MFA.",
 		"docsPath": [
@@ -1326,7 +1279,6 @@
 		"allowlistEmpty": "No allowlist is configured, which provides a default level of security.",
 		"allowlistPresent": "The allowlist for bot detection contains the following IPs or users: %s",
 		"title": "Bot Detection",
-		"category": "Attack Protection",
 		"description": "Bot Detection mitigates scripted attacks by detecting when a request is likely coming from a bot. These types of attacks are sometimes called credential stuffing attacks or list validation attacks. Bot Detection provides support against certain attacks and adds very little friction to legitimate users.",
 		"docsPath": [
 			"https://auth0.com/docs/secure/attack-protection/bot-detection",
@@ -1361,7 +1313,6 @@
 		"no_enabled_rules": "No legacy rules are enabled in the tenant.",
 		"enabled_rules": "Rule with ID: %s is enabled in the tenant",
 		"title": "Rules",
-		"category": "Rules(Legacy)",
 		"advisory": {},
 		"description": "Rules are being deprecated and must be migrated to Actions",
 		"docsPath": [
@@ -1375,7 +1326,6 @@
 		"no_enabled_hooks": "No legacy hooks are enabled in the tenant.",
 		"enabled_hooks": "Hook of type: %s is enabled",
 		"title": "Hooks",
-		"category": "Hooks(Legacy)",
 		"advisory": {},
 		"description": "Hooks are being deprecated and must be migrated to Actions",
 		"docsPath": [
@@ -1387,7 +1337,6 @@
 	},
 	"checkDependencies": {
 		"title": "Action Dependency Vulnerabilities",
-		"category": "Actions",
 		"advisory": {},
 		"description": "Check the NPM dependencies of the Actions enabled in your tenant",
 		"docsPath": [
@@ -1400,7 +1349,6 @@
 	},
 	"checkActionsRuntime": {
 		"title": "Action Runtime",
-		"category": "Actions",
 		"advisory": {},
 		"description": "Check the Node.js runtime for actions extensibility in the tenant",
 		"docsPath": [
@@ -1413,7 +1361,6 @@
 	},
 	"checkActionsHardCodedValues": {
 		"title": "Action Hardcoded Artifacts",
-		"category": "Actions",
 		"advisory": {},
 		"description": "Review your Actions for hard coded secrets",
 		"disclaimer": "Please note that while every effort has been made to ensure the accuracy of this validation, not all results may be fully expected or accurate. There is a possibility of false positives, and the results should be interpreted with caution. It is recommended to perform additional checks or manual verification before making any decisions based on the validation outcomes.",
@@ -1428,7 +1375,6 @@
 	},
 	"checkPreRegistrationUserEnumeration": {
 		"title": "Information Leakage in Signup Flow",
-		"category": "Actions",
 		"advisory": {
 			"issue": "Exposing sensitive information during a signup attempt",
 			"description": {
@@ -1457,7 +1403,6 @@
 	},
 	"checkPasswordResetMFA": {
 		"title": "MFA for Password Reset",
-		"category": "Actions",
 		"advisory": {
 			"issue": "Missing MFA Challenge during Password Reset",
 			"description": {
@@ -1480,7 +1425,6 @@
 		"severity": "Moderate",
 		"status": "yellow",
 		"severity_message": "an MFA Challenge is not detected in the Password Reset flow.",
-		"mfa_challenge_detected": "MFA Challenge (<b>%s</b>) correctly implemented at line <b>%d</b>.",
 		"missing_mfa_step": "Action script exists but does not appear to trigger an MFA challenge.",
 		"no_password_reset_action": "No Action is currently configured for the Password Reset trigger. Password resets are only protected by email access.",
 		"no_actions_configured": "No Actions found in tenant.",
@@ -1489,7 +1433,6 @@
 	},
 	"checkCanonicalDomain": {
 		"title": "Auth0 Domain Check",
-		"category": "Canonical Domain",
 		"advisory": {},
 		"description": "The tenant is using the Auth0 Canonical Domain, when a custom domain is configured.",
 		"docsPath": [
@@ -1503,7 +1446,6 @@
 	},
 	"checkNetworkACL": {
 		"title": "Tenant Access Control List",
-		"category": "Attack Protection",
 		"advisory": {},
 		"description": "Tenant Access Control List (ACL) allows you to manage traffic to your Auth0 services with configurable rules. It helps you protect your tenant and conserve your rate limits against potential threats, such as denial-of-service (DoS) attacks, and ensures that only legitimate users access your applications.",
 		"docsPath": [
@@ -1518,7 +1460,6 @@
 	},
 	"checkBlockCanonicalDomain": {
 		"title": "Block Canonical Domain with ACL",
-		"category": "Attack Protection",
 		"advisory": {},
 		"description": "When custom domains are configured, it's recommended to block access to the canonical Auth0 domain (*.auth0.com or *.auth0app.com) using Tenant Access Control List rules. This prevents users from bypassing your custom domain and ensures all traffic flows through your intended infrastructure.",
 		"docsPath": [
@@ -1532,7 +1473,6 @@
 	},
 	"checkManagementAPIACL": {
 		"title": "Management API Access Control",
-		"category": "Attack Protection",
 		"advisory": {},
 		"description": "The Management API is a sensitive endpoint that can modify tenant configuration, applications, users, and security settings. Configuring an IP allowlist restricts Management API access to known IP addresses, reducing the risk of unauthorized access.",
 		"docsPath": [
@@ -1552,7 +1492,6 @@
 		"status": "blue",
 		"severity_message": "Enable Event Streaming",
 		"title": "Event Streams (Early Access Capability)",
-		"category": "Event Streams",
 		"advisory": {},
 		"description": "Events Streams offer Auth0 customers an API-based method of synchronizing, correlating, or orchestrating changes that occur within Auth0 or 3rd-party identity providers (IdPs) to external apps or 3rd-party services.",
 		"docsPath": [
@@ -1563,7 +1502,6 @@
 	},
 	"checkManagementAPIUserAccess": {
 		"title": "Resource Servers (APIs) - Management API User Access",
-		"category": "Resource Servers (APIs)",
 		"description": "Validates whether end users of arbitrary applications are allowed to obtain Auth0 Management API access tokens. By default the Management API permits user access from all applications, which exposes sensitive self-service scopes such as update:current_user_identities.",
 		"docsPath": [
 			"https://auth0.com/docs/manage-users/user-accounts/user-account-linking",
@@ -1593,7 +1531,6 @@
 	},
 	"checkAPIAuthorizationPolicy": {
 		"title": "Resource Servers (APIs) - API Authorization Policy",
-		"category": "Resource Servers (APIs)",
 		"description": "Validates that each API restricts which applications can obtain user access tokens for it. Allowing all applications to request tokens for an API lets an XSS bug in one application mint tokens for an unrelated API.",
 		"docsPath": [
 			"https://auth0.com/docs/get-started/apis/api-settings",
@@ -1622,7 +1559,6 @@
 	},
 	"checkAPISigningAlgorithm": {
 		"title": "Resource Servers (APIs) - Signing Algorithm",
-		"category": "Resource Servers (APIs)",
 		"description": "Validates that APIs use RS256 signing algorithm instead of HS256.",
 		"docsPath": [
 			"https://auth0.com/docs/get-started/apis/api-settings"
@@ -1647,7 +1583,6 @@
 	},
 	"checkAPITokenLifetime": {
 		"title": "Resource Servers (APIs) - Token Lifetime",
-		"category": "Resource Servers (APIs)",
 		"description": "Validates that API access token lifetimes are appropriately configured. Shorter lifetimes reduce the window of opportunity if tokens are compromised. Auth0 recommends that sensitive APIs use shorter token lifetimes.",
 		"docsPath": [
 			"https://auth0.com/docs/get-started/apis/api-settings"
@@ -1675,7 +1610,6 @@
 	},
 	"checkAppTokenSenderConstraining": {
 		"title": "Applications - Token Sender-Constraining",
-		"category": "Applications",
 		"description": "Token Sender-Constraining cryptographically binds access tokens to the client that requested them, preventing stolen tokens from being replayed by an attacker. We recommend enabling Token Sender-Constraining for all applications using the authorization code, refresh token, client credentials, password (ROPC), or device code grant types.",
 		"docsPath": [
 			"https://auth0.com/docs/secure/sender-constraining"
@@ -1701,12 +1635,10 @@
 			]
 		},
 		"severity_message": "%s applications / clients do not have Token Sender-Constraining enabled",
-		"require_proof_of_possession": "Token Sender-Constraining is not enabled for this application (require_proof_of_possession: %s)",
-		"undefined": "Token Sender-Constraining is not enabled for this application"
+		"require_proof_of_possession": "Token Sender-Constraining is not enabled for this application (require_proof_of_possession: %s)"
 	},
 	"checkPAR": {
 		"title": "Applications - Pushed Authorization Requests (PAR)",
-		"category": "Applications",
 		"description": "Pushed Authorization Requests (PAR) strengthens the authorization flow by sending authorization parameters directly to the authorization server before the user agent redirect, preventing parameter tampering and request interception. PAR is a key security control for highly regulated environments such as open banking and FAPI-compliant applications.",
 		"docsPath": [
 			"https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow/authorization-code-flow-with-par"
@@ -1731,12 +1663,10 @@
 			]
 		},
 		"severity_message": "%s applications / clients do not have Pushed Authorization Requests (PAR) configured",
-		"require_pushed_authorization_requests": "Pushed Authorization Requests (PAR) is not required for this application (require_pushed_authorization_requests: %s)",
-		"undefined": "Pushed Authorization Requests (PAR) is not required for this application"
+		"require_pushed_authorization_requests": "Pushed Authorization Requests (PAR) is not required for this application (require_pushed_authorization_requests: %s)"
 	},
 	"checkJAR": {
 		"title": "Applications - JWT Authorization Requests (JAR)",
-		"category": "Applications",
 		"description": "JWT Authorization Requests (JAR) requires that authorization requests be sent as signed JWTs, ensuring the integrity and authenticity of every authorization request. JAR prevents parameter injection and request tampering, and is a foundational control for FAPI-compliant and highly regulated identity deployments.",
 		"docsPath": [
 			"https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow/authorization-code-flow-with-jar"
@@ -1762,12 +1692,10 @@
 		},
 		"severity_message": "%s applications / clients do not have JWT Authorization Requests (JAR) configured",
 		"signed_request_object.required": "JWT Authorization Requests (JAR) are not required for this application (signed_request_object.required: %s)",
-		"signed_request_object.credentials": "JWT Authorization Requests (JAR) is required but no signing credentials are configured for this application. JAR cannot function without a registered public key.",
-		"undefined": "JWT Authorization Requests (JAR) are not required for this application"
+		"signed_request_object.credentials": "JWT Authorization Requests (JAR) is required but no signing credentials are configured for this application. JAR cannot function without a registered public key."
 	},
 	"checkPKCEEnforcement": {
 		"title": "Applications - PKCE Enforcement for Public Clients",
-		"category": "Applications",
 		"description": "Auth0 does not natively block authorization code requests that omit the PKCE code_challenge parameter for SPA and native clients. PKCE must be enforced via a post-login Action that checks for the presence of event.request.query.code_challenge and calls api.access.deny when it is absent.",
 		"docsPath": [
 			"https://support.auth0.com/center/s/article/Enforce-PKCE-with-Actions"
@@ -1791,12 +1719,10 @@
 			]
 		},
 		"severity_message": "%s applications / clients are missing a PKCE enforcement post-login Action",
-		"pkce_enforcement_action_missing": "No post-login Action enforcing PKCE (code_challenge + api.access.deny) was found. This %s client is vulnerable to authorization code interception attacks.",
-		"undefined": "PKCE Enforcement is not configured."
+		"pkce_enforcement_action_missing": "No post-login Action enforcing PKCE (code_challenge + api.access.deny) was found. This %s client is vulnerable to authorization code interception attacks."
 	},
 	"checkTokenConstrainingResourceServer": {
 		"title": "Resource Servers (APIs) - Token Sender-Constraining",
-		"category": "Resource Servers (APIs)",
 		"description": "Token Sender-Constraining cryptographically binds access tokens to the client that requested them using DPoP or mTLS, preventing stolen tokens from being replayed by an attacker. Configuring Token Sender-Constraining on the Resource Server (API) is required to enforce binding — without it, even if applications are configured to use DPoP or mTLS, the API will accept unbounded bearer tokens and the protection is not enforced.",
 		"docsPath": [
 			"https://auth0.com/docs/secure/sender-constraining"
@@ -1823,12 +1749,10 @@
 		},
 		"severity_message": "%s Resource Server(s) do not have Token Sender-Constraining configured",
 		"proof_of_possession": "Token Sender-Constraining is not configured for this Resource Server (proof_of_possession: %s)",
-		"proof_of_possession.mechanism": "Token Sender-Constraining mechanism is not valid for this Resource Server (proof_of_possession.mechanism: %s)",
-		"undefined": "Token Sender-Constraining is not configured for this Resource Server"
+		"proof_of_possession.mechanism": "Token Sender-Constraining mechanism is not valid for this Resource Server (proof_of_possession.mechanism: %s)"
 	},
 	"checkJWEResourceServer": {
 		"title": "Resource Servers (APIs) - JSON Web Encryption (JWE)",
-		"category": "Resource Servers (APIs)",
 		"description": "JSON Web Encryption (JWE) ensures that access tokens issued for this API are encrypted before delivery, preventing token contents from being read by parties other than the intended recipient. JWE is a foundational control for highly regulated environments where token payload confidentiality is required.",
 		"docsPath": [
 			"https://auth0.com/docs/secure/tokens/access-tokens/json-web-encryption"
@@ -1855,12 +1779,10 @@
 		"severity_message": "%s Resource Server(s) do not have JSON Web Encryption (JWE) configured",
 		"token_encryption": "JSON Web Encryption (JWE) is not configured for this Resource Server (token_encryption: %s)",
 		"token_encryption.format": "JSON Web Encryption (JWE) format is not valid for this Resource Server (format: %s)",
-		"token_encryption.encryption_key": "JSON Web Encryption (JWE) is enabled but no encryption key is configured for this Resource Server (encryption_key: %s)",
-		"undefined": "JSON Web Encryption (JWE) is not configured for this Resource Server"
+		"token_encryption.encryption_key": "JSON Web Encryption (JWE) is enabled but no encryption key is configured for this Resource Server (encryption_key: %s)"
 	},
 	"checkPrivateKeyJWT": {
 		"title": "Applications - Private Key JWT",
-		"category": "Applications",
 		"description": "Private Key JWT authentication eliminates the use of shared client secrets by requiring confidential applications to prove their identity using a cryptographically signed JWT backed by a registered public key. This provides stronger client authentication for machine-to-machine and confidential client flows, removing the risks associated with long-lived shared secrets.",
 		"docsPath": [
 			"https://auth0.com/docs/get-started/applications/configure-private-key-jwt"
@@ -1887,12 +1809,10 @@
 			]
 		},
 		"severity_message": "%s applications / clients do not have Private Key JWT configured",
-		"client_authentication_methods.private_key_jwt": "Private Key JWT is not configured for this application. Consider using Private Key JWT instead of a client secret for stronger client authentication.",
-		"undefined": "Private Key JWT authentication method is not configured for this application"
+		"client_authentication_methods.private_key_jwt": "Private Key JWT is not configured for this application. Consider using Private Key JWT instead of a client secret for stronger client authentication."
 	},
 	"checkBackchannelLogout": {
 		"title": "Applications - Back-Channel Logout",
-		"category": "Applications",
 		"description": "Back-Channel Logout enables the identity provider to directly notify applications when a session is terminated, ensuring that all application sessions are invalidated immediately. Auth0 supports the OpenID Connect Back-Channel Logout 1.0 specification, which leverages session IDs (sid) in ID tokens and Logout Tokens to coordinate session termination via back-channel communication.",
 		"docsPath": [
 			"https://auth0.com/docs/authenticate/login/logout/back-channel-logout"
@@ -1918,7 +1838,6 @@
 			]
 		},
 		"severity_message": "%s applications do not have Back-Channel Logout configured",
-		"oidc_backchannel_logout.backchannel_logout_urls": "Back-Channel Logout is not configured for this application. Consider adding a Back-Channel Logout URI to ensure reliable session termination across all applications.",
-		"undefined": "Back-Channel Logout URI is not configured for this application"
+		"oidc_backchannel_logout.backchannel_logout_urls": "Back-Channel Logout is not configured for this application. Consider adding a Back-Channel Logout URI to ensure reliable session termination across all applications."
 	}
 }

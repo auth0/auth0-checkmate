@@ -21,6 +21,7 @@
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
+const { formatClientName } = require("../../tools/clients");
 
 const TOKEN_SENDER_CONSTRAINING_RELEVANT_GRANT_TYPES = [
     "authorization_code",
@@ -40,7 +41,7 @@ function validateTokenSenderConstrainingForApp(app) {
 
     if (hasTokenSenderConstrainingRelevantGrant && app.require_proof_of_possession !== true) {
         report.push({
-            name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+            name: formatClientName(app),
             client_id: app.client_id,
             field: "require_proof_of_possession",
             status: CONSTANTS.FAIL,
@@ -54,7 +55,7 @@ function validateTokenSenderConstrainingForApp(app) {
 
 function checkAppTokenSenderConstraining(options) {
     return executeCheck("checkAppTokenSenderConstraining", (callback) => {
-        const { clients } = options || [];
+        const { clients } = options || {};
         const reports = [];
         if (_.isEmpty(clients)) {
             return callback(reports);

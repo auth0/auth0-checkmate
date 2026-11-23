@@ -35,7 +35,7 @@ function validateHooks(config) {
   return report;
 }
 function checkHooks(options) {
-  const { hooks } = options || [];
+  const { hooks } = options || {};
   return executeCheck("checkHooks", (callback) => {
     return callback(validateHooks(hooks));
   });
