@@ -60,32 +60,26 @@
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
+const { formatClientName } = require("../../tools/clients");
+const logger = require("../logger");
 // Function to check callback URLs for insecure patterns (localhost, http, 127.0.0.1)
 function checkURLsForApp(app) {
   const allowed_logout_urls = app.allowed_logout_urls || [];
   const report = [];
-  const insecurePatterns = ["localhost", "http://", "127.0.0.1"];
+  const insecurePatterns = CONSTANTS.INSECURE_URL_PATTERN;
   if (allowed_logout_urls.length === 0 && app.app_type !== "non_interactive") {
-    // report.push({
-    //   name: app.name.concat(` (${app.client_id})`),
-    //   client_id: app.client_id || app.name,
-    //   field: 'missing_allowed_logout_urls',
-    //   url: 'missing_allowed_logout_urls',
-    //   status: CONSTANTS.FAIL,
-    //   app_type: app.app_type
-    // });
     return report;
   }
   allowed_logout_urls.forEach((url) => {
     if (!url) {
       // Skip null/undefined/empty URLs and log warning
-      console.warn(`[WARNING] App "${app.name}" (${app.client_id}) has null/undefined URL in allowed_logout_urls`);
+      logger.log("warn", `App "${app.name}" (${app.client_id}) has null/undefined URL in allowed_logout_urls`);
       return;
     }
     const subArr = insecurePatterns.filter((str) => url.includes(str));
     if (subArr.length > 0) {
       report.push({
-        name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+        name: formatClientName(app),
         client_id: app.client_id || app.name,
         field: "insecure_allowed_logout_urls",
         value: url,

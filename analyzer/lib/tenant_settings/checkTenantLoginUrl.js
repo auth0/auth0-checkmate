@@ -36,7 +36,7 @@ function checkTenantLoginUrl(options) {
       defaultValues,
     );
     // allowed_logout_urls
-    const insecurePatterns = CONSTANTS.INSECURE_URL_PATTERN; //['localhost', 'http://', '127.0.0.1'];
+    const insecurePatterns = CONSTANTS.INSECURE_URL_PATTERN;
     //default_redirection_uri
     if (_.isEmpty(default_redirection_uri)) {
       report.push({

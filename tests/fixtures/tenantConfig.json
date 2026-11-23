@@ -1,0 +1,744 @@
+{
+  "customDomains": [
+    {
+      "custom_domain_id": "cd_1",
+      "domain": "login.example.com",
+      "primary": true,
+      "status": "ready",
+      "type": "auth0_managed_certs",
+      "tls_policy": "recommended"
+    },
+    {
+      "custom_domain_id": "cd_2",
+      "domain": "login2.example.com",
+      "primary": false,
+      "status": "pending_verification",
+      "type": "self_managed_certs",
+      "tls_policy": "recommended"
+    }
+  ],
+  "clients": [
+    {
+      "tenant": "contoso",
+      "global": false,
+      "name": "Web First Party",
+      "client_id": "web_first",
+      "app_type": "regular_web",
+      "is_first_party": true,
+      "grant_types": [
+        "authorization_code",
+        "refresh_token",
+        "implicit",
+        "client_credentials",
+        "password"
+      ],
+      "callbacks": [
+        "http://localhost:3000/cb",
+        "https://app.example.com/cb"
+      ],
+      "allowed_logout_urls": [
+        "http://localhost:3000",
+        "https://app.example.com"
+      ],
+      "web_origins": [
+        "http://localhost:3000"
+      ],
+      "initiate_login_uri": "http://localhost:3000/login",
+      "jwt_configuration": {
+        "alg": "HS256",
+        "lifetime_in_seconds": 36000
+      },
+      "token_endpoint_auth_method": "client_secret_post",
+      "refresh_token": {
+        "rotation_type": "non-rotating",
+        "expiration_type": "non-expiring"
+      },
+      "cross_origin_authentication": false
+    },
+    {
+      "tenant": "contoso",
+      "global": false,
+      "name": "SPA Third Party",
+      "client_id": "spa_third",
+      "app_type": "spa",
+      "is_first_party": false,
+      "grant_types": [
+        "authorization_code",
+        "implicit",
+        "refresh_token"
+      ],
+      "callbacks": [
+        "http://127.0.0.1:4200"
+      ],
+      "allowed_logout_urls": [
+        "http://127.0.0.1:4200"
+      ],
+      "web_origins": [
+        "http://127.0.0.1:4200"
+      ],
+      "initiate_login_uri": "",
+      "jwt_configuration": {
+        "alg": "RS256",
+        "lifetime_in_seconds": 36000
+      },
+      "token_endpoint_auth_method": "none",
+      "refresh_token": {
+        "rotation_type": "non-rotating",
+        "expiration_type": "expiring"
+      },
+      "cross_origin_authentication": true
+    },
+    {
+      "tenant": "contoso",
+      "global": false,
+      "name": "Native First Party",
+      "client_id": "native_first",
+      "app_type": "native",
+      "is_first_party": true,
+      "grant_types": [
+        "authorization_code",
+        "refresh_token",
+        "urn:ietf:params:oauth:grant-type:device_code"
+      ],
+      "callbacks": [
+        "com.example.app://callback"
+      ],
+      "allowed_logout_urls": [
+        "com.example.app://logout"
+      ],
+      "web_origins": [],
+      "jwt_configuration": {
+        "alg": "RS256"
+      },
+      "token_endpoint_auth_method": "none",
+      "refresh_token": {
+        "rotation_type": "rotating",
+        "expiration_type": "expiring"
+      }
+    },
+    {
+      "tenant": "contoso",
+      "global": false,
+      "name": "M2M Third Party",
+      "client_id": "m2m_third",
+      "app_type": "non_interactive",
+      "is_first_party": false,
+      "grant_types": [
+        "client_credentials"
+      ],
+      "callbacks": [],
+      "allowed_logout_urls": [],
+      "web_origins": [],
+      "jwt_configuration": {
+        "alg": "RS256"
+      },
+      "client_authentication_methods": {
+        "private_key_jwt": {
+          "credentials": [
+            {
+              "id": "cred_1"
+            }
+          ]
+        }
+      },
+      "require_proof_of_possession": true
+    },
+    {
+      "tenant": "contoso",
+      "global": false,
+      "name": "M2M First Party",
+      "client_id": "m2m_first",
+      "app_type": "non_interactive",
+      "is_first_party": true,
+      "grant_types": [
+        "client_credentials",
+        "authorization_code"
+      ],
+      "callbacks": [],
+      "allowed_logout_urls": [],
+      "web_origins": [],
+      "jwt_configuration": {
+        "alg": "HS256"
+      }
+    },
+    {
+      "tenant": "contoso",
+      "global": false,
+      "name": "Secure Web",
+      "client_id": "secure_web",
+      "app_type": "regular_web",
+      "is_first_party": true,
+      "grant_types": [
+        "authorization_code",
+        "refresh_token"
+      ],
+      "callbacks": [
+        "https://secure.example.com/cb"
+      ],
+      "allowed_logout_urls": [
+        "https://secure.example.com"
+      ],
+      "web_origins": [
+        "https://secure.example.com"
+      ],
+      "initiate_login_uri": "https://secure.example.com/login",
+      "jwt_configuration": {
+        "alg": "RS256"
+      },
+      "token_endpoint_auth_method": "private_key_jwt",
+      "require_pushed_authorization_requests": true,
+      "signed_request_object": {
+        "required": true,
+        "credentials": [
+          {
+            "id": "cred_jar"
+          }
+        ]
+      },
+      "oidc_backchannel_logout": {
+        "backchannel_logout_urls": [
+          "https://secure.example.com/bcl"
+        ]
+      },
+      "require_proof_of_possession": true,
+      "refresh_token": {
+        "rotation_type": "rotating",
+        "expiration_type": "expiring"
+      },
+      "client_authentication_methods": {
+        "private_key_jwt": {
+          "credentials": [
+            {
+              "id": "cred_2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "tenant": "contoso",
+      "global": false,
+      "name": "Third Party Web",
+      "client_id": "web_third",
+      "app_type": "regular_web",
+      "is_first_party": false,
+      "grant_types": [
+        "authorization_code",
+        "implicit"
+      ],
+      "callbacks": [
+        "https://tp.example.com/cb"
+      ],
+      "allowed_logout_urls": [],
+      "web_origins": [],
+      "signed_request_object": {
+        "required": true,
+        "credentials": []
+      },
+      "oidc_logout": {
+        "backchannel_logout_urls": []
+      }
+    },
+    {
+      "tenant": "contoso",
+      "global": false,
+      "name": "Legacy No Party Flag",
+      "client_id": "legacy",
+      "app_type": "regular_web",
+      "grant_types": [
+        "authorization_code",
+        "refresh_token"
+      ],
+      "callbacks": [
+        "http://legacy.example.com/cb"
+      ],
+      "allowed_logout_urls": [
+        "http://legacy.example.com"
+      ],
+      "web_origins": [
+        "http://legacy.example.com"
+      ]
+    },
+    {
+      "tenant": "contoso",
+      "global": true,
+      "name": "All Applications",
+      "client_id": "global_client",
+      "app_type": "regular_web",
+      "is_first_party": true,
+      "grant_types": [
+        "implicit"
+      ]
+    }
+  ],
+  "databases": [
+    {
+      "id": "con_1",
+      "name": "Username-Password-Authentication",
+      "strategy": "auth0",
+      "is_domain_connection": true,
+      "options": {
+        "import_mode": false,
+        "enabledDatabaseCustomization": true,
+        "customScripts": {
+          "login": "function login(identifierValue, password, callback) {\n  const secret = 'hunter2-secret';\n  const cfg = { host: 'db.internal.example.com', port: 5432 };\n  return callback(null, cfg);\n}\n",
+          "create": "function create(user, callback) {\n  const x = 'a';\n  const tok = 'abcdef123456';\n  callback(null);\n}\n",
+          "get_user": "function getUser(id, callback) { return callback(null); }"
+        },
+        "passwordPolicy": "fair",
+        "password_history": {
+          "size": 5,
+          "enable": false
+        },
+        "password_no_personal_info": {
+          "enable": false
+        },
+        "password_complexity_options": {
+          "min_length": 8
+        },
+        "authentication_methods": {
+          "password": {
+            "enabled": true
+          },
+          "passkey": {
+            "enabled": false
+          }
+        },
+        "attributes": {
+          "email": {
+            "verification_method": "link"
+          }
+        }
+      }
+    },
+    {
+      "id": "con_2",
+      "name": "Secure-DB",
+      "strategy": "auth0",
+      "is_domain_connection": false,
+      "options": {
+        "import_mode": false,
+        "enabledDatabaseCustomization": false,
+        "passwordPolicy": "excellent",
+        "password_history": {
+          "size": 10,
+          "enable": true
+        },
+        "password_no_personal_info": {
+          "enable": true
+        },
+        "password_complexity_options": {
+          "min_length": 14
+        },
+        "authentication_methods": {
+          "password": {
+            "enabled": true
+          },
+          "passkey": {
+            "enabled": true
+          }
+        },
+        "attributes": {
+          "email": {
+            "verification_method": "otp"
+          }
+        }
+      }
+    },
+    {
+      "id": "con_3",
+      "name": "Bare-DB",
+      "strategy": "auth0",
+      "options": {
+        "import_mode": true
+      }
+    }
+  ],
+  "attackProtection": {
+    "breachedPasswordDetection": {
+      "enabled": true,
+      "shields": [
+        "user_notification"
+      ],
+      "admin_notification_frequency": [
+        "daily",
+        "hourly"
+      ],
+      "method": "standard",
+      "stage": {
+        "pre-user-registration": {
+          "shields": [
+            "admin_notification"
+          ]
+        },
+        "pre-change-password": {
+          "shields": [
+            "user_notification"
+          ]
+        }
+      }
+    },
+    "bruteForceProtection": {
+      "enabled": true,
+      "shields": [
+        "user_notification"
+      ],
+      "mode": "count_per_identifier_and_ip",
+      "allowlist": [
+        "1.2.3.4"
+      ],
+      "max_attempts": 10
+    },
+    "suspiciousIpThrottling": {
+      "enabled": false,
+      "shields": [
+        "admin_notification"
+      ],
+      "allowlist": [],
+      "stage": {
+        "pre-login": {
+          "max_attempts": 100,
+          "rate": 864000
+        }
+      }
+    },
+    "botDetection": {
+      "bot_detection_level": "low",
+      "challenge_password_policy": "never",
+      "challenge_passwordless_policy": "when_risky",
+      "challenge_password_reset_policy": "always",
+      "allowlist": [
+        "5.6.7.8"
+      ],
+      "monitoring_mode_enabled": true
+    }
+  },
+  "emailProvider": {
+    "name": "sendgrid",
+    "enabled": false
+  },
+  "logStreams": [
+    {
+      "id": "lst_1",
+      "name": "Datadog",
+      "type": "datadog",
+      "status": "active"
+    },
+    {
+      "id": "lst_2",
+      "name": "Webhook",
+      "type": "http",
+      "status": "paused"
+    }
+  ],
+  "emailTemplates": [
+    {
+      "name": "Verification Email (Link)",
+      "template": {
+        "template": "verify_email",
+        "enabled": true,
+        "body": "x"
+      }
+    },
+    {
+      "name": "Welcome Email",
+      "template": {
+        "template": "welcome_email",
+        "enabled": false,
+        "body": "x"
+      }
+    },
+    {
+      "name": "Blocked Account Email",
+      "template": null
+    }
+  ],
+  "errorPageTemplate": "<html>{{ user.name }} {{ foo | raw }} {{ bar | escape }}</html>",
+  "tenant": {
+    "allowed_logout_urls": [
+      "http://localhost:3000",
+      "https://ok.example.com"
+    ],
+    "default_redirection_uri": "http://localhost/login",
+    "default_audience": "https://api.example.com",
+    "default_directory": "Username-Password-Authentication",
+    "support_email": "",
+    "support_url": "https://support.example.com",
+    "sandbox_version": "16",
+    "flags": {
+      "enable_dynamic_client_registration": true
+    },
+    "idle_session_lifetime": 24,
+    "session_lifetime": 48,
+    "session_cookie": {
+      "mode": "persistent"
+    },
+    "error_page": {
+      "html": "<html></html>"
+    }
+  },
+  "prompts": {
+    "universal_login_experience": "new"
+  },
+  "guardianFactors": [
+    {
+      "name": "otp",
+      "enabled": true
+    },
+    {
+      "name": "sms",
+      "enabled": true
+    },
+    {
+      "name": "email",
+      "enabled": false
+    }
+  ],
+  "guardianPolicies": [
+    "all-applications"
+  ],
+  "rules": [
+    {
+      "id": "rul_1",
+      "name": "Old Rule",
+      "enabled": true
+    },
+    {
+      "id": "rul_2",
+      "name": "Off Rule",
+      "enabled": false
+    }
+  ],
+  "hooks": [
+    {
+      "id": "h1",
+      "name": "Legacy Hook",
+      "triggerId": "post-user-registration",
+      "enabled": true
+    }
+  ],
+  "actions": {
+    "actions": [
+      {
+        "id": "a1",
+        "name": "Console Log",
+        "supported_triggers": [
+          {
+            "id": "post-login",
+            "version": "v3"
+          }
+        ],
+        "code": "exports.onExecutePostLogin = async (event, api) => {\n  const apiKey = 'sk_live_123456';\n  const flag = 1;\n  const o = { token: 'abc123def' };\n};",
+        "dependencies": [],
+        "runtime": "node18",
+        "status": "built"
+      },
+      {
+        "id": "a2",
+        "name": "Enforce PKCE",
+        "supported_triggers": [
+          {
+            "id": "post-login",
+            "version": "v3"
+          }
+        ],
+        "code": "exports.onExecutePostLogin = async (event, api) => {\n  const q = event.request.query;\n  if (!q.code_challenge) { api.access.deny('PKCE required'); }\n};",
+        "dependencies": [],
+        "runtime": "node22",
+        "status": "draft"
+      },
+      {
+        "id": "a6",
+        "name": "Old Runtime",
+        "supported_triggers": [
+          {
+            "id": "post-login",
+            "version": "v3"
+          }
+        ],
+        "code": "exports.onExecutePostLogin = async () => {};",
+        "dependencies": [],
+        "runtime": "node16",
+        "status": "built"
+      },
+      {
+        "id": "a3",
+        "name": "Pre Reg",
+        "supported_triggers": [
+          {
+            "id": "pre-user-registration",
+            "version": "v2"
+          }
+        ],
+        "code": "exports.onExecutePreUserRegistration = async (event, api) => {\n  if (event.user.email === 'x') { api.access.deny('already_exists', 'nope'); }\n};",
+        "dependencies": [],
+        "runtime": "node22",
+        "status": "built"
+      },
+      {
+        "id": "a4",
+        "name": "Reset",
+        "supported_triggers": [
+          {
+            "id": "password-reset-post-challenge",
+            "version": "v1"
+          }
+        ],
+        "code": "exports.onExecutePostChallenge = async (event, api) => {\n  return;\n};",
+        "dependencies": [],
+        "runtime": "node22",
+        "status": "built"
+      },
+      {
+        "id": "a5",
+        "name": "Broken",
+        "supported_triggers": [
+          {
+            "id": "post-login",
+            "version": "v3"
+          }
+        ],
+        "code": "exports.x = (",
+        "dependencies": [],
+        "runtime": "node22",
+        "status": "built"
+      }
+    ],
+    "total": 5
+  },
+  "logs": [
+    {
+      "type": "s",
+      "hostname": "example.auth0.com",
+      "_id": "9002025021000483749144100000000000000122"
+    }
+  ],
+  "log_query": "type: (s f) AND hostname: example.auth0.com",
+  "networkAcl": [
+    {
+      "id": "acl_1",
+      "description": "Inactive ACL",
+      "active": false,
+      "priority": 1,
+      "rule": {
+        "match": {
+          "ipv4_cidrs": [
+            "10.0.0.0/24"
+          ]
+        },
+        "scope": "authentication",
+        "action": {
+          "block": true
+        }
+      }
+    },
+    {
+      "id": "acl_2",
+      "description": "Mgmt block",
+      "active": true,
+      "priority": 2,
+      "rule": {
+        "match": {
+          "ipv4_cidrs": [
+            "198.51.100.1"
+          ]
+        },
+        "scope": "management",
+        "action": {
+          "block": true
+        }
+      }
+    }
+  ],
+  "canonicalDomain": "example.auth0.com",
+  "eventStreams": [
+    {
+      "id": "est_1",
+      "name": "Users",
+      "status": "disabled",
+      "destination": {
+        "type": "webhook"
+      }
+    },
+    {
+      "id": "est_2",
+      "name": "Orders",
+      "status": "enabled",
+      "destination": {
+        "type": "eventbridge"
+      }
+    }
+  ],
+  "resourceServers": [
+    {
+      "id": "rs_sys",
+      "name": "Auth0 Management API",
+      "identifier": "https://example.auth0.com/api/v2/",
+      "is_system": true,
+      "subject_type_authorization": {
+        "user": {
+          "policy": "allow_all"
+        },
+        "client": {
+          "policy": "require_client_grant"
+        }
+      }
+    },
+    {
+      "id": "rs_1",
+      "name": "Orders API",
+      "identifier": "https://orders.example.com",
+      "signing_alg": "HS256",
+      "token_lifetime": 864000,
+      "subject_type_authorization": {
+        "user": {
+          "policy": "allow_all"
+        }
+      }
+    },
+    {
+      "id": "rs_2",
+      "name": "Secure API",
+      "identifier": "https://secure.example.com/api",
+      "signing_alg": "RS256",
+      "token_lifetime": 3600,
+      "subject_type_authorization": {
+        "user": {
+          "policy": "require_client_grant"
+        }
+      },
+      "proof_of_possession": {
+        "mechanism": "dpop",
+        "required": true
+      },
+      "token_encryption": {
+        "format": "compact-nested-jwe",
+        "encryption_key": {
+          "name": "k",
+          "alg": "RSA-OAEP-256"
+        }
+      }
+    },
+    {
+      "id": "rs_3",
+      "name": "Mid API",
+      "identifier": "https://mid.example.com",
+      "signing_alg": "RS256",
+      "token_lifetime": 172800,
+      "proof_of_possession": {
+        "mechanism": "badmech"
+      },
+      "token_encryption": {
+        "format": "other"
+      }
+    },
+    {
+      "id": "rs_4",
+      "name": "Keyless API",
+      "identifier": "https://k.example.com",
+      "token_encryption": {
+        "format": "compact-nested-jwe"
+      }
+    }
+  ]
+}

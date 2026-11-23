@@ -75,22 +75,42 @@ async function getAccessToken(domain, client_id, client_secret, canonicalDomain)
     const response = await axios.post(tokenUrl, body, { headers });
     return response.data.access_token;
   } catch (error) {
-    console.error("Error getting access token: %s", error.message);
+    logger.log("error", `Error getting access token: ${error.message}`);
     process.exit(1);
   }
 }
 
-async function getCustomDomains(domain, accessToken) {
-  const url = `https://${domain}/api/v2/custom-domains`;
+/**
+ * GET a Management API v2 resource. On failure the error is logged and
+ * `fallback` (a value, or a function of the error) is returned.
+ * `select` extracts the value to return from the response body.
+ */
+async function mgmtGet(
+  domain,
+  accessToken,
+  path,
+  label,
+  fallback,
+  { select = (data) => data, level = "info" } = {},
+) {
+  const url = `https://${domain}/api/v2/${path}`;
   const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting custom domains`);
+  logger.log(level, `Getting ${label}`);
   try {
     const response = await axios.get(url, { headers });
-    return response.data;
+    return select(response.data);
   } catch (error) {
-    logger.log("error", `Failed to get custom domains ${error.message}`);
-    return [];
+    logger.log("error", `Failed to get ${label} ${error.message}`);
+    return typeof fallback === "function" ? fallback(error) : fallback;
   }
+}
+
+// The API error body is surfaced to the checks (e.g. insufficient_scope).
+const errorBodyOrEmpty = (error) =>
+  error.response?.data ? [error.response.data] : [];
+
+async function getCustomDomains(domain, accessToken) {
+  return mgmtGet(domain, accessToken, "custom-domains", "custom domains", []);
 }
 
 async function fetchClients(url, accessToken, page) {
@@ -100,8 +120,6 @@ async function fetchClients(url, accessToken, page) {
         per_page: PER_PAGE,
         page: page,
         is_global: false,
-        //include_fields: false,
-        //fields: `client_secret,signing_keys,encryption_key,client_authentication_methods`
       },
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -110,21 +128,19 @@ async function fetchClients(url, accessToken, page) {
 
     return response.data; // Array of clients
   } catch (error) {
-    console.error("Error fetching clients:", error.message);
+    logger.log("error", `Error fetching clients: ${error.message}`);
     throw error;
   }
 }
+
 async function getActions(domain, accessToken) {
-  const url = `https://${domain}/api/v2/actions/actions?installed=false`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting Actions`);
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error) {
-    logger.log("error", `Failed to get actions ${error.message}`);
-    return [];
-  }
+  return mgmtGet(
+    domain,
+    accessToken,
+    "actions/actions?installed=false",
+    "actions",
+    [],
+  );
 }
 
 async function getApplications(domain, accessToken) {
@@ -164,91 +180,63 @@ async function getApplications(domain, accessToken) {
 }
 
 async function getConnections(domain, accessToken) {
-  const url = `https://${domain}/api/v2/connections?strategy=auth0`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting database connections`);
-
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error) {
-    logger.log("error", `Failed to get database connections ${error.message}`);
-    return [];
-  }
+  return mgmtGet(
+    domain,
+    accessToken,
+    "connections?strategy=auth0",
+    "database connections",
+    [],
+  );
 }
 
 async function getEmailProvider(domain, accessToken) {
-  const url = `https://${domain}/api/v2/emails/provider`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting email provider`);
-
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error) {
-    logger.log("error", `Failed to get email provider ${error.message}`);
-    return null;
-  }
+  return mgmtGet(
+    domain,
+    accessToken,
+    "emails/provider",
+    "email provider",
+    null,
+  );
 }
 
 async function getLogStreams(domain, accessToken) {
-  const url = `https://${domain}/api/v2/log-streams`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting log streams`);
-
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error) {
-    logger.log("error", `Failed to get log streams ${error.message}`);
-    return [error.response.data];
-  }
+  return mgmtGet(
+    domain,
+    accessToken,
+    "log-streams",
+    "log streams",
+    errorBodyOrEmpty,
+  );
 }
 
 async function getBruteForceProtectionSetting(domain, accessToken) {
-  const url = `https://${domain}/api/v2/attack-protection/brute-force-protection`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting brute force setting`);
-
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error) {
-    logger.log("error", `Failed to get brute force settings ${error.message}`);
-    return {};
-  }
+  return mgmtGet(
+    domain,
+    accessToken,
+    "attack-protection/brute-force-protection",
+    "brute force settings",
+    {},
+  );
 }
+
 async function getSuspiciousIpSetting(domain, accessToken) {
-  const url = `https://${domain}/api/v2/attack-protection/suspicious-ip-throttling`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting suspicious ip throttling`);
-
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error) {
-    logger.log(
-      "error",
-      `Failed to get suspicious IP settings ${error.message}`,
-    );
-    return {};
-  }
+  return mgmtGet(
+    domain,
+    accessToken,
+    "attack-protection/suspicious-ip-throttling",
+    "suspicious IP settings",
+    {},
+  );
 }
-async function getBreachedPasswordSetting(domain, accessToken) {
-  const url = `https://${domain}/api/v2/attack-protection/breached-password-detection`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting breached password setting`);
 
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error) {
-    logger.log(
-      "error",
-      `Failed to get breached password settings ${error.message}`,
-    );
-    return {};
-  }
+async function getBreachedPasswordSetting(domain, accessToken) {
+  return mgmtGet(
+    domain,
+    accessToken,
+    "attack-protection/breached-password-detection",
+    "breached password settings",
+    {},
+  );
 }
 
 async function getBotDetectionSetting(domain, accessToken) {
@@ -271,9 +259,9 @@ async function getBotDetectionSetting(domain, accessToken) {
     return {};
   }
 }
+
 async function getAttackProtection(domain, accessToken) {
   try {
-    var attackProtection = {};
     const [
       breachedPasswordDetection,
       bruteForceProtection,
@@ -285,13 +273,12 @@ async function getAttackProtection(domain, accessToken) {
       getSuspiciousIpSetting(domain, accessToken),
       getBotDetectionSetting(domain, accessToken),
     ]);
-    attackProtection = {
+    return {
       breachedPasswordDetection,
       bruteForceProtection,
       suspiciousIpThrottling,
       botDetection,
     };
-    return attackProtection;
   } catch (error) {
     logger.log(
       "error",
@@ -302,49 +289,31 @@ async function getAttackProtection(domain, accessToken) {
 }
 
 async function getEmailTemplate(domain, accessToken, templateName) {
-  try {
-    const response = await axios.get(
-      `https://${domain}/api/v2/email-templates/${templateName}`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
-    );
-    return response.data;
-  } catch (error) {
-    logger.log(
-      "error",
-      `Failed to get email template because it is not configured ${templateName} - ${error.message}`,
-    );
-    return null; // Return null for templates that may not exist
-  }
+  // Templates that are not configured return an error; treat them as null
+  return mgmtGet(
+    domain,
+    accessToken,
+    `email-templates/${templateName}`,
+    `email template ${templateName}`,
+    null,
+    { level: "debug" },
+  );
 }
 
 async function getErrorPageTemplate(domain, accessToken) {
-  try {
-    const response = await axios.get(
-      `https://${domain}/api/v2/tenants/settings`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
-    );
-    const payload = response.data.error_page.html;
-    return payload;
-  } catch (error) {
-    logger.log(
-      "error",
-      `Failed to get error page template because it is not configured - ${error.message}`,
-    );
-    return null; // Return null for templates that may not exist
-  }
+  return mgmtGet(
+    domain,
+    accessToken,
+    "tenants/settings",
+    "error page template",
+    null,
+    { select: (settings) => settings.error_page.html },
+  );
 }
 
 async function getEmailTemplates(domain, accessToken) {
   logger.log("info", `Getting email templates`);
-  const emailTemplates = await Promise.all(
+  return Promise.all(
     CONSTANTS.EMAIL_TEMPLATES_TYPES.map(async (templateName) => {
       const template = await getEmailTemplate(
         domain,
@@ -354,92 +323,54 @@ async function getEmailTemplates(domain, accessToken) {
       return { name: CONSTANTS.EMAIL_TEMPLATES_NAMES[templateName], template };
     }),
   );
-  //const nonEmptyTemplates = emailTemplates.filter((template) => !!template);
-  return emailTemplates;
 }
 
 async function getTenantSettings(domain, accessToken) {
-  const url = `https://${domain}/api/v2/tenants/settings`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting tenant setting`);
-
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error) {
-    logger.log("error", `Failed to get tenant settings ${error.message}`);
-    return {};
-  }
+  return mgmtGet(
+    domain,
+    accessToken,
+    "tenants/settings",
+    "tenant settings",
+    {},
+  );
 }
 
 // Returns null on failure so callers can tell "not set" from "unknown"
 async function getPrompts(domain, accessToken) {
-  const url = `https://${domain}/api/v2/prompts`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting prompts settings`);
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error) {
-    logger.log("error", `Failed to get prompts settings ${error.message}`);
-    return null;
-  }
+  return mgmtGet(domain, accessToken, "prompts", "prompts settings", null);
 }
 
 async function getGuardianFactors(domain, accessToken) {
-  const url = `https://${domain}/api/v2/guardian/factors`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting MFA factors`);
-
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error) {
-    logger.log("error", `Failed to get MFA factors ${error.message}`);
-    return {};
-  }
+  return mgmtGet(
+    domain,
+    accessToken,
+    "guardian/factors",
+    "MFA factors",
+    {},
+  );
 }
-// policies
+
 async function getGuardianPolicies(domain, accessToken) {
-  const url = `https://${domain}/api/v2/guardian/policies`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting MFA policy`);
-
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error) {
-    logger.log("error", `Failed to get MFA policies ${error.message}`);
-    return {};
-  }
+  return mgmtGet(
+    domain,
+    accessToken,
+    "guardian/policies",
+    "MFA policies",
+    {},
+  );
 }
+
 // legacy rules and hooks
 async function getRules(domain, accessToken) {
-  const url = `https://${domain}/api/v2/rules?enabled=true`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("warn", `Getting rules`);
-
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error) {
-    logger.log("error", `Failed to get rules ${error.message}`);
-    return [];
-  }
+  return mgmtGet(domain, accessToken, "rules?enabled=true", "rules", [], {
+    level: "warn",
+  });
 }
 
 async function getHooks(domain, accessToken) {
-  const url = `https://${domain}/api/v2/hooks?enabled=true`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("warn", `Getting hooks`);
-
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error) {
-    logger.log("error", `Failed to get hooks ${error.message}`);
-    return [];
-  }
+  return mgmtGet(domain, accessToken, "hooks?enabled=true", "hooks", [], {
+    level: "warn",
+  });
 }
 
 async function getLogs(domain, accessToken, queryDomain) {
@@ -447,60 +378,49 @@ async function getLogs(domain, accessToken, queryDomain) {
   const fields = "type,hostname";
   const per_page = 1;
   const query = `type: (${logTypes.join(" ")}) AND hostname: ${queryDomain || domain}`;
-  const url = `https://${domain}/api/v2/logs?per_page=${per_page}&fields=${fields}&q=${query}`;
-  const encodedUrl = encodeURI(url);
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting logs`);
-  try {
-    const response = await axios.get(encodedUrl, { headers });
-    return { log_query: query, logs: response.data };
-  } catch (error) {
-    logger.log("error", `Failed to get logs ${error.message}`);
-    return { log_query: query, logs: [] };
-  }
+  return mgmtGet(
+    domain,
+    accessToken,
+    encodeURI(`logs?per_page=${per_page}&fields=${fields}&q=${query}`),
+    "logs",
+    { log_query: query, logs: [] },
+    { select: (logs) => ({ log_query: query, logs }) },
+  );
 }
+
 // Early Access
 async function getNetworkACL(domain, accessToken) {
-    const url = `https://${domain}/api/v2/network-acls`;
-    const headers = { Authorization: `Bearer ${accessToken}` };
-    logger.log("info", `Getting Network ACL`);
-
-    try {
-      const response = await axios.get(url, { headers });
-      return response.data;
-    } catch (error) {
-      logger.log("error", `Failed to get network ACL ${error.response.data.message}`);
-      return [error.response.data];
-    }
+  return mgmtGet(
+    domain,
+    accessToken,
+    "network-acls",
+    "network ACL",
+    errorBodyOrEmpty,
+  );
 }
-//Early Access
-async function getEventStreams(domain, accessToken) {
-  const url = `https://${domain}/api/v2/event-streams`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting event streams`);
 
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data.eventStreams;
-  } catch (error) {
-    logger.log("error", `Failed to get event streams ${error.message}`);
-    return [error.response.data];
-  }
+// Early Access
+async function getEventStreams(domain, accessToken) {
+  return mgmtGet(
+    domain,
+    accessToken,
+    "event-streams",
+    "event streams",
+    errorBodyOrEmpty,
+    { select: (data) => data.eventStreams },
+  );
 }
 
 async function getResourceServers(domain, accessToken) {
-  const url = `https://${domain}/api/v2/resource-servers`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  logger.log("info", `Getting resource servers (APIs)`);
-
-  try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error) {
-    logger.log("error", `Failed to get resource servers ${error.message}`);
-    return [];
-  }
+  return mgmtGet(
+    domain,
+    accessToken,
+    "resource-servers",
+    "resource servers (APIs)",
+    [],
+  );
 }
+
 module.exports = {
   getAccessToken,
   getCustomDomains,

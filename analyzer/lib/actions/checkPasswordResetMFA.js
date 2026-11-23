@@ -1,8 +1,8 @@
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
-const acorn = require("acorn");
 const walk = require("estree-walker").walk;
+const { parseScript } = require("../../tools/ast");
 
 /**
  * Scans the Action code for calls to MFA challenge methods.
@@ -10,19 +10,9 @@ const walk = require("estree-walker").walk;
  */
 function hasMFAChallenge(code, scriptName) {
   let challengeFound = false;
-  let ast;
-
-  try {
-    ast = acorn.parse(code || "", {
-      ecmaVersion: "latest",
-      locations: true,
-    });
-  } catch (e) {
-    if (e instanceof SyntaxError) {
-      console.error(`[ACORN PARSE ERROR] Skipping script "${scriptName}" due to malformed code`);
-      return [];
-    }
-    throw e;
+  const ast = parseScript(code, scriptName);
+  if (!ast) {
+    return [];
   }
 
   walk(ast, {
@@ -66,7 +56,7 @@ function checkPasswordResetMFA(options) {
 
     if (!hasActivePasswordDb) return callback([]); 
 
-    const actionsList = _.isArray(actions) ? actions : actions.actions;
+    const actionsList = _.isArray(actions) ? actions : actions?.actions;
     if (_.isEmpty(actionsList)) {
       return callback([{ name: "Actions", report: [{ field: "no_actions_configured", status: CONSTANTS.WARN }] }]);
     }

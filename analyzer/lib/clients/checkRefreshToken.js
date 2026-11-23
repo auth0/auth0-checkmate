@@ -60,6 +60,7 @@
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
+const { formatClientName } = require("../../tools/clients");
 
 function validateRTGrantTypesForApp(app) {
     const enabledGrantTypes = app.grant_types || [];
@@ -78,7 +79,7 @@ function validateRTGrantTypesForApp(app) {
     if (enabledGrantTypes.includes('refresh_token') && app?.refresh_token?.rotation_type && app?.refresh_token?.rotation_type !== 'rotating') {
         // check refresh token configuration
         report.push({
-            name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+            name: formatClientName(app),
             client_id: app.client_id,
             field: "use_rotating_refresh_token",
             status: app?.refresh_token?.expiration_type !== 'expiring' ? CONSTANTS.FAIL : CONSTANTS.SUCCESS,
@@ -91,7 +92,7 @@ function validateRTGrantTypesForApp(app) {
 
 function checkRefreshToken(options) {
     return executeCheck("checkRefreshToken", (callback) => {
-        const { clients } = options || [];
+        const { clients } = options || {};
         const reports = [];
         if (_.isEmpty(clients)) {
             return callback(reports);

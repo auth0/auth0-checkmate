@@ -31,19 +31,12 @@ public when token_endpoint_auth_method is "none" or app_type is "spa" or "native
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
+const { formatClientName, isPublicClient } = require("../../tools/clients");
 
 const JAR_RELEVANT_GRANT_TYPES = [
     "authorization_code",
     "implicit",
 ];
-
-const PUBLIC_CLIENT_APP_TYPES = ["spa", "native"];
-
-function isPublicClient(app) {
-    if (app.token_endpoint_auth_method === "none") return true;
-    if (PUBLIC_CLIENT_APP_TYPES.includes(app.app_type)) return true;
-    return false;
-}
 
 function validateJARForApp(app) {
     const enabledGrantTypes = app.grant_types || [];
@@ -65,7 +58,7 @@ function validateJARForApp(app) {
 
     if (signedRequestObject.required !== true) {
         report.push({
-            name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+            name: formatClientName(app),
             client_id: app.client_id,
             field: "signed_request_object.required",
             status: CONSTANTS.FAIL,
@@ -78,7 +71,7 @@ function validateJARForApp(app) {
     const credentials = signedRequestObject.credentials || [];
     if (credentials.length === 0) {
         report.push({
-            name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+            name: formatClientName(app),
             client_id: app.client_id,
             field: "signed_request_object.credentials",
             status: CONSTANTS.FAIL,
@@ -92,7 +85,7 @@ function validateJARForApp(app) {
 
 function checkJAR(options) {
     return executeCheck("checkJAR", (callback) => {
-        const { clients } = options || [];
+        const { clients } = options || {};
         const reports = [];
         if (_.isEmpty(clients)) {
             return callback(reports);

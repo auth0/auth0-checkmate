@@ -31,6 +31,7 @@ Non-interactive (M2M) clients do not have user sessions and are not relevant.
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
+const { formatClientName } = require("../../tools/clients");
 
 const BACKCHANNEL_LOGOUT_APP_TYPES = ["regular_web"];
 
@@ -44,7 +45,7 @@ function validateBackchannelLogoutForApp(app) {
 
     if (!backchannelConfig || backchannelUrls.length === 0) {
         report.push({
-            name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+            name: formatClientName(app),
             client_id: app.client_id,
             field: "oidc_backchannel_logout.backchannel_logout_urls",
             status: CONSTANTS.FAIL,
@@ -53,7 +54,7 @@ function validateBackchannelLogoutForApp(app) {
         });
     } else {
         report.push({
-            name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+            name: formatClientName(app),
             client_id: app.client_id,
             field: "oidc_backchannel_logout.backchannel_logout_urls",
             status: CONSTANTS.SUCCESS,
@@ -67,7 +68,7 @@ function validateBackchannelLogoutForApp(app) {
 
 function checkBackchannelLogout(options) {
     return executeCheck("checkBackchannelLogout", (callback) => {
-        const { clients } = options || [];
+        const { clients } = options || {};
         const reports = [];
 
         if (_.isEmpty(clients)) {

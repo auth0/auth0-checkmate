@@ -28,7 +28,7 @@ const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
 
 function checkEmailTemplates(options) {
-  const { emailTemplates } = options || [];
+  const { emailTemplates } = options || {};
   return executeCheck("checkEmailTemplates", (callback) => {
     const report = [];
     if (_.isEmpty(emailTemplates)) {

@@ -33,17 +33,16 @@ const { getSummaryReport } = require("./tools/summary");
 const { convertToTitleCase, tranformReport, getToday } = require("./tools/utils");
 const { version } = require("../package.json");
 
+// Shared i18n / Handlebars setup (bin/index.js relies on this module for both).
+// updateFiles is off so a missing key never rewrites locales/*.json at runtime.
 i18n.configure({
   defaultLocale: "en",
   objectNotation: true,
-  directory: path.join(__dirname, "../locales")
+  directory: path.join(__dirname, "../locales"),
+  updateFiles: false,
 });
 
-Handlebars.registerHelper("chooseFont", function (locale) {
-  if (locale === "ja") return "Noto Sans JP, sans-serif";
-  if (locale === "ko") return "Noto Sans KR, sans-serif";
-  return "DM Sans, sans-serif";
-});
+Handlebars.registerHelper("chooseFont", () => "DM Sans, sans-serif");
 Handlebars.registerHelper("replace", function (str, search, replace) {
   return str.replace(search, replace);
 });
@@ -52,8 +51,192 @@ Handlebars.registerHelper("inc", (a) => parseInt(a) + 1);
 
 const templateData = fs.readFileSync(
   path.join(__dirname, "../views/pdf_cli_report.handlebars"),
-  "utf8"
+  "utf8",
 );
+
+/**
+ * How each check's details are turned into report messages.
+ *
+ * shape:
+ *  - flat    (default) details are findings; message = i18n(name.field, ...args(detail))
+ *  - grouped details are { name, report: [...] } per client; only findings with an
+ *            is_first_party flag are rendered, under "(First-Party|Third-Party Application)"
+ *            headings (see tranformReport). setName copies that heading onto each finding.
+ *  - nested  details are { name, report: [...] }; every finding in report gets a message
+ *  - script  details are { name, report: [...] } of per-script findings, rendered
+ *            into one HTML list per detail
+ * args receives the finding and returns the i18n format arguments.
+ * Disclaimer, advisory and pre_requisites are attached for every check that
+ * has them in the locale catalog.
+ */
+const valueArg = (c) => [c.value];
+const nameValueArgs = (c) => [c.name, c.value];
+const streamArgs = (c) => [c.name, c.type, c.stream_status];
+const noArgs = () => [];
+
+const CHECK_CONFIG = {
+  // flat, with non-default message arguments
+  checkLogStream: { args: streamArgs },
+  checkEventStreams: { args: streamArgs },
+  checkPasswordPolicy: { args: nameValueArgs },
+  checkPasswordHistory: { args: nameValueArgs },
+  checkPasswordNoPersonalInfo: { args: nameValueArgs },
+  checkPromotedDBConnection: { args: nameValueArgs },
+  checkPasswordComplexity: { args: nameValueArgs },
+  checkEmailAttributeVerification: { args: nameValueArgs },
+  checkAuthenticationMethods: { args: nameValueArgs },
+  checkBlockCanonicalDomain: { args: (c) => [c.customDomains, c.value] },
+  checkManagementAPIACL: { args: noArgs },
+  checkManagementAPIUserAccess: { args: noArgs },
+  checkDependencies: {
+    prepare: (c) => {
+      c.vulnFindings = c.vulnFindings || [];
+    },
+  },
+
+  // grouped by client (first-party / third-party)
+  checkJWTSignAlg: {
+    shape: "grouped",
+    setName: true,
+    args: (c) => [c.client_id, c.value || "RS256"],
+  },
+  checkGrantTypes: {
+    shape: "grouped",
+    setName: true,
+    args: (c) => [c.value, c.name, c.app_type || "unknown"],
+  },
+  checkAllowedLogoutUrl: { shape: "grouped", setName: true },
+  checkApplicationLoginUri: { shape: "grouped", setName: true },
+  checkAllowedCallbacks: { shape: "grouped", setName: true },
+  checkWebOrigins: { shape: "grouped", setName: true },
+  checkCrossOriginAuthentication: {
+    shape: "grouped",
+    setName: true,
+    args: (c) => [c.name, c.app_type],
+  },
+  checkAppTokenSenderConstraining: { shape: "grouped" },
+
+  // nested findings
+  checkPAR: { shape: "nested" },
+  checkJAR: { shape: "nested" },
+  checkPKCEEnforcement: { shape: "nested" },
+  checkPrivateKeyJWT: { shape: "nested" },
+  checkBackchannelLogout: { shape: "nested" },
+  checkRefreshToken: { shape: "nested", args: nameValueArgs },
+  checkAPIAuthorizationPolicy: { shape: "nested", args: (c) => [c.api_name] },
+  checkAPISigningAlgorithm: {
+    shape: "nested",
+    args: (c) => [c.api_name, c.value],
+  },
+  checkAPITokenLifetime: {
+    shape: "nested",
+    args: (c) => [c.api_name, c.value],
+  },
+  checkJWEResourceServer: { shape: "nested" },
+  checkTokenConstrainingResourceServer: { shape: "nested" },
+
+  // per-script findings rendered as HTML
+  checkPasswordResetMFA: { shape: "script" },
+  checkPreRegistrationUserEnumeration: { shape: "script" },
+  checkActionsHardCodedValues: { shape: "script" },
+  checkDASHardCodedValues: { shape: "script" },
+};
+
+/**
+ * Findings whose field contains a dot (e.g. "signed_request_object.required")
+ * are flat keys in the catalog, which i18n's dot notation cannot reach, so
+ * they are read from the catalog directly and %s placeholders filled in order.
+ */
+function messageFor(name, finding, args) {
+  const values = args(finding);
+  const template = finding.field.includes(".")
+    ? i18n.getCatalog(i18n.getLocale())[name]?.[finding.field]
+    : undefined;
+  if (typeof template === "string") {
+    let next = 0;
+    return template.replace(/%s/g, () => String(values[next++]));
+  }
+  return i18n.__(`${name}.${finding.field}`, ...values);
+}
+
+const SHAPE_HANDLERS = {
+  flat(report, { args = valueArg, prepare }) {
+    report.details.forEach((detail) => {
+      detail.message = messageFor(report.name, detail, args);
+      if (prepare) prepare(detail);
+    });
+  },
+
+  grouped(report, { args = valueArg, setName }) {
+    const grouped = _.groupBy(report.details, "name");
+    tranformReport(grouped).forEach((client) => {
+      client.values.forEach((detail) => {
+        detail.report.forEach((c) => {
+          if (setName) c.name = client.name;
+          c.message = messageFor(report.name, c, args);
+        });
+      });
+    });
+  },
+
+  nested(report, { args = valueArg }) {
+    report.details.forEach((detail) => {
+      (detail.report || []).forEach((c) => {
+        c.message = messageFor(report.name, c, args);
+      });
+    });
+  },
+
+  script(report) {
+    const transformedDetails = [];
+    _.forEach(_.groupBy(report.details, "name"), (detailsArray) => {
+      detailsArray.forEach((detailItem) => {
+        const groupedByScript = _.groupBy(detailItem.report, "scriptName");
+        const htmlSections = Object.entries(groupedByScript).map(
+          ([scriptName, items]) => {
+            const listItems = items
+              .map((c) => {
+                const message = i18n.__(
+                  `${report.name}.${c.field}`,
+                  c.variableName,
+                  c.line,
+                  c.column,
+                );
+                return `<li>${message}</li>`;
+              })
+              .join("\n");
+            const title = i18n.__(`${report.name}.action_script_title`, scriptName);
+            return `<p>${title}<p>\n<ul>\n${listItems}\n</ul>`;
+          },
+        );
+        transformedDetails.push({
+          status: "red",
+          name: detailItem.name, // e.g., "login", "create"
+          field: "hard_coded_value_detected",
+          message: `<div>\n${htmlSections.join("\n")}\n</div>`,
+        });
+      });
+    });
+    report.details = transformedDetails;
+  },
+};
+
+/** Fill in the catalog text (title, severity, ...) and the per-finding messages. */
+function localizeReport(report, locale) {
+  const catalog = i18n.getCatalog(locale)[report.name] || {};
+  report.title = i18n.__(`${report.name}.title`);
+  report.description = i18n.__(`${report.name}.description`);
+  report.docsPath = i18n.__(`${report.name}.docsPath`);
+  report.severity = i18n.__(`${report.name}.severity`);
+  report.severity_message = i18n.__(`${report.name}.severity_message`);
+  report.status = i18n.getCatalog("en")[report.name].status;
+  report.advisory = i18n.__(`${report.name}.advisory`);
+  ["disclaimer", "pre_requisites"].forEach((key) => {
+    if (_.has(catalog, key)) report[key] = i18n.__(`${report.name}.${key}`);
+  });
+  const config = CHECK_CONFIG[report.name] || {};
+  SHAPE_HANDLERS[config.shape || "flat"](report, config);
+}
 
 function normalizeValidatorSelection(selection) {
   return _.uniq(
@@ -116,29 +299,23 @@ function parseValidatorSelection(value) {
   return selection;
 }
 
-async function runProductionChecks(tenant, checksToRun) {
-  try {
-    logger.log("info", "Checking your configuration...");
-    const checksPromises = checksToRun.map((check) => {
-      return new Promise((resolve) => {
-        logger.log(
-          "info",
-          `Running validator ${convertToTitleCase(check.name)}`,
-        );
-        check(tenant)
-          .then((checkResult) => {
-            resolve({ name: check.name, details: checkResult.details });
-          })
-          .catch((e) => {
-            resolve({ name: check.name, error: e });
-          });
-      });
-    });
-    return Promise.all(checksPromises);
-  } catch (e) {
-    logger.log("info", e);
-  }
+function runProductionChecks(tenant, checksToRun) {
+  logger.log("info", "Checking your configuration...");
+  return Promise.all(
+    checksToRun.map(async (check) => {
+      logger.log("info", `Running validator ${convertToTitleCase(check.name)}`);
+      try {
+        const checkResult = await check(tenant);
+        return { name: check.name, details: checkResult.details };
+      } catch (e) {
+        // Keep the rest of the report: a check that throws reports no findings.
+        logger.log("error", `Validator ${check.name} failed: ${e.message}`);
+        return { name: check.name, details: [], error: e };
+      }
+    }),
+  );
 }
+
 async function generateReport(locale, tenantConfig, config) {
   i18n.setLocale(locale);
   const checksToRun = resolveSelectedValidators(config.selectedValidators);
@@ -253,327 +430,9 @@ async function generateReport(locale, tenantConfig, config) {
         config.auth0MgmtToken
       );
     }
-    
-    const statusOrder = ["green", "amber", "red"];
-    let fullReport = (await runProductionChecks(tenantConfig, checksToRun)) || [];
-    fullReport.forEach((report) => {
-      let grouped = [],
-        res = [],
-        sortedData = [];
-      report.title = i18n.__(`${report.name}.title`);
-      report.description = i18n.__(`${report.name}.description`);
-      report.docsPath = i18n.__(`${report.name}.docsPath`);
-      report.severity = i18n.__(`${report.name}.severity`);
-      report.severity_message = i18n.__(`${report.name}.severity_message`);
-      report.status = i18n.getCatalog("en")[`${report.name}`].status;
-      report.advisory = i18n.__(`${report.name}.advisory`);
-      let transformedDetails = [];
-      switch (report.name) {
-        case "checkCustomDomain":
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(`checkCustomDomain.${cd.field}`, cd.value);
-          });
-          break;
-        case "checkEmailProvider":
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(`checkEmailProvider.${cd.field}`, cd.value);
-          });
-          break;
-        case "checkEmailTemplates":
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(`checkEmailTemplates.${cd.field}`, cd.value);
-          });
-          break;
-        case "checkErrorPageTemplate":
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(`checkErrorPageTemplate.${cd.field}`, cd.value);
-          });
-          break;
-        case "checkLogStream":
-        case "checkEventStreams":
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(
-              `${report.name}.${cd.field}`,
-              cd.name,
-              cd.type,
-              cd.stream_status,
-            );
-          });
-          break;
-        case "checkTenantSettings":
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(`checkTenantSettings.${cd.field}`, cd.value);
-          });
-          break;
-        case "checkPasswordPolicy":
-        case "checkPasswordHistory":
-        case "checkPasswordNoPersonalInfo":
-        case "checkPromotedDBConnection":
-        case "checkPasswordComplexity":
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(
-              `${report.name}.${cd.field}`,
-              cd.name,
-              cd.value,
-            );
-          });
-          break;
-        case "checkEmailAttributeVerification":
-        case "checkAuthenticationMethods":
-          report.pre_requisites = i18n.__(`${report.name}.pre_requisites`);
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(
-              `${report.name}.${cd.field}`,
-              cd.name,
-              cd.value,
-            );
-          });
-          break;
-        case "checkJWTSignAlg":
-          report.advisory = i18n.__(`${report.name}.advisory`);
-          grouped = _.groupBy(report.details, "name");
-          res = tranformReport(grouped);
-          // Apply i18n translation to all reports
-          res.forEach((client) => {
-            client.values.forEach((detail) => {
-              detail.report.forEach((c) => {
-                c.name = client.name;
-                c.message = i18n.__(
-                  `${report.name}.${c.field}`,
-                  c.client_id,
-                  c.value || "RS256",
-                );
-              });
-            });
-          });
-          break;
-        case "checkGrantTypes":
-          report.advisory = i18n.__(`${report.name}.advisory`);
-          grouped = _.groupBy(report.details, "name");
-          res = tranformReport(grouped);
-          // Apply i18n translation to all reports
-          res.forEach((client) => {
-            client.values.forEach((detail) => {
-              detail.report.forEach((c) => {
-                c.name = client.name;
-                c.message = i18n.__(
-                  `${report.name}.${c.field}`,
-                  c.value,
-                  c.name,
-                  c.app_type || "unknown",
-                );
-              });
-            });
-          });
-          break;
-        case "checkAllowedLogoutUrl":
-        case "checkApplicationLoginUri":
-        case "checkAllowedCallbacks":
-        case "checkWebOrigins":
-          grouped = _.groupBy(report.details, "name");
 
-          res = tranformReport(grouped);
-          // Apply i18n translation to all reports
-          res.forEach((client) => {
-            client.values.forEach((detail) => {
-              detail.report.forEach((c) => {
-                c.name = client.name;
-                c.message = i18n.__(`${report.name}.${c.field}`, c.value);
-              });
-            });
-          });
-          break;
-        case "checkCrossOriginAuthentication":
-          report.advisory = i18n.__(`${report.name}.advisory`);
-          grouped = _.groupBy(report.details, "name");
-          res = tranformReport(grouped);
-          // Apply i18n translation to all reports
-          res.forEach((client) => {
-            client.values.forEach((detail) => {
-              detail.report.forEach((c) => {
-                c.name = client.name;
-                c.message = i18n.__(
-                  `${report.name}.${c.field}`,
-                  c.name,
-                  c.app_type,
-                );
-              });
-            });
-          });
-          break;
-        case "checkRefreshToken":
-          report.advisory = i18n.__(`${report.name}.advisory`);
-          grouped = _.groupBy(report.details, "name");
-          res = _.map(grouped, (values, name) => ({
-            name,
-            values: values,
-          }));
-          res.forEach((client) => {
-            sortedData = _.sortBy(client.values[0].report, (item) =>
-              statusOrder.indexOf(item.status),
-            );
-            sortedData.forEach((c) => {
-              c.message = i18n.__(
-                `checkRefreshToken.${c.field}`,
-                c.name,
-                c.value
-              );
-            });
-          });
-          break;
-        case "checkUniversalLogin":
-          report.disclaimer = i18n.__(`${report.name}.disclaimer`);
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(`${report.name}.${cd.field}`, cd.value);
-          });
-          break;
-        case "checkPasswordResetMFA":
-        case "checkPreRegistrationUserEnumeration":
-        case "checkActionsHardCodedValues":
-        case "checkDASHardCodedValues":
-          report.disclaimer = i18n.__(`${report.name}.disclaimer`);
-
-          grouped = _.groupBy(report.details, "name");
-
-          _.forEach(grouped, (detailsArray) => {
-            detailsArray.forEach((detailItem) => {
-              const reportItems = detailItem.report;
-
-              // Group messages by scriptName
-              const groupedByScript = _.groupBy(reportItems, "scriptName");
-
-              // Build HTML per script
-              const htmlSections = Object.entries(groupedByScript).map(([scriptName, items]) => {
-                const listItems = items.map((c) => {
-                  const message = i18n.__(
-                    `${report.name}.${c.field}`,
-                    c.variableName,
-                    c.line,
-                    c.column
-                  );
-                  return `<li>${message}</li>`;
-                }).join("\n");
-                const dasTitle = i18n.__(`${report.name}.action_script_title`,
-                  scriptName);
-                return `<p>${dasTitle}<p>\n<ul>\n${listItems}\n</ul>`;
-              });
-
-              const fullHtml = `<div>\n${htmlSections.join("\n")}\n</div>`;
-
-              // Push transformed object to new structure
-              transformedDetails.push({
-                status: "red",
-                name: detailItem.name, // e.g., "login", "create"
-                field: "hard_coded_value_detected",
-                message: fullHtml
-              });
-            });
-          });
-
-          // Replace original report.details with the new structure
-          report.details = transformedDetails;
-          break;
-        case "checkAppTokenSenderConstraining":
-          report.disclaimer = i18n.__(`${report.name}.disclaimer`);
-          report.advisory = i18n.__(`${report.name}.advisory`);
-          grouped = _.groupBy(report.details, "name");
-          res = tranformReport(grouped);
-          res.forEach((item) => {
-            item.values.forEach((detail) => {
-              detail.report.forEach((c) => {
-                c.message = i18n.__(`${report.name}.${c.field}`, c.value);
-              });
-            });
-          });
-          break;
-        case "checkDependencies":
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(`${report.name}.${cd.field}`, cd.value);
-            cd.vulnFindings = cd.vulnFindings || [];
-          });
-          break;
-        case "checkNetworkACL":
-          report.disclaimer = i18n.__(`${report.name}.disclaimer`);
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(`${report.name}.${cd.field}`, cd.value);
-          });
-          break;
-        case "checkBlockCanonicalDomain":
-          report.disclaimer = i18n.__(`${report.name}.disclaimer`);
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(`${report.name}.${cd.field}`, cd.customDomains, cd.value);
-          });
-          break;
-        case "checkManagementAPIACL":
-          report.disclaimer = i18n.__(`${report.name}.disclaimer`);
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(`${report.name}.${cd.field}`);
-          });
-          break;
-        case "checkManagementAPIUserAccess":
-          report.advisory = i18n.__(`${report.name}.advisory`);
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(`${report.name}.${cd.field}`);
-          });
-          break;
-        case "checkAPIAuthorizationPolicy":
-          report.advisory = i18n.__(`${report.name}.advisory`);
-          report.details.forEach((detail) => {
-            detail.report.forEach((c) => {
-              c.message = i18n.__(`${report.name}.${c.field}`, c.api_name);
-            });
-          });
-          break;
-        case "checkAPISigningAlgorithm":
-        case "checkAPITokenLifetime":
-          report.advisory = i18n.__(`${report.name}.advisory`);
-          grouped = _.groupBy(report.details, "name");
-          res = tranformReport(grouped);
-          res.forEach((api) => {
-            api.values.forEach((detail) => {
-              detail.report.forEach((c) => {
-                c.name = api.name;
-                c.message = i18n.__(
-                  `${report.name}.${c.field}`,
-                  c.api_name,
-                  c.value
-                );
-              });
-            });
-          });
-          break;
-        case "checkJWEResourceServer":
-          report.disclaimer = i18n.__(`${report.name}.disclaimer`);
-          grouped = _.groupBy(report.details, "name");
-          res = tranformReport(grouped);
-          res.forEach((item) => {
-            item.values.forEach((detail) => {
-              detail.report.forEach((c) => {
-                c.message = i18n.__(`${report.name}.${c.field}`, c.value);
-              });
-            });
-          });
-          break;
-        case "checkTokenConstrainingResourceServer":
-          report.disclaimer = i18n.__(`${report.name}.disclaimer`);
-          report.advisory = i18n.__(`${report.name}.advisory`);
-          grouped = _.groupBy(report.details, "name");
-          res = tranformReport(grouped);
-          res.forEach((item) => {
-            item.values.forEach((detail) => {
-              detail.report.forEach((c) => {
-                c.message = i18n.__(`${report.name}.${c.field}`, c.value);
-              });
-            });
-          });
-          break;
-        default:
-          report.details.forEach((cd) => {
-            cd.message = i18n.__(`${report.name}.${cd.field}`, cd.value);
-          });
-          break;
-      }
-    });
+    const fullReport = await runProductionChecks(tenantConfig, checksToRun);
+    fullReport.forEach((report) => localizeReport(report, locale));
     // On a filtered run the documented scope must list only the validators that
     // actually ran, otherwise the report overstates what was reviewed.
     const list_of_validators = isFilteredRun
@@ -594,7 +453,8 @@ async function generateReport(locale, tenantConfig, config) {
     const report = {};
     report.preamble = i18n.getCatalog(locale).preamble;
     report.report_title = i18n.__("report_title");
-    (report.summary = summary), (report.full_report = fullReport);
+    report.summary = summary;
+    report.full_report = fullReport;
     report.tenantConfig = tenantConfig;
     report.list_of_validators = list_of_validators;
     report.validator_summary = i18n.__(
@@ -604,7 +464,6 @@ async function generateReport(locale, tenantConfig, config) {
     );
     return report;
   } catch (error) {
-    console.log(error);
     logger.log("error", `Error generating report: ${error}`);
     return {};
   }
@@ -621,7 +480,6 @@ async function generateHtml(report, auth0Domain, locale) {
     preamble: data.report.preamble,
   });
 }
-
 
 module.exports = {
   generateReport,

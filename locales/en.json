@@ -163,7 +163,7 @@
 		},
 		{
 			"title": "Event Streams (Early Access Capability)",
-			"required_scope": "read:event_streamss",
+			"required_scope": "read:event_streams",
 			"items": []
 		},
 		{
@@ -513,11 +513,7 @@
 			}
 		},
 		"severity_message": "%s applications / clients require a review of enabled grant types",
-		"unexpected_grant_type_for_app_type": "Unexpected grant type \"%s\" enabled for application \"%s\"  with app_type: %s",
-		"missing_grant_type_for_app_type": "Grant type \"%s\" is missing for application \"%s\"   with app_type: %s",
-		"missing_app_type": "Grant type \"%s\"  enabled for application \"%s\"   with missing app_type: %s",
-		"grant_types_passed": "Grant Types configured %s, for application \"%s\" with  with app_type: %s",
-		"unknown_app_type": "Application is missing app_type"
+		"unexpected_grant_type_for_app_type": "Unexpected grant type \"%s\" enabled for application \"%s\"  with app_type: %s"
 	},
 	"checkAllowedCallbacks": {
 		"title": "Application Allowed Callbacks",
@@ -578,7 +574,6 @@
 			]
 		},
 		"severity_message": "%s applications / clients require a review of web origins",
-		"missing_web_origins_urls": "No callback URL %s configured for application %s .",
 		"secure_web_origins": "The following web origin URL \"%s\" was observed in application %s .",
 		"insecure_web_origins_urls": "Insecure web origin (CORS) URL \"%s\"."
 	},
@@ -610,7 +605,6 @@
 			]
 		},
 		"severity_message": "%s applications / clients require a review of allowed logout URLs",
-		"missing_allowed_logout_urls": "No allowed logout URLs are configured for application.",
 		"secure_allowed_logout_urls": "The following allowed logout URLs were observed \"%s\".",
 		"insecure_allowed_logout_urls": "Insecure allowed logout URLs \"%s\"."
 	},
@@ -947,12 +941,8 @@
 	},
 	"checkErrorPageTemplate": {
 		"liquidjs_no_templates_to_analyze": "No templates found to analyze for XSS vulnerabilities",
-		"liquidjs_no_liquid_templates": "No LiquidJS templates found to analyze",
 		"liquidjs_unescaped_output": "Unescaped variable output detected: %s",
 		"liquidjs_raw_filter_usage": "Raw/unescaped filter usage detected in LiquidJS template",
-		"liquidjs_user_variable_unescaped": "User-controlled variable without proper escaping",
-		"liquidjs_template_secure": "LiquidJS template appears secure",
-		"liquidjs_analysis_summary": "LiquidJS XSS analysis completed: %s",
 		"severity": "High",
 		"status": "red",
 		"advisory": {
@@ -1480,7 +1470,6 @@
 		"severity": "Moderate",
 		"status": "yellow",
 		"severity_message": "an MFA Challenge is not detected in the Password Reset flow.",
-		"mfa_challenge_detected": "MFA Challenge (<b>%s</b>) correctly implemented at line <b>%d</b>.",
 		"missing_mfa_step": "Action script exists but does not appear to trigger an MFA challenge.",
 		"no_password_reset_action": "No Action is currently configured for the Password Reset trigger. Password resets are only protected by email access.",
 		"no_actions_configured": "No Actions found in tenant.",
@@ -1701,8 +1690,7 @@
 			]
 		},
 		"severity_message": "%s applications / clients do not have Token Sender-Constraining enabled",
-		"require_proof_of_possession": "Token Sender-Constraining is not enabled for this application (require_proof_of_possession: %s)",
-		"undefined": "Token Sender-Constraining is not enabled for this application"
+		"require_proof_of_possession": "Token Sender-Constraining is not enabled for this application (require_proof_of_possession: %s)"
 	},
 	"checkPAR": {
 		"title": "Applications - Pushed Authorization Requests (PAR)",
@@ -1731,8 +1719,7 @@
 			]
 		},
 		"severity_message": "%s applications / clients do not have Pushed Authorization Requests (PAR) configured",
-		"require_pushed_authorization_requests": "Pushed Authorization Requests (PAR) is not required for this application (require_pushed_authorization_requests: %s)",
-		"undefined": "Pushed Authorization Requests (PAR) is not required for this application"
+		"require_pushed_authorization_requests": "Pushed Authorization Requests (PAR) is not required for this application (require_pushed_authorization_requests: %s)"
 	},
 	"checkJAR": {
 		"title": "Applications - JWT Authorization Requests (JAR)",
@@ -1762,8 +1749,7 @@
 		},
 		"severity_message": "%s applications / clients do not have JWT Authorization Requests (JAR) configured",
 		"signed_request_object.required": "JWT Authorization Requests (JAR) are not required for this application (signed_request_object.required: %s)",
-		"signed_request_object.credentials": "JWT Authorization Requests (JAR) is required but no signing credentials are configured for this application. JAR cannot function without a registered public key.",
-		"undefined": "JWT Authorization Requests (JAR) are not required for this application"
+		"signed_request_object.credentials": "JWT Authorization Requests (JAR) is required but no signing credentials are configured for this application. JAR cannot function without a registered public key."
 	},
 	"checkPKCEEnforcement": {
 		"title": "Applications - PKCE Enforcement for Public Clients",
@@ -1791,8 +1777,7 @@
 			]
 		},
 		"severity_message": "%s applications / clients are missing a PKCE enforcement post-login Action",
-		"pkce_enforcement_action_missing": "No post-login Action enforcing PKCE (code_challenge + api.access.deny) was found. This %s client is vulnerable to authorization code interception attacks.",
-		"undefined": "PKCE Enforcement is not configured."
+		"pkce_enforcement_action_missing": "No post-login Action enforcing PKCE (code_challenge + api.access.deny) was found. This %s client is vulnerable to authorization code interception attacks."
 	},
 	"checkTokenConstrainingResourceServer": {
 		"title": "Resource Servers (APIs) - Token Sender-Constraining",
@@ -1823,8 +1808,7 @@
 		},
 		"severity_message": "%s Resource Server(s) do not have Token Sender-Constraining configured",
 		"proof_of_possession": "Token Sender-Constraining is not configured for this Resource Server (proof_of_possession: %s)",
-		"proof_of_possession.mechanism": "Token Sender-Constraining mechanism is not valid for this Resource Server (proof_of_possession.mechanism: %s)",
-		"undefined": "Token Sender-Constraining is not configured for this Resource Server"
+		"proof_of_possession.mechanism": "Token Sender-Constraining mechanism is not valid for this Resource Server (proof_of_possession.mechanism: %s)"
 	},
 	"checkJWEResourceServer": {
 		"title": "Resource Servers (APIs) - JSON Web Encryption (JWE)",
@@ -1855,8 +1839,7 @@
 		"severity_message": "%s Resource Server(s) do not have JSON Web Encryption (JWE) configured",
 		"token_encryption": "JSON Web Encryption (JWE) is not configured for this Resource Server (token_encryption: %s)",
 		"token_encryption.format": "JSON Web Encryption (JWE) format is not valid for this Resource Server (format: %s)",
-		"token_encryption.encryption_key": "JSON Web Encryption (JWE) is enabled but no encryption key is configured for this Resource Server (encryption_key: %s)",
-		"undefined": "JSON Web Encryption (JWE) is not configured for this Resource Server"
+		"token_encryption.encryption_key": "JSON Web Encryption (JWE) is enabled but no encryption key is configured for this Resource Server (encryption_key: %s)"
 	},
 	"checkPrivateKeyJWT": {
 		"title": "Applications - Private Key JWT",
@@ -1887,8 +1870,7 @@
 			]
 		},
 		"severity_message": "%s applications / clients do not have Private Key JWT configured",
-		"client_authentication_methods.private_key_jwt": "Private Key JWT is not configured for this application. Consider using Private Key JWT instead of a client secret for stronger client authentication.",
-		"undefined": "Private Key JWT authentication method is not configured for this application"
+		"client_authentication_methods.private_key_jwt": "Private Key JWT is not configured for this application. Consider using Private Key JWT instead of a client secret for stronger client authentication."
 	},
 	"checkBackchannelLogout": {
 		"title": "Applications - Back-Channel Logout",
@@ -1918,7 +1900,6 @@
 			]
 		},
 		"severity_message": "%s applications do not have Back-Channel Logout configured",
-		"oidc_backchannel_logout.backchannel_logout_urls": "Back-Channel Logout is not configured for this application. Consider adding a Back-Channel Logout URI to ensure reliable session termination across all applications.",
-		"undefined": "Back-Channel Logout URI is not configured for this application"
+		"oidc_backchannel_logout.backchannel_logout_urls": "Back-Channel Logout is not configured for this application. Consider adding a Back-Channel Logout URI to ensure reliable session termination across all applications."
 	}
 }

@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 const fs = require("node:fs");
-const jwt = require('jsonwebtoken');
 const path = require("path");
 const logger = require("../analyzer/lib/logger");
 const {
   generateReport,
+  generateHtml,
   parseValidatorSelection,
   getValidatorNames,
 } = require("../analyzer/report");
@@ -16,7 +16,6 @@ const figlet = require("figlet");
 const inquirer = require("inquirer").default;
 const puppeteer = require("puppeteer");
 const { getToday, getFormattedDateTime } = require("../analyzer/tools/utils");
-const Handlebars = require("handlebars");
 const i18n = require("i18n");
 const Table = require("cli-table3");
 const {
@@ -29,29 +28,7 @@ const CONSTANTS = require('../analyzer/lib/constants');
  */
 const { version } = require("../package.json");
 
-/**
- * configure shared state
- */
-i18n.configure({
-  defaultLocale: "en",
-  objectNotation: true,
-  directory: path.join(__dirname, "../locales"),
-});
-
-Handlebars.registerHelper("chooseFont", function (locale) {
-  if (locale === "ja") {
-    return "Noto Sans JP, sans-serif";
-  } else if (locale === "ko") {
-    return "Noto Sans KR, sans-serif"; // For Simplified Chinese
-  } else {
-    return "DM Sans, sans-serif"; // Default font
-  }
-});
-Handlebars.registerHelper("replace", function (str, search, replace) {
-  return str.replace(search, replace);
-});
-Handlebars.registerHelper("and", (a, b) => a && b); // Logical AND
-Handlebars.registerHelper("inc", (a) => parseInt(a) + 1);
+// i18n and Handlebars are configured by analyzer/report.js
 
 console.log(
   chalk.yellow(
@@ -62,20 +39,25 @@ console.log(
   ),
 );
 console.log(chalk.yellow(`Current Version: ${version}\n`));
-// Load static assets required for report generation.
-const templateData = fs.readFileSync(
-  path.join(__dirname, "../views/pdf_cli_report.handlebars"),
-  "utf8",
-);
+
+/** Decode (without verifying) the payload of a JWT; null if it is not one. */
+function decodeJwtPayload(token) {
+  try {
+    const payload = String(token).split(".")[1];
+    return JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+  } catch {
+    return null;
+  }
+}
 
 /**
- * 
- * @param {*} accessToken 
- * @returns 
+ * Read the scopes granted to an access token.
+ * @param {string} accessToken
+ * @returns {string[]|null}
  */
 function decodeTokenScopes(accessToken) {
   try {
-    const decoded = jwt.decode(accessToken);
+    const decoded = decodeJwtPayload(accessToken);
     if (!decoded) {
       console.error("❌ Failed to decode token.");
       return null;
@@ -125,13 +107,31 @@ function checkScopes(accessToken, requiredScopes) {
 }
 
 /**
- * 
- * @param {*} locale 
- * @param {*} tenant 
- * @param {*} config 
+ * Exchange client credentials for a Management API token, report any missing
+ * scopes and store the token on answers. Exits if authentication fails.
  */
+async function authenticate(answers) {
+  try {
+    const accessToken = await getAccessToken(
+      answers.auth0Domain,
+      answers.auth0ClientId,
+      answers.auth0ClientSecret,
+      answers.auth0CanonicalDomain,
+    );
+    checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(" "));
+    answers.auth0MgmtToken = accessToken;
+  } catch (e) {
+    console.error(e.message);
+    process.exit(0);
+  }
+}
 
-// Placeholder function to simulate processing Auth0 configuration
+/**
+ * Generate the report for a tenant and write it to disk.
+ * @param {string} locale
+ * @param {object} tenant
+ * @param {object} config
+ */
 async function processAuth0Config(locale, tenant, config) {
   logger.log("info", "Processing Auth0 configuration:");
   const report = await generateReport(locale, tenant, config);
@@ -210,12 +210,11 @@ async function generatePdf(filePath, data) {
         "--disable-setuid-sandbox", // Disable setuid sandbox
       ],
     });
-    const template = Handlebars.compile(templateData);
-    const htmlContent = template({
-      locale: data.locale,
-      data,
-      preamble: data.report.preamble,
-    });
+    const htmlContent = await generateHtml(
+      data.report,
+      data.auth0Domain,
+      data.locale,
+    );
     const page = await browser.newPage();
     // Load the compiled HTML content into Puppeteer
 
@@ -257,7 +256,6 @@ function printJsonAsBullets(json, indent = 0) {
       if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
         printJsonAsBullets(value, indent + 1);
       } else if (Array.isArray(value)) {
-        //console.log(`${indentStr}• ${key}:`);
         value.forEach(item => {
           if (typeof item === 'object') {
             printJsonAsBullets(item, indent + 1);
@@ -373,14 +371,7 @@ if (answers.showValidators) {
       console.log(chalk.green(`\n✅  Using credentials from environment variables (Domain: ${envDomain}) to authenticate.`));
     }
 
-    try {
-      const accessToken = await getAccessToken(answers.auth0Domain, envClientId, envClientSecret, answers.auth0CanonicalDomain);
-      checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
-      answers.auth0MgmtToken = accessToken;
-    } catch (e) {
-      console.error(e.message);
-      process.exit(0);
-    }
+    await authenticate(answers);
   } else {
     // Prompt 2. Prompt for authentication method (interactive fallback)
     const { selectedAuthMethod } = await inquirer.prompt({
@@ -432,14 +423,7 @@ if (answers.showValidators) {
     });
     answers.auth0ClientSecret = auth0ClientSecret;
 
-    try {
-      const accessToken = await getAccessToken(answers.auth0Domain, answers.auth0ClientId, answers.auth0ClientSecret, answers.auth0CanonicalDomain);
-      checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
-      answers.auth0MgmtToken = accessToken;
-    } catch (e) {
-      console.error(e.message);
-      process.exit(0);
-    }
+    await authenticate(answers);
   } else if (authMethod !== "envVars") {
     // Options 1 & 2: unchanged
     // Prompt 3: Auth0 Domain
@@ -471,14 +455,7 @@ if (answers.showValidators) {
         validate: (input) => (input ? true : "Auth0 Client Secret is required."),
       });
       answers.auth0ClientSecret = auth0ClientSecret;
-      try {
-        const accessToken = await getAccessToken(answers.auth0Domain, answers.auth0ClientId, answers.auth0ClientSecret);
-        checkScopes(accessToken, CONSTANTS.REQUIRED_SCOPES.split(' '));
-        answers.auth0MgmtToken = accessToken;
-      } catch (e) {
-        console.error(e.message);
-        process.exit(0);
-      }
+      await authenticate(answers);
     }
 
     // Prompt 6: Auth0 Management Token (if needed)
@@ -548,7 +525,7 @@ if (answers.showValidators) {
 
   const tenant = {};
 
-  processAuth0Config(answers.locale, tenant, config);
+  await processAuth0Config(answers.locale, tenant, config);
 }
 // Execute the script
 main().catch((err) => {

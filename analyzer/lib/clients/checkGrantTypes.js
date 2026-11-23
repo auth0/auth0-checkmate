@@ -60,6 +60,7 @@
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
+const { formatClientName } = require("../../tools/clients");
 
 function validateGrantTypesForApp(app) {
   const enabledGrantTypes = app.grant_types || [];
@@ -106,7 +107,7 @@ function validateGrantTypesForApp(app) {
   });
   if (!_.isEmpty(unexpectedGrantTypes)) {
     report.push({
-      name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+      name: formatClientName(app),
       client_id: app.client_id,
       field: "unexpected_grant_type_for_app_type",
       value: unexpectedGrantTypes.join(", "),
@@ -120,7 +121,7 @@ function validateGrantTypesForApp(app) {
 
 function checkGrantTypes(options) {
   return executeCheck("checkGrantTypes", (callback) => {
-    const { clients } = options || [];
+    const { clients } = options || {};
     const reports = [];
     if (_.isEmpty(clients)) {
       return callback(reports);
@@ -128,7 +129,6 @@ function checkGrantTypes(options) {
     clients.forEach((client) => {
       var report = validateGrantTypesForApp(client);
       var name = client.name.concat(` (${client.client_id})`);
-      // removed old code
       reports.push({ name: name, report: report });
     });
     return callback(reports);

@@ -56,7 +56,7 @@ const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
 
 function checkEnabledDatabaseCustomization(options) {
-  const { databases } = options || [];
+  const { databases } = options || {};
   return executeCheck("checkEnabledDatabaseCustomization", (callback) => {
     const report = [];
     if (_.isEmpty(databases)) {

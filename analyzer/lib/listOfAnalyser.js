@@ -1,25 +1,32 @@
-const glob = require("glob");
+const fs = require("fs");
 const path = require("path");
-// Array to hold the required modules
-let requiredModules = [];
+const logger = require("./logger");
 
-// Match only directories in the current directory
-// Fix Windows backslash issue: glob only recognizes forward slashes as path separators
-const directories = glob.sync(path.join(__dirname, "/*/").replace(/\\/g, '/'));
+// Every file in each sub-directory of this folder is a check module.
+// Directories and files are sorted so the check order is deterministic.
+const requiredModules = [];
+
+const directories = fs
+  .readdirSync(__dirname, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => entry.name)
+  .sort();
+
 directories.forEach((directory) => {
-  // Match all files in each directory
-  const pathName = path.join(directory, "*.*").replace(/\\/g, '/'); // Fix Windows backslash issue
-  const files = glob.sync(pathName); // Synchronously match files in the directory
+  const directoryPath = path.join(__dirname, directory);
+  const files = fs
+    .readdirSync(directoryPath, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.includes("."))
+    .map((entry) => entry.name)
+    .sort();
   files.forEach((file) => {
-    const filePath = path.resolve(file);
+    const filePath = path.join(directoryPath, file);
     try {
-      const module = require(filePath); // Dynamically require the file
-      requiredModules.push(module); // Add the required module to the array
+      requiredModules.push(require(filePath));
     } catch (error) {
-      console.error(`Error requiring file: ${filePath}`, error);
+      logger.log("error", `Error requiring file: ${filePath} ${error}`);
     }
   });
 });
 
-// Export the required modules
 module.exports.checks = requiredModules;

@@ -74,7 +74,7 @@ const getRuntimeVersion = (runtime) => {
   return Number(version);
 };
 function checkActionsRuntime(options) {
-  const { actions } = options || [];
+  const { actions } = options || {};
   return executeCheck("checkActionsRuntime", (callback) => {
     const report = [];
     if (_.isEmpty(actions)) {

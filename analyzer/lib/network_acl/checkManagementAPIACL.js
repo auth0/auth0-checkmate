@@ -22,7 +22,7 @@ const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
 
 function checkManagementAPIACL(options) {
-  const { networkAcl } = options || [];
+  const { networkAcl } = options || {};
 
   return executeCheck("checkManagementAPIACL", (callback) => {
     const report = [];

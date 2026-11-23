@@ -28,7 +28,7 @@ const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
 
 function checkNetworkACL(options) {
-  const { networkAcl } = options || [];
+  const { networkAcl } = options || {};
   return executeCheck("checkNetworkACL", (callback) => {
     const report = [];
     const hasInsufficientScope = _.some(networkAcl, {

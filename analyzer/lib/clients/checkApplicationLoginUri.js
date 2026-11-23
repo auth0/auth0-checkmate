@@ -60,17 +60,18 @@
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
+const { formatClientName } = require("../../tools/clients");
 // Function to check callback URLs for insecure patterns (localhost, http, 127.0.0.1)
 function checkURLsForApp(app) {
   const initiate_login_uri = app.initiate_login_uri || "";
   const report = [];
-  const insecurePatterns = ["localhost", "http://", "127.0.0.1"];
+  const insecurePatterns = CONSTANTS.INSECURE_URL_PATTERN;
   if (
     _.isEmpty(initiate_login_uri) &&
     (app.app_type === "spa" || app.app_type === "regular_web")
   ) {
     report.push({
-      name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+      name: formatClientName(app),
       client_id: app.client_id || app.name,
       field: "missing_initiate_login_uri",
       value: "missing_initiate_login_uri",
@@ -84,7 +85,7 @@ function checkURLsForApp(app) {
   );
   if (subArr.length > 0) {
     report.push({
-      name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+      name: formatClientName(app),
       client_id: app.client_id || app.name,
       field: "insecure_initiate_login_uri",
       value: initiate_login_uri,

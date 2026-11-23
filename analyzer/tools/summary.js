@@ -79,6 +79,5 @@ module.exports.getSummaryReport = async (data) => {
   const sortedFindings = _.sortBy(transformedFindings, (item) =>
     severityOrder.indexOf(item.status),
   );
-  //console.log(JSON.stringify(sortedFindings, null, 2))
   return sortedFindings;
 };

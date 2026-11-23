@@ -11,16 +11,6 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400&display=swap"
       rel="stylesheet"
     />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swaprel="
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style
     >
         @page :first {
@@ -182,32 +172,6 @@
             background-color: #d4edda;
             text-align: center;
             /* Light green for low severity */
-        }
-
-        /* CSS class for A4 dimensions */
-        .a4-portrait {
-            width: 640px;
-            /* 170mm in pixels */
-            height: 972px;
-            /* 257mm in pixels */
-
-            margin-top: 50px;
-        }
-
-        .a4-landscape {
-            transform: rotate(90deg);
-            margin-left: 50px;
-            width: 1122px;
-            height: 793px;
-            page-break-before: always;
-        }
-
-
-        canvas {
-            display: block;
-            /* Ensure the canvas behaves like a block element */
-            margin: 0 auto;
-            /* Center the canvas horizontally */
         }
 
         .error {
@@ -462,99 +426,6 @@
           </div>
         {{/if}}
       {{/each}}
-      {{#if data.securityCenter}}
-        <h2>Threat Behavior Charts</h2>
-
-        <h4>Threat Behavior</h4>
-        <canvas id="threatBehaviorLineChart" class="a4-portrait"></canvas>
-
-        <h4>Breached Password Detection</h4>
-        <canvas id="breachedCredentialsLineChart" class="a4-portrait"></canvas>
-
-        <h4>Signup Attempts</h4>
-        <canvas id="signupAttemptsLineChart" class="a4-portrait"></canvas>
-
-        <h4>Login Attempts</h4>
-        <canvas id="loginAttemptsLineChart" class="a4-portrait"></canvas>
-
-        <h4>Brute Force</h4>
-        <canvas id="bruteForceLineChart" class="a4-portrait"></canvas>
-
-        <h4>Suspicious IP Throttling</h4>
-        <canvas id="suspiciousIpLineChart" class="a4-portrait"></canvas>
-
-        <h4>Bot Detection</h4>
-        <canvas id="botDetectionLineChart" class="a4-portrait"></canvas>
-
-        <h4>MFA Challenge</h4>
-        <canvas id="mfaChallengeLineChart" class="a4-portrait"></canvas>
-
-        <h4>MFA Success Rate</h4>
-        <canvas id="mfaSuccessRateLineChart" class="a4-portrait"></canvas>
-
-        <script>
-          const data =
-          {{{escapeJSON data.securityCenter}}}; function
-          generateRGBAColorBasedOnIndex(index) { // Use index-based math to
-          create RGB values const r = (index * 50) % 256; // Red component const
-          g = (index * 100 + 50) % 256; // Green component with an offset const
-          b = (index * 150 + 100) % 256; // Blue component with an offset const
-          alpha = 0.8; // Set a fixed alpha value for transparency return
-          `rgba(${r}, ${g}, ${b}, ${alpha})`; // Return the RGBA color }
-          function generateChart(ctx, chartData, label, backgroundColor) { //
-          Extract labels (dates) and values const groupedData = {};
-          chartData.forEach(item => { const groupName =
-          data.eventGroupIdToDisplayName[item.group] || `Group ${item.group}`;
-          if (!groupedData[groupName]) { groupedData[groupName] = []; }
-          groupedData[groupName].push({ date: new Date(item.date), value:
-          item.value }); }); // Step 2: Prepare data for Chart.js const labels =
-          [...new Set(chartData.map(item => new
-          Date(item.date).toLocaleDateString('en-GB', { day: '2-digit', month:
-          '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })))];
-          const datasets = Object.keys(groupedData).map((groupName, index) => {
-          return { label: groupName, // Line name (group name) data:
-          groupedData[groupName].map(item => item.value), borderColor:
-          generateRGBAColorBasedOnIndex(index), backgroundColor:
-          generateRGBAColorBasedOnIndex(index), fill: false, // Line only, no
-          area fill tension: 0.4 // Smooth curves }; }); // Chart.js
-          configuration new Chart(ctx, { type: 'line', data: { labels: labels,
-          datasets: datasets }, options: { responsive: true, plugins: { title: {
-          display: true, text: `${label} Last 7 Days` } }, scales: { x: { title:
-          { display: true, text: 'Date (DD-MM-YYYY HH:MM)' }, grid: { display:
-          false // Hide vertical grid lines } }, y: { title: { display: false,
-          text: 'Values' }, beginAtZero: true, grid: { drawBorder: true, //
-          Keeps the outer border color: 'rgba(200, 200, 200, 0.3)' // Optional:
-          customize horizontal grid line color } } } } }); } // Generating all
-          charts breachedCredentialsLineChart
-          generateChart(document.getElementById('threatBehaviorLineChart').getContext('2d'),
-          data.threatBehaviorLineChart.data, 'Threat Behavior', 'rgba(255, 99,
-          132, 0.5)');
-          generateChart(document.getElementById('breachedCredentialsLineChart').getContext('2d'),
-          data.breachedCredentialsLineChart.data, 'Breached Password Detection',
-          'rgba(54, 162, 235, 0.5)');
-          generateChart(document.getElementById('signupAttemptsLineChart').getContext('2d'),
-          data.signupAttemptsLineChart.data, 'Signup Attempts', 'rgba(54, 162,
-          235, 0.5)');
-          generateChart(document.getElementById('loginAttemptsLineChart').getContext('2d'),
-          data.loginAttemptsLineChart.data, 'Login Attempts', 'rgba(75, 192,
-          192, 0.5)');
-          generateChart(document.getElementById('bruteForceLineChart').getContext('2d'),
-          data.bruteForceLineChart.data, 'Brute Force Attempts', 'rgba(255, 206,
-          86, 0.5)');
-          generateChart(document.getElementById('suspiciousIpLineChart').getContext('2d'),
-          data.suspiciousIpLineChart.data, 'Suspicious IP activities',
-          'rgba(255, 206, 86, 0.5)');
-          generateChart(document.getElementById('botDetectionLineChart').getContext('2d'),
-          data.botDetectionLineChart.data, 'Bots Detected', 'rgba(153, 102, 255,
-          0.5)');
-          generateChart(document.getElementById('mfaChallengeLineChart').getContext('2d'),
-          data.mfaChallengeLineChart.data, 'MFA Challenges', 'rgba(255, 159, 64,
-          0.5)');
-          generateChart(document.getElementById('mfaSuccessRateLineChart').getContext('2d'),
-          data.mfaSuccessRateLineChart.data, 'MFA Success Rate', 'rgba(255, 99,
-          132, 0.5)');
-        </script>
-      {{/if}}
     </div>
   </body>
 

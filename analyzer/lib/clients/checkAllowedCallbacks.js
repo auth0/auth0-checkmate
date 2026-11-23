@@ -60,15 +60,16 @@
 const _ = require("lodash");
 const executeCheck = require("../executeCheck");
 const CONSTANTS = require("../constants");
+const { formatClientName } = require("../../tools/clients");
 
 // Function to check callback URLs for insecure patterns (localhost, http, 127.0.0.1)
 function checkCallbackURLsForApp(app) {
   const callbackUrls = app.callbacks || [];
   const report = [];
-  const insecurePatterns = ["localhost", "http://", "127.0.0.1"];
+  const insecurePatterns = CONSTANTS.INSECURE_URL_PATTERN;
   if (callbackUrls.length === 0 && app.app_type !== "non_interactive") {
     report.push({
-      name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+      name: formatClientName(app),
       client_id: app.client_id || app.name,
       field: "missing_callbacks",
       url: "",
@@ -80,7 +81,7 @@ function checkCallbackURLsForApp(app) {
     const subArr = insecurePatterns.filter((str) => url.includes(str));
     if (subArr.length > 0) {
       report.push({
-        name: app.client_id ? app.name.concat(` (${app.client_id})`) : app.name,
+        name: formatClientName(app),
         client_id: app.client_id || app.name,
         field: "insecure_callbacks",
         value: url,
