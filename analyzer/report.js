@@ -454,7 +454,7 @@ async function generateReport(locale, tenantConfig, config) {
                   return `<li>${message}</li>`;
                 }).join("\n");
                 const dasTitle = i18n.__(`${report.name}.action_script_title`,
-                  scriptName);
+                  Handlebars.escapeExpression(scriptName));
                 return `<p>${dasTitle}<p>\n<ul>\n${listItems}\n</ul>`;
               });
 
