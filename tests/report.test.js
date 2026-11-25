@@ -313,6 +313,38 @@ describe("report.js", function () {
     });
   });
 
+  describe("Action name escaping", function () {
+    it("should escape Action names in HTML without changing report formatting", async function () {
+      delete require.cache[require.resolve("../analyzer/report.js")];
+      const { generateReport, generateHtml } = require("../analyzer/report.js");
+      const actionName = '<img src=x onerror="alert(1)">';
+      const escapedActionName =
+        "&lt;img src&#x3D;x onerror&#x3D;&quot;alert(1)&quot;&gt;";
+      const tenantConfig = buildTenantConfig();
+      tenantConfig.actions = [{
+        name: actionName,
+        supported_triggers: [{ id: "post-login" }],
+        code: 'const PASSWORD = "secret";',
+      }];
+
+      const report = await generateReport("en", tenantConfig, {
+        auth0Domain: "test.auth0.com",
+        selectedValidators: ["checkActionsHardCodedValues"],
+      });
+
+      expect(report.summary).to.have.lengthOf(1);
+      const message = report.summary[0].details[0].message;
+      expect(message).to.include(`<b>"${escapedActionName} (post-login)"</b>`);
+      expect(message).to.include("<li>Variable name <b>PASSWORD</b>");
+      expect(message).not.to.include(actionName);
+
+      const html = await generateHtml(report, "test.auth0.com", "en");
+      expect(html).to.include(`<b>"${escapedActionName} (post-login)"</b>`);
+      expect(html).not.to.include(actionName);
+      expect(tenantConfig.actions[0].name).to.equal(actionName);
+    });
+  });
+
   describe("getValidatorNames", function () {
     it("should list every available validator name", function () {
       delete require.cache[require.resolve("../analyzer/report.js")];
