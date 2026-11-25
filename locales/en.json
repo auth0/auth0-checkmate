@@ -1524,8 +1524,8 @@
 		"docsPath": [
 			"https://auth0.com/docs/secure/tenant-access-control-list/use-cases#enforce-traffic-through-specific-infrastructure"
 		],
-		"severity": "Moderate",
-		"status": "yellow",
+		"severity": "High",
+		"status": "red",
 		"canonical_domain_not_blocked": "Custom domain(s) <b>%s</b> are configured, but the canonical domain <b>%s</b> is not blocked by any active ACL rule. Users can bypass your custom domain by accessing the canonical domain directly.",
 		"severity_message": "Block the canonical domain to enforce custom domain usage and prevent bypass.",
 		"disclaimer": "Tenant Access Control List (ACL) is available only to customers on an Enterprise plan."
